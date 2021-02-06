@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head>
+    <meta charset="utf-8">
+    
+    <title>那些年，我们一起改过的配置文件 -- 常见配置文件类型简介 | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="ini,json,json5,properties,toml,xml,yaml,后端" />
+    
+    <meta name="description" content="Overview
+在程序员日常开发中，配置文件是一个非常常见的需求。
+配置文件可以定制程序的逻辑，一段代码生成的程序可以灵活地适应多个需求。几乎所有的程序都需要或者隐形需要配置文件，因为它们需要根据配置文件来决定在代码中使用怎样的逻辑来运行。
+对于大部分的程序来说，他们需要的配置文件常常是一个 K-V 类型的结构，可以理解为一个 Key 为字符串， Value 也为字符串的一个 Map。字符串可以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="那些年，我们一起改过的配置文件 -- 常见配置文件类型简介">
+<meta property="og:url" content="https://xhinliang.win/2018/11/25/computer/frequent-series/frequent-conf-intro/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="Overview
+在程序员日常开发中，配置文件是一个非常常见的需求。
+配置文件可以定制程序的逻辑，一段代码生成的程序可以灵活地适应多个需求。几乎所有的程序都需要或者隐形需要配置文件，因为它们需要根据配置文件来决定在代码中使用怎样的逻辑来运行。
+对于大部分的程序来说，他们需要的配置文件常常是一个 K-V 类型的结构，可以理解为一个 Key 为字符串， Value 也为字符串的一个 Map。字符串可以">
+<meta property="og:image" content="https://xhinliang.win/uploads/persister-frequent-conf-intro-overview-maxresdefault.jpg">
+<meta property="og:updated_time" content="2021-02-06T13:32:56.633Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="那些年，我们一起改过的配置文件 -- 常见配置文件类型简介">
+<meta name="twitter:description" content="Overview
+在程序员日常开发中，配置文件是一个非常常见的需求。
+配置文件可以定制程序的逻辑，一段代码生成的程序可以灵活地适应多个需求。几乎所有的程序都需要或者隐形需要配置文件，因为它们需要根据配置文件来决定在代码中使用怎样的逻辑来运行。
+对于大部分的程序来说，他们需要的配置文件常常是一个 K-V 类型的结构，可以理解为一个 Key 为字符串， Value 也为字符串的一个 Map。字符串可以">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png" />
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css" type="text/css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css" type="text/css">
+
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css" type="text/css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css" type="text/css">
+    
+    
+    
+
+</head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">少说多做</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Misc/">Misc</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Python/">Python</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/前端/">前端</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/后端/">后端</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/算法/">算法</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/计算机/">计算机</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="搜索" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/计算机/">计算机</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-computer/frequent-series/frequent-conf-intro" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        那些年，我们一起改过的配置文件 -- 常见配置文件类型简介
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2018/11/25/computer/frequent-series/frequent-conf-intro/" class="article-date">
+    <time datetime="2018-11-25T00:00:00.000Z" itemprop="datePublished">2018-11-25</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ini/">ini</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/json/">json</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/json5/">json5</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/properties/">properties</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/toml/">toml</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/xml/">xml</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/yaml/">yaml</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/后端/">后端</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p><img src="/uploads/persister-frequent-conf-intro-overview-maxresdefault.jpg" alt="overview"></p>
+<p>在程序员日常开发中，配置文件是一个非常常见的需求。</p>
+<p>配置文件可以定制程序的逻辑，一段代码生成的程序可以灵活地适应多个需求。<br>几乎所有的程序都需要或者隐形需要配置文件，因为它们需要根据配置文件来决定在代码中使用怎样的逻辑来运行。</p>
+<p>对于大部分的程序来说，他们需要的配置文件常常是一个 K-V 类型的结构，可以理解为一个 Key 为字符串， Value 也为字符串的一个 Map。字符串可以被转化成大部分通用的数据结构，只需要程序自己做好解析就可以了。</p>
+<p>但随着程序的复杂度的增加，配置文件用纯字符串 K-V 来表示的局限性就越来越明显。<br>例如，我们如果需要一个 List，我们可以自定义分隔符。但如果一个 List 里我需要嵌套，那么用纯字符串 K-V 来表示就非常吃力了。</p>
+<p>计算机编程的本质是抽象。因为配置文件是可以被抽象出来的，所以，各个程序员根据自己对配置文件的理解，定义了不同的对配置文件的抽象，这就是我们今天看到的五花八门的配置文件类型。</p>
+<p>今天我就来侃侃常见的几种配置文件类型。</p>
+<h1 id="Body"><a href="#Body" class="headerlink" title="Body"></a>Body</h1><h2 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h2><p>毫无疑问，JSON 是目前使用最广泛的一个数据交换格式。大量的 Web 前后端交互使用 JSON 作为数据载体，同时也触发了 JSON 在数据传输之外的用途 – 配置文件。</p>
+<p>我们用一个 empty 的 npm project 的配置文件作为例子：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  "<span class="attribute">name</span>": <span class="value"><span class="string">"dev_2018_11"</span></span>,</span><br><span class="line">  "<span class="attribute">version</span>": <span class="value"><span class="string">"1.0.0"</span></span>,</span><br><span class="line">  "<span class="attribute">description</span>": <span class="value"><span class="string">""</span></span>,</span><br><span class="line">  "<span class="attribute">main</span>": <span class="value"><span class="string">"index.js"</span></span>,</span><br><span class="line">  "<span class="attribute">scripts</span>": <span class="value">&#123;</span><br><span class="line">    "<span class="attribute">test</span>": <span class="value"><span class="string">"echo \"Error: no test specified\" &amp;&amp; exit 1"</span></span><br><span class="line">  </span>&#125;</span>,</span><br><span class="line">  "<span class="attribute">author</span>": <span class="value"><span class="string">""</span></span>,</span><br><span class="line">  "<span class="attribute">license</span>": <span class="value"><span class="string">"ISC"</span></span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>JSON 是 JavaScript 的亲儿子，所以在 JavaScript 相关的世界中被广泛用作配置文件。<br>例如：</p>
+<ul>
+<li>npm 依赖描述文件是 JSON</li>
+<li>PHP composer 的依赖描述文件是 JSON</li>
+<li>大量的 npm 第三方包的配置文件是 JSON</li>
+</ul>
+<p>优点：</p>
+<ul>
+<li>抽象程度高。JSON 能表示大部分的数据结构，对于嵌套的 List，Map 等需求，也能支持得非常好</li>
+<li>通用性好。绝大部分的编程语言都内置了 JSON 解析器，所以 JSON 的通用性也非常好</li>
+<li>合法性校验方便，有现成的 JSON-Schema 校验工具</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>可读性较差。<ul>
+<li>JSON 不支持注释，一些复杂配置的可读性非常差</li>
+<li>灵活性欠佳</li>
+<li>不支持嵌套配置文件（不能在一个配置文件中 import 另外一个配置文件）</li>
+<li>JSON 严格的格式校验（Array 的最后一个元素后面不能加逗号），导致修改起来不够方便</li>
+<li>Key 必须被双引号包裹，编写起来也不太方便</li>
+</ul>
+</li>
+</ul>
+<h2 id="JSON5"><a href="#JSON5" class="headerlink" title="JSON5"></a>JSON5</h2><p>JSON 的缺点非常致命，优点又非常明显，所以一些程序员希望在 JSON 的基础上新定义一个数据类型，对 JSON 扬长补短，这就是我们看到的 JSON5 结构。</p>
+<p>举个官方的例子：<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="rules">&#123;</span><br><span class="line">    <span class="rule"><span class="attribute">name</span>:<span class="value"> <span class="string">'ManerFan'</span>,</span><br><span class="line">    // address</span><br><span class="line">    addr: <span class="string">'KunMing Road,\</span><br><span class="line">        ShannXi,\</span><br><span class="line">        China'</span>,</span><br><span class="line">    nickname: <span class="string">'\u5c0f\u5e08\u59b9'</span></span><br><span class="line"></span></span></span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>JSON5 完全兼容 JSON，而且对 JSON 做了一些扩展：</p>
+<ul>
+<li>支持注释</li>
+<li>属性key可以不使用引号包含，而且可以使用单引号包含</li>
+<li>可以在尾部有多余逗号</li>
+<li>支持多行字符串</li>
+<li>etc..</li>
+</ul>
+<p>JSON5 解决了 JSON 大部分的问题，但是依然不支持嵌套的配置文件。</p>
+<h2 id="XML"><a href="#XML" class="headerlink" title="XML"></a>XML</h2><p>XML 在 <code>Java</code> 和 <code>Spring</code> 中使用非常广泛，他能描述大部分的数据结构，但是缺点是太罗嗦了，罗嗦到我现在都不想贴示例出来。</p>
+<p>好吧，还是随便贴一个：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">project</span> <span class="attribute">xmlns</span>=<span class="value">"http://maven.apache.org/POM/4.0.0"</span> <span class="attribute">xmlns:xsi</span>=<span class="value">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">         <span class="attribute">xsi:schemaLocation</span>=<span class="value">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="title">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>com.xhinliang<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>xcall<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">version</span>&gt;</span>1.0.1<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="title">packaging</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure></p>
+<p>我只想说，XML 的「罗嗦」这个缺点，成功地掩盖了它的其它缺点，因为已经罗嗦到不能忍了…</p>
+<h2 id="INI"><a href="#INI" class="headerlink" title="INI"></a>INI</h2><p>INI 配置文件在一些 Windows 程序中用得比较多，它事实上是一种非常朴素的字符串 K-V 的配置文件。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">[section1]</span>  </span><br><span class="line"><span class="comment">; this is comment</span></span><br><span class="line"><span class="setting">key=<span class="value">value</span></span></span><br><span class="line"><span class="setting">key2=<span class="value">value2</span></span></span><br><span class="line"><span class="title"></span><br><span class="line">[section2]</span></span><br></pre></td></tr></table></figure>
+<p>ini 配置文件现在用得不多了，优点也不多说了，几乎没有。<br>缺点也不多说，关键是注释长得很丑。</p>
+<h2 id="Properties"><a href="#Properties" class="headerlink" title="Properties"></a>Properties</h2><p>Properties 跟 INI 类似，事实上是一个简单的字符串 K-V。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;# comment&#10;db=xxxxxx</span><br></pre></td></tr></table></figure>
+<p>特点也跟 INI 差不多吧，抽象描述能力有限。</p>
+<h2 id="PHP"><a href="#PHP" class="headerlink" title="PHP"></a>PHP</h2><p>没错，PHP 也是一种配置文件格式，在 80% 的网站 PHP 覆盖率面前颤抖吧！<br>PHP 的数组（array）即能表示普通的数组，也能表示Map，甚至能同时包含（这个特性能逼疯很多人…）</p>
+<p>在 PHP 程序中， <code>config.php</code> 文件非常常见，事实上，大部分的 PHP 框架都使用 PHP 文件作为他们的配置文件。<br>举个 Yii 框架的配置文件作为例子：<br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$config</span>= [</span><br><span class="line">    <span class="string">'components'</span> =&gt; [</span><br><span class="line">        <span class="string">'db'</span> =&gt; [</span><br><span class="line">            <span class="string">'class'</span> =&gt; <span class="string">'yii\db\Connection'</span>,</span><br><span class="line">        ],</span><br><span class="line">        <span class="string">'mailer'</span> =&gt; [</span><br><span class="line">            <span class="string">'class'</span> =&gt; <span class="string">'yii\swiftmailer\Mailer'</span>,</span><br><span class="line">            <span class="string">'viewPath'</span> =&gt; <span class="string">'@common/mail'</span>,</span><br><span class="line">            <span class="comment">// send all mails to a file by default. </span></span><br><span class="line">            <span class="string">'useFileTransport'</span> =&gt; <span class="keyword">true</span>,</span><br><span class="line">        ],</span><br><span class="line">    ],</span><br><span class="line">];</span><br><span class="line"><span class="keyword">if</span> (YII_ENV_DEV) &#123;</span><br><span class="line">    <span class="comment">// configuration adjustments for 'dev' environment</span></span><br><span class="line">    <span class="variable">$config</span>[<span class="string">'bootstrap'</span>][] = <span class="string">'debug'</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>PHP 文件作为配置文件，有以下优点：</p>
+<ul>
+<li>灵活性非常好，能更灵活地定制程序的逻辑，因为你能在 PHP 文件里干任何事情，在一个配置文件中 require 另外一个配置文件，是一个非常常见，非常 easy 的事情</li>
+<li>抽象性非常棒，几乎没有用 PHP 配置文件描述不出来的数据结构</li>
+</ul>
+<p>但缺点也很明显：</p>
+<ul>
+<li>跨语言通用性几乎为 0</li>
+<li>太过灵活导致安全性欠佳（你见过 import 之后会删除本地文件的配置文件吗…）</li>
+</ul>
+<h2 id="YAML"><a href="#YAML" class="headerlink" title="YAML"></a>YAML</h2><p>YAML 不是一种标记语言。他是一种数据描述语言（DDL）。有一些程序支持使用 YAML 作为配置文件，例如 <code>Spring Boot</code> 和 <code>Hexo</code>，<code>Ruby on Rails</code>。</p>
+<p>典型的 YAML 配置格式如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">house:&#10;  family:&#10;    name: Doe&#10;    parents:&#10;      - John&#10;      - Jane&#10;    children:&#10;      - Paul&#10;      - Mark&#10;      - Simone&#10;  address:&#10;    number: 34&#10;    street: Main Street&#10;    city: Nowheretown&#10;    zipcode: 12345</span><br></pre></td></tr></table></figure></p>
+<p>可以看到 YAML 的可读性和易修改性都非常好，目前大部分语言都直接支持了。</p>
+<h2 id="Toml"><a href="#Toml" class="headerlink" title="Toml"></a>Toml</h2><p>TOML 是前 GitHub CEO 于2013年创建的语言，其目标是成为一个小规模的易于使用的语义化配置文件格式。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"># 这是一个TOML文件</span><br><span class="line"></span><br><span class="line">title = "TOML Example"</span><br><span class="line"></span><br><span class="line">[owner]</span><br><span class="line">name = "Lance Uppercut"</span><br><span class="line">dob = 1979-05-27T07:32:00-08:00 # 日期是一等公民</span><br><span class="line"></span><br><span class="line">[database]</span><br><span class="line">server = "192.168.1.1"</span><br><span class="line">ports = [ 8001, 8001, 8002 ]</span><br><span class="line">connection_max = 5000</span><br><span class="line">enabled = true</span><br><span class="line"></span><br><span class="line">[servers]</span><br><span class="line">  # 可以使用空格、制表符进行缩进，或者根本不缩进。TOML不关心缩进。</span><br><span class="line">  [servers.alpha]</span><br><span class="line">  ip = "10.0.0.1"</span><br><span class="line">  dc = "eqdc10"</span><br></pre></td></tr></table></figure>
+<p>乍看和 INI 差不多，但事实上扩展性比 INI 强多了，基本上能完整描述大部分的数据结构了。</p>
+<h2 id="自定义-Conf-配置文件"><a href="#自定义-Conf-配置文件" class="headerlink" title="自定义 Conf 配置文件"></a>自定义 Conf 配置文件</h2><p>有一些程序会自己定义配置文件格式，例如 <code>Redis</code> <code>Nginx</code> <code>Supervisor</code>。<br>举个 Nginx 的配置文件作为例子：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user  www www;&#10;worker_processes  2;&#10;error_log  logs/error.log;&#10;#error_log  logs/error.log  notice;&#10;#error_log  logs/error.log  info;&#10;pid        logs/nginx.pid;&#10;events &#123;&#10;    use epoll;&#10;    worker_connections  2048;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>自定义配置文件一般来说基本不需要跨语言访问了（甚至同语言也不需要访问，只需要他自己一个程序访问就够了）<br>Nginx 自定义的配置文件可读性应该比用 JSON 描述会高很多，但合法性的校验目前没有太多的标准。</p>
+<h1 id="PostView"><a href="#PostView" class="headerlink" title="PostView"></a>PostView</h1><p>配置文件的发展和变革，事实上也是编程语言的发展和变革，我们知道，在计算机领域通常「没有银弹」。但事实上有一些更优秀的配置文件格式正在渐渐替代老旧的格式。</p>
+<p>但目前来看，并不存在一种配置文件格式能通杀所有的需求。所以，长期来看，还是会出现多种配置文件并存的现象的。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.win/2018/11/25/computer/frequent-series/frequent-conf-intro/" data-id="ckktrcufv003ketnjx1qt8xxk" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+<div id="vcomments"></div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script>
+    new Valine({
+        el: '#vcomments',
+        appId: 'n2yYcM45cWQpRjDFd4eaBzhU-gzGzoHsz',
+        appKey: 'rJOtJuDf0dHRXxdGxKw5Fnh9',
+        notify: false,
+        verify: false,
+        avatar: '',
+        placeholder: '说点啥...',
+        visitor: true,
+        avatarForce: false,
+        meta: ['nick', 'mail']
+    })
+</script>
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/01/11/computer/code-tools/init-ubuntu/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            安装 Ubuntu Workstation 之后要做的事儿
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/11/18/computer/frequent-series/frequent-db-intro/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">常见数据库简介</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/09/misc/writing-guide-for-markdown-programer/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/uploads/persister-writing-guide-for-markdown-programer-MPE-28227953-eb6eefa4-68a1-11e7-8769-96ea83facf3b.png)" alt="给 Markdown 程序员的写作能力提升指南" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Misc/">Misc</a></p>
+                            <p class="item-title"><a href="/2020/04/09/misc/writing-guide-for-markdown-programer/" class="title">给 Markdown 程序员的写作能力提升指南</a></p>
+                            <p class="item-date"><time datetime="2020-04-09T00:00:00.000Z" itemprop="datePublished">2020-04-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/03/08/misc/self-time-managment/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/uploads/manage-self-time/pomodoro.png)" alt="自我时间管理" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Misc/">Misc</a></p>
+                            <p class="item-title"><a href="/2020/03/08/misc/self-time-managment/" class="title">自我时间管理</a></p>
+                            <p class="item-date"><time datetime="2020-03-08T00:00:00.000Z" itemprop="datePublished">2020-03-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2019/02/15/computer/code-tools/open-vscode-via-terminal-in-macos/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/uploads/new--006tKfTcgy1g07apvz6gfj31660u07h1.jpg)" alt="在 macOS 中使用命令行打开 VSCode" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机/">计算机</a></p>
+                            <p class="item-title"><a href="/2019/02/15/computer/code-tools/open-vscode-via-terminal-in-macos/" class="title">在 macOS 中使用命令行打开 VSCode</a></p>
+                            <p class="item-date"><time datetime="2019-02-15T00:00:00.000Z" itemprop="datePublished">2019-02-15</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2019/01/11/computer/code-tools/init-ubuntu/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/uploads/new--2000px-Former_Ubuntu_logo.png)" alt="安装 Ubuntu Workstation 之后要做的事儿" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机/">计算机</a></p>
+                            <p class="item-title"><a href="/2019/01/11/computer/code-tools/init-ubuntu/" class="title">安装 Ubuntu Workstation 之后要做的事儿</a></p>
+                            <p class="item-date"><time datetime="2019-01-11T00:00:00.000Z" itemprop="datePublished">2019-01-11</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2018/11/25/computer/frequent-series/frequent-conf-intro/" class="thumbnail">
+    
+    
+        <span style="background-image:url(/uploads/persister-frequent-conf-intro-overview-maxresdefault.jpg)" alt="那些年，我们一起改过的配置文件 -- 常见配置文件类型简介" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/计算机/">计算机</a></p>
+                            <p class="item-title"><a href="/2018/11/25/computer/frequent-series/frequent-conf-intro/" class="title">那些年，我们一起改过的配置文件 -- 常见配置文件类型简介</a></p>
+                            <p class="item-date"><time datetime="2018-11-25T00:00:00.000Z" itemprop="datePublished">2018-11-25</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Misc/">Misc</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Python/">Python</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/前端/">前端</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/后端/">后端</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/算法/">算法</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机/">计算机</a><span class="category-list-count">6</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">三月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">二月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">一月 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">十一月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">十月 2018</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">三月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">二月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">一月 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">十二月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/05/">五月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a><span class="archive-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/ACM/" style="font-size: 10px;">ACM</a> <a href="/tags/Android/" style="font-size: 16.67px;">Android</a> <a href="/tags/C/" style="font-size: 16.67px;">C</a> <a href="/tags/C/" style="font-size: 10px;">C++</a> <a href="/tags/Concurrent/" style="font-size: 13.33px;">Concurrent</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Django/" style="font-size: 13.33px;">Django</a> <a href="/tags/FS，FileSystem/" style="font-size: 10px;">FS，FileSystem</a> <a href="/tags/GOPATH/" style="font-size: 10px;">GOPATH</a> <a href="/tags/GOROOT/" style="font-size: 10px;">GOROOT</a> <a href="/tags/Golang/" style="font-size: 13.33px;">Golang</a> <a href="/tags/Golang环境搭建/" style="font-size: 10px;">Golang环境搭建</a> <a href="/tags/Java/" style="font-size: 20px;">Java</a> <a href="/tags/JavaScript/" style="font-size: 10px;">JavaScript</a> <a href="/tags/Linux/" style="font-size: 16.67px;">Linux</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MAC/" style="font-size: 10px;">MAC</a> <a href="/tags/Node-js/" style="font-size: 10px;">Node.js</a> <a href="/tags/OSX/" style="font-size: 10px;">OSX</a> <a href="/tags/Python/" style="font-size: 20px;">Python</a> <a href="/tags/Redis/" style="font-size: 13.33px;">Redis</a> <a href="/tags/RxJava/" style="font-size: 10px;">RxJava</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/ini/" style="font-size: 10px;">ini</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/json5/" style="font-size: 10px;">json5</a> <a href="/tags/macOS/" style="font-size: 13.33px;">macOS</a> <a href="/tags/messageQueue/" style="font-size: 13.33px;">messageQueue</a> <a href="/tags/nsq/" style="font-size: 13.33px;">nsq</a> <a href="/tags/properties/" style="font-size: 10px;">properties</a> <a href="/tags/toml/" style="font-size: 10px;">toml</a> <a href="/tags/xml/" style="font-size: 10px;">xml</a> <a href="/tags/yaml/" style="font-size: 10px;">yaml</a> <a href="/tags/后端/" style="font-size: 16.67px;">后端</a> <a href="/tags/工具/" style="font-size: 13.33px;">工具</a> <a href="/tags/并发/" style="font-size: 13.33px;">并发</a> <a href="/tags/数据结构/" style="font-size: 13.33px;">数据结构</a> <a href="/tags/文件/" style="font-size: 10px;">文件</a> <a href="/tags/文件系统/" style="font-size: 10px;">文件系统</a> <a href="/tags/杂谈/" style="font-size: 13.33px;">杂谈</a> <a href="/tags/消息队列/" style="font-size: 13.33px;">消息队列</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/线程安全/" style="font-size: 10px;">线程安全</a> <a href="/tags/缓存/" style="font-size: 13.33px;">缓存</a> <a href="/tags/计数器/" style="font-size: 10px;">计数器</a> <a href="/tags/计算机基础/" style="font-size: 10px;">计算机基础</a> <a href="/tags/运维/" style="font-size: 10px;">运维</a> <a href="/tags/随笔/" style="font-size: 10px;">随笔</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2021 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+<script type="text/javascript">
+    var duoshuoQuery = {
+        short_name: 'undefined'
+    };
+</script>
+
+
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js" type="text/javascript"></script>
+        <script src="/vendor/scrollLoading/main.js" type="text/javascript"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js" type="text/javascript"></script>
+
+    </div>
+</body>
+</html>
