@@ -1,7 +1,7 @@
 title: 为什么不建议在 Redis 使用大 Key
 date: 2018-10-30
-tags: [后端,缓存,Java,Redis,Lua,运维,DevOps]
-categories: 后端
+tags: [Backend,Cache,Redis,Lua,DevOps]
+categories: Backend
 toc: true
 ---
 

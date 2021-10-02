@@ -1,7 +1,7 @@
 title: 在 macOS 中使用命令行打开 VSCode
 date: 2019-02-15
-tags: [工具,macOS,MAC,OSX]
-categories: 计算机
+tags: [macOS]
+categories: Computer
 toc: true
 ---
 

@@ -1,7 +1,7 @@
 title: 简明数据结构
 date: 2016-03-8 13:28:29
-tags: [算法,数据结构]
-categories: 算法
+tags: [Algorithm]
+categories: Algorithm
 toc: true
 ---
 

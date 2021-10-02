@@ -1,7 +1,7 @@
 title: 常用的文件系统简介
 date: 2018-11-10 00:57:29
-tags: [Linux,macOS,FS，FileSystem,文件,文件系统,计算机基础]
-categories: 计算机
+tags: [Linux,macOS,FileSystem]
+categories: Computer
 toc: true
 ---
 

@@ -1,7 +1,7 @@
 title: 多级缓存的设计与实现
 date: 2018-10-30 01:43:29
-tags: [Java,Concurrent,并发,缓存,Redis]
-categories: 后端
+tags: [Java,Concurrent,Backend]
+categories: Backend
 toc: true
 ---
 

@@ -1,7 +1,7 @@
 title: 双向链表和哈希表实现 LRUCache
 date: 2017-12-29 00:36:29
-tags: [算法,数据结构]
-categories: 算法
+tags: [Algorithm,Data Structure]
+categories: Algorithm
 toc: true
 ---
 

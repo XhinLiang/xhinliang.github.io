@@ -1,7 +1,7 @@
 title: MySQL InnoDB Locks
 date: 2021-09-13
-tags: [MySQL,InnoDB,Transation,Lock]
-categories: 后端
+tags: [Backend,MySQL,InnoDB,Lock]
+categories: Backend
 toc: true
 ---
 

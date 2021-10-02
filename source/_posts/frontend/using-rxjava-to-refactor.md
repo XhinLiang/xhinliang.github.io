@@ -1,7 +1,7 @@
 title: 记一次使用 RxJava 重构的经历
 date: 2015-12-21 08:55:29
 tags: [Android]
-categories: 前端
+categories: Frontend
 toc: true
 ---
 

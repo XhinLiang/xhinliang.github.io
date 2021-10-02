@@ -1,6 +1,6 @@
 title: Me and My Game Life
 date: 2021-10-02
-categories: 杂谈
+categories: Misc
 toc: true
 ---
 

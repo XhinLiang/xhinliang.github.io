@@ -4,17 +4,17 @@
 
 # Site
 title: XhinLiang
-subtitle: 少说多做
-description: 全干工程师(Full F**k Engineer)
+subtitle: A place to talk trash
+description: Full F**k Engineer
 author: XhinLiang
-language: zh-CN
+language: en
 timezone:
 avatar: /uploads/avatar.png
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: https://xhinliang.win
 root: /
-permalink: :year/:month/:day/:title/
+permalink: :year/:month/:title/
 permalink_defaults:
 
 # Directory
