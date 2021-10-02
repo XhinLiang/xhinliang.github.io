@@ -1,7 +1,7 @@
-title: Java 构造函数需要加锁吗
+title: Java 里的构造函数需要加锁吗
 date: 2018-02-20 22:58:29
 tags: [Java]
-categories: Java
+categories: 后端
 toc: true
 ---
 

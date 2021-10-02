@@ -1,7 +1,6 @@
 title: 给 Markdown 程序员的写作能力提升指南
 date: 2020-04-09
-tags: [杂谈]
-categories: Misc
+categories: 杂谈
 toc: true
 ---
 

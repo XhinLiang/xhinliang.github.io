@@ -1,6 +1,6 @@
 title: 使用二分法求整数幂
 date: 2015-12-3
-tags: [C,C++,ACM,算法]
+tags: [算法]
 categories: 算法
 toc: true
 ---

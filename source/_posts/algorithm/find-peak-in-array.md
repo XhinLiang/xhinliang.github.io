@@ -1,7 +1,7 @@
 title: 求一个数组的波峰
 date: 2018-03-27 23:36:29
-tags: [Python,算法]
-categories: Python
+tags: [算法]
+categories: 算法
 toc: true
 ---
 

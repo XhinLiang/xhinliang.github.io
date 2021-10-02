@@ -1,6 +1,6 @@
-title: 记一次使用RxJava重构的经历
+title: 记一次使用 RxJava 重构的经历
 date: 2015-12-21 08:55:29
-tags: [Android,Java,RxJava]
+tags: [Android]
 categories: 前端
 toc: true
 ---

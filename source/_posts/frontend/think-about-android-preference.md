@@ -1,4 +1,4 @@
-title: Android™ 中设置界面的思考
+title: Android 中设置界面的思考
 date: 2016-3-11 11:55:29
 tags: [Android]
 categories: 前端

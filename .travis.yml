@@ -1,9 +1,9 @@
-language: node_js  #设置语言
+language: node_js
 
-node_js: stable  #设置相应的版本
+node_js: 10.24.1
 
 script:
-  - hexo g  #生成
+  - node_modules/hexo/bin/hexo g
 
 after_script:
   - cd ./public
@@ -11,7 +11,7 @@ after_script:
   - git config user.name "xhinliang"  #修改name
   - git config user.email "xhinliang@gmail.com"  #修改email
   - git add .
-  - git commit -m "update"
+  - git commit -m "auto sync"
   - git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:master  #GH_TOKEN是在Travis中配置token的名称
 
 branches:
