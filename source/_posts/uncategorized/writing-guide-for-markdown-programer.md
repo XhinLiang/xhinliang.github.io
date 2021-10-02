@@ -1,6 +1,6 @@
 title: 给 Markdown 程序员的写作能力提升指南
 date: 2020-04-09
-categories: Misc
+categories: Uncategorized
 toc: true
 ---
 
