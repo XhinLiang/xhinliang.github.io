@@ -4,6 +4,8 @@ categories: 杂谈
 toc: true
 ---
 
+![Witcher](/uploads/persister-me-and-my-game-life-Witcher-2020-05-19_5ec3eb24973b8_vedmak-3-dikaia-okhota-geralt-tsiri-triss-iennifer-ciri-gera-1056x594.jpg)
+
 Playing games is part of my life. Actually, these games are usually referred to as video games.
 
 These days, I had finished a video game, called "Witcher 3: Wild Hunt", which is known as one of the most famous RPG games in the world.

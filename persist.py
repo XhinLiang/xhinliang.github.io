@@ -50,6 +50,7 @@ def main():
         for file in files:
             if file.endswith(".md"):
                 file_path = (os.path.join(root, file))
+                print('file ' + file_path)
                 persist_md(md_file_path=file_path, output_dir=img_output_dir, new_img_prefix=new_img_prefix)
 
 
