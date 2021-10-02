@@ -10,7 +10,13 @@ Playing games is part of my life. Actually, these games are usually referred to 
 
 These days, I had finished a video game, called "Witcher 3: Wild Hunt", which is known as one of the most famous RPG games in the world.
 
-I love video games, but conversely I have never pay much time in playing games. Witcher 3 is the first which makes me pay so much time. -- It took me almost 3 months to finish it.
+I love video games, but conversely I have never pay much time in playing games. 
+
+In the past time, I played classic video games such as Contra and Ninja Gaiden; played old style computer games such as Counter-Strike, Age of Empires, GTA, Warcraft; played old style online games such as Xyq, DnF, RO, DotA; played GBA games such as Castlevania, Pokémon, Fire Emblem; played PSP games such as God of War, Dynasty Warriors.
+
+But in these times I mostly play the games in my mobile phone, because it's too expensive for me to build a satisfying gaming environment in PC.
+
+Witcher 3 is the first which makes me pay so much time. -- It took me almost 3 months to finish it.
 
 The story began in July of this year.
 
