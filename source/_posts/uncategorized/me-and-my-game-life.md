@@ -38,7 +38,7 @@ In these 3 months, I spent a lot of time playing "Battlefield 5" and "Witcher 3:
 
 But it becomes more different in "Witcher 3: Wild Hunt" because it's an action role-playing game. I feel very comfortable playing this game in the wireless controller, and I think a wireless controller is the best way to play an action game.
 
-"Witcher 3: Wild Hunt" is the best fantastic game I have ever dream of. In this game, I can ride in the boundless grassland or snowfield, fight with the monster with magic and sword and crossbow, or just stroll through the stone floors of the medieval-style city.
+Honestly, "Witcher 3: Wild Hunt" may not have much innovation, but it is still the best fantastic game I have ever dream of. In this game, I can ride in the boundless grassland or snowfield, fight with the monster with magic and sword and crossbow, or just stroll through the stone floors of the medieval-style city.
 
 After playing it, I think "Witcher 3: Wild Hunt" is a veritable "AAA" game. Which "AAA" means "A lot of time, A lot of resources and A lot of money". Apparently, "Witcher 3: Wild Hunt" takes a lot from me.
 
