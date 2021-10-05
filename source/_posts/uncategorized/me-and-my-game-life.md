@@ -40,6 +40,6 @@ But it becomes more different in "Witcher 3: Wild Hunt" because it's an action r
 
 Honestly, "Witcher 3: Wild Hunt" may not have much innovation, but it is still the best fantastic game I have ever dream of. In this game, I can ride in the boundless grassland or snowfield, fight with the monster with magic and sword and crossbow, or just stroll through the stone floors of the medieval-style city.
 
-After playing it, I think "Witcher 3: Wild Hunt" is a veritable "AAA" game. Which "AAA" means "A lot of time, A lot of resources and A lot of money". Apparently, "Witcher 3: Wild Hunt" takes a lot from me.
+After playing it, I think "Witcher 3: Wild Hunt" is a veritable "AAA" game. Which "AAA" means games that cost "A lot of time, A lot of resources and A lot of money" to develop. Apparently, "Witcher 3: Wild Hunt" takes a lot from me.
 
 Some people would ask me would I be regret wasting time playing these games in such a hyper-competitive society. I would say I am very thankful to the Xbox and its games, for it give me what I wanted, I feel satisfied in playing Xbox, I feel pleasure in playing video games, games are part of my life.
