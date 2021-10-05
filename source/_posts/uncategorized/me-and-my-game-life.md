@@ -14,9 +14,9 @@ I love video games, but conversely, I have never pay much time in playing games.
 
 In the past time, I played classic video games such as Contra and Ninja Gaiden; played old-style computer games such as Counter-Strike, Age of Empires, GTA, Warcraft; played old-style online games such as Xyq, DNF, RO, DotA; played GBA games such as Castlevania, Pokémon, Fire Emblem; played PSP games such as God of War, Dynasty Warriors.
 
-Games bring me a lot of hope, happiness, and imagination, but they take me lots of time, too. I used to fall in love with games and then take them away after a few days because I have to take care of my study.
+Games bring me a lot of hope, happiness, and imagination, but they take me lots of time too. I used to fall in love with a game and then take it away after a few days because I have to take care of my study.
 
-With the rise and fall of games, I almost grew up to be an adult. I don't need to worry about my study anymore. Instead, I have to face my thorny work and career. When I finished my work and returned home, games cannot intrest me because I am so tired. So even though there is no more homework to do, I still don't have much time to play games.
+With the rise and fall of games, I almost grew up to be an adult. I don't need to worry about my study anymore. Instead, I have to face my thorny work and career. When I finished my work and returned home, games cannot interest me because I am so tired. So even though there is no more homework to do, I still don't have much time to play games, especially the games that cost a lot of energy such as Dota2 and PUBG.
 
 Recently, I mostly play games on my mobile phone, because it's too expensive for me to build a satisfying gaming environment on PC.
 
