@@ -20,7 +20,7 @@ With the rise and fall of games, I almost grew up to be an adult. I don't need t
 
 Recently, I mostly play games on my mobile phone, because it's too expensive for me to build a satisfying gaming environment on PC.
 
-Witcher 3 is the first which makes me pay so much time. -- It took me almost 3 months to finish it.
+"Witcher 3: Wild Hunt" is the first which makes me pay so much time after graduating from university. It took me almost 3 months to finish it.
 
 The story began in July of this year.
 
