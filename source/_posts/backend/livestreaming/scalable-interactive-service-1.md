@@ -110,6 +110,7 @@ The protocol is easy, but the difficult part is load balancing.
 In HTTP Server, each server is stateless so it's easier to implement the load balancing. 
 
 In the C/S Modeling part, we talked about the grouping of HTTP Server, the conception works in Server-Push Modeling, too. There are several models of this conception.
+
 - Split up the server into some groups, and each group have its endpoint, the clients choose the targe endpoint by the id of the live room
 - Using or implementing an application-level load balancing algorithm.
 
@@ -125,4 +126,4 @@ But in this part, we have discussed some core concepts of live streaming.
 - Differences types of Live Streaming Signals
 - Differences modeling of Interactive Service connection.
 
-Next time I will share my thoughts on scaling method of interactive service, hope you like this.
+Next time I will share my thoughts on scaling method of interactive service, hope you will like it.
