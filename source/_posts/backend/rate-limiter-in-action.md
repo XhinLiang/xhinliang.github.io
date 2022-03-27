@@ -39,6 +39,8 @@ We could use a queue to store the request temporarily, and use another thread to
 
 Actually, people would not use a queue and a thread to do this, because it's commonly a waste of thread resources.
 
+![](https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.tukuppt.com%2Fpng_preview%2F00%2F50%2F57%2FjN4Ve3UXmr.jpg%21%2Ffw%2F780&refer=http%3A%2F%2Fimg.tukuppt.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1650972113&t=c9a01cb1b4c3b8b98be53cfd6a55d89c)
+
 ## Token Bucket
 
 Token Bucket means that we have a bucket that contains lots of buckets, and there is another thread that will supply the token in a fixed-rate at the same time.
