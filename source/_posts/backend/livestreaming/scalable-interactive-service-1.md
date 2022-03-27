@@ -125,4 +125,4 @@ But in this part, we have discussed some core concepts of live streaming.
 - Differences types of Live Streaming Signals
 - Differences modeling of Interactive Service connection.
 
-Next time I will share my thoughts on building a multi-region or cross-region live streaming platform, hope you like this.
+Next time I will share my thoughts on scaling method of interactive service, hope you like this.
