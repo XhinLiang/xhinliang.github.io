@@ -7,178 +7,178 @@ toc: true
 
 ## Background
 
-Because of the networking improvement and the influent of the COVID-19, live streaming has become the hottest technology in the Internet, again.
+Because of the networking improvement and the influent of the COVID-19, live streaming has become the hottest technology on the Internet, again.
 
-![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
+![](/uploads/persister-how-to-build-a-scalable-live streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
 
-In the past article we have discuss about the signal modeling and the interactive modeling, this time we will discuss about the scale methods of interactive service.
+In the past article we have discussed signal modeling and interactive modeling, this time we will discuss the scale methods of interactive service.
 
 ## Limitations
 
-As we known, there are simply two kinds of services in the backend, called stateless service and stateful service.
+As we all know, there are simply two kinds of services in the backend, called stateless service and stateful service.
 
-Stateless service means that the service processes requests based only on information relayed with each request and doesn’t rely on information from earlier requests
+Stateless service means that the service processes requests based only on the information relayed with each request and doesn’t rely on information from earlier requests.
 
 Stateful service means that the service processes requests based on the information relayed with each request and information stored from earlier requests.
 
-The biggest difference between stateless service and stateful service is that stateless service can route requests to different instances easily and the stateful service can't.
+The biggest difference between stateless service and stateful service is that stateless service can route requests to different instances easily and stateful service can't.
 
-The stateless services are easy to scale and the bottlenecks of entire system are commonly the stateful parts of it.
+The stateless services are easy to scale so that the bottleneck of the entire system commonly comes from the stateful parts.
 
-The interactive service of live streaming is composed by a few parts.
+The interactive service of live streaming is composed of a few parts as I mention below.
 
 - Storages
   - Relational Databases
 - Caches
   - Structured Collections
   - K-V Caches
-- Caculating Services
+- Calculating Services
   - Scheduled Tasks
 - Paying Service
   - Account Transporting
 - HTTP Servers
 - Signaling Servers
 
-And today the scaling methods of interactive service are aiming on these parts, too.
+And today the scaling methods of interactive service are aiming at these parts, too.
 
 ## Scaling Methods
 
-Distrubuted system is offen constructed by a number of small instance, we can increase the capacity and performance by scale the instance count. But before scaling it up we have to make our system scalable.
+The distributed systems are often constructed by several small instances, we can increase the capacity and performance by scaling the instance up. But before scaling it up we have to make our system scalable.
 
 ### Relational Databases
 
-As a internet service, we always use a relational database for data storage. We can split our data into different parts so that we can store them in different databases so that we can scale our database up.
+As an internet service, we always use a relational database for data storage. We can split our data into different parts so that we can store them in different databases so that we can scale our database up.
 
-We can treat our live streaming databases as this way, too. But the data of live streaming has some special characteristics.
+We can treat our live streaming databases in this way, too. But the data of live streaming has some special characteristics.
 
-- Timeliness. For now, the longest duration of live streaming is less than 480 hours, the avarege duration is less than 5 minutes. Mostly we only care about the ongoing live streaming rooms, so that we can only storage the recent 4 weeks data for online service.
-- Geographicality. People would like to consume the live streaming related to them. So we can simply split the live streaming record by the region of anchor.
+- Timeliness. For now, the longest duration of live streaming is less than 480 hours, the average duration is less than 5 minutes. Mostly we only care about the ongoing live streaming rooms, so we can just store the recent 4 weeks' records for online service.
+- Geographically. People would like to consume the live streaming related to them. So we can simply split the live streaming records by the region of the anchor.
 
-First, we generate the live streaming room id by the anchor id, which is genearted by the region they sign up.
+Firstly, we generate the live streaming room id according to the anchor id, which is generated by the region where they signup their accounts.
 
-And than insert the record into the database the live streaming room id belongs to.
+And then we insert the record into the database which the live streaming room id belongs to.
 
 When we are querying the database by ongoing live streaming room id, we can route the request to the actual database by the id.
 
-When we are querying the database by offline live streaming room id, we can just route it into archiving database which is append-only and can  be easily extended by adding nodes.
+When we are querying the database by offline live streaming room id, we can just route it into archiving database which is append-only and can be easily extended by adding nodes.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0oertdxcbj216h0u0tc7.jpg)
 
 
 ### Structured Collections
 
-We use Redis to implement the Structured Collections, so the method to scale the Structured Collections is to scale the Redis Servers.
+We use Redis to implement the structured collections, so the method to scale the structured collections is to scale the Redis servers.
 
-We never use `Redis Cluster` technology as our `Redis Cluster` solution. Conversely we just use use twemproxy to reroute the write and query. So the `Redis Cluster` we talk about below is not as same as the offical `Redis Cluster` but the cluster constructed by several Twemproxy, Redis-Master, Redis-Slave and Redis-Sentinal.
+We never use `Redis Cluster` technology as our `Redis Cluster` solution. Conversely, we just use twemproxy to reroute the write and query. So the `Redis Cluster` we talk about below is not as same as the official `Redis Cluster` but the cluster constructed by several Twemproxy, Redis-Master, Redis-Slave, and Redis-Sentinal.
 
-On the other hand, we offen build two same Redis Cluster in different AZ(Availible Zone), and assign one of them as the main cluster by config.
+On the other hand, we often build two same Redis Cluster in different AZ(Available Zone) and assign one of them as the main cluster by config.
 
-The write operation of main cluster would replica to secondary claster by Kafka Message.
+The write operation of the main cluster would replica to the secondary cluster by Kafka Message.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0ofdhqbrcj215g0u078o.jpg)
 
-In the image above, We can notice that the `Twemproxy` are the stateless service so it's scalable and will not be the bottleneck of the Redis Cluster.
+In the image above, We can notice that the `Twemproxy` is a stateless service so it's scalable and will not be the bottleneck of the Redis Cluster.
 
-In fact, the key of Redis storage is offen constructed by the room id, after scale the redis server up, all we have to do is pervent building big-key and hot-key of Redis.
+In fact, the key of Redis storage is often constructed by the room id, after scaling the Redis servers up, all we have to do is prevent building big-key and hot-key of Redis.
 
-Big-key offen comes from the write operation of sorted set keys and hash keys. In live streaming scenario, there are two effective methods to avoid big-key.
+Big-key often comes from the write operation of sorted set keys and hash keys. In the scenario of live streaming, there are two effective methods to avoid big-key.
 
-- Trim the collection to a fixed length when the collection is bigger than the threshold.
+- Trim the collection to a fixed length when the collection is bigger than the threshold;
 - Limit the writing speed by rate-limiter or some other method.
 
-Hot-Key offen comse from the read operation, in order to prevent it, we can use these ways below.
+Hot-Key often comes from the read operation, in order to prevent it, we can use these ways below.
 
-- Use another cache to storage the result temporarily. For example, we can build a local-cache in our service and this local-cache will serve all the request before expired
-- Storage the key redundantly in different key and read a key randomly. In general Redis Cluster, different key will locate in diffenent Redis-Server, so that all the request will not be routed in a certain Redis-Server, too
+- Use another cache to store the result temporarily. For example, we can build a local cache in our service and this local cache will serve all the requests before expired;
+- Storage the key redundantly and choose a key randomly to read. In the general Redis Cluster solution, the different keys will locate in a different Redis-Server, so that all the requests will not be routed in a certain Redis-Server, too.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0olq9yfdqj21aw0u00wc.jpg)
 
-Also, in the social platform, detecting hotspot  and use a seperate poliy to limit writing and reading rate is very common.
+Also, in the social platform, detecting hotspots and using a separate policy to limit writing and reading rate is a common way to be scalable.
 
 ### K-V Caches
 
-We use Memcached as our K-V Caches. Which "K-V" of K-V Caches is always come from the databases.
+We use Memcached as our K-V Caches. Which "K-V" of K-V Caches always comes from the databases.
 
-Different to Redis, we use no proxy in Memcached. All the read is routed by the client.
+Different from Redis, we use no proxy in Memcached. All the read is routed by the client.
 
-There are no master and slave in Memacached, so we built some several cluster for the same usage. All the cluster are equal.
+There are no master and slave in Memcached, so we built several clusters for the same usage. All the clusters are equal.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0ogzrpxaej20xn0u077z.jpg)
 
-When the client try to read a cache from Memcached, it will have a few steps.
+When the client tries to read a cache from Memcached, it will have a few steps as below.
 
 1. Choose a cluster of its AZ randomly, and then calculate the hash number and route to a Memcached Node by this hash number;
-2. Try to read this Memacached Node, return immediately if success;
+2. Try to read this Memcached Node, return immediately if success;
 3. Choose another cluster of its AZ randomly, and route to another Memcached Node by another hash number;
-4. Try to read this Memacached Node. Firstly write back to the Memcached Node in step.2 and then return;
-5. Call a service named `DbReader` to read database and then write back to the Memcached Nodes of step.4 and step.2.
+4. Try to read this Memcached Node. Firstly write back to the Memcached Node in step.2 and then return;
+5. Call a service named `DbReader` to read the database and then write back to the Memcached Nodes of step.4 and step.2.
 
-One more thing worth mentioning is that the hash salts of different Memcached Cluster are different, so that the same index Memacached Node of different Memacached Cluster will not storage the values of the same keys.
+One more thing worth mentioning is that the hash salts of different Memcached Cluster are different so that the same index Memacached Node of different Memcached Cluster will not store the values of the same keys.
 
-In this way to cache, we will have the highest availablity.
+In this way cache, we will have the highest availability.
 
-- If one Memcached Node down, no cached will be lost, because clients will read the losted keys from another Memcached Cluster and write back;
-- If two Memcached Node of different Memcached Clusters down, only 1/M * 1/N data will be lost. (M, N means the nodes count of the Memcached Clusters)
+- If one Memcached node is down, no cached will be lost because clients will read the lost keys from another Memcached Cluster and write back;
+- If two Memcached nodes of different Memcached Clusters are down, only 1/M * 1/N data will be lost. (M, N means the nodes count of the Memcached Clusters)
 
 ### Scheduled Tasks
 
-Processing some bussiness periodly is very comonn live streaming backend. Most of the process task do have these properties.
+Processing some business periodically is a very common live streaming backend. Most of the process tasks do have these properties.
 
 - They should know which rooms are ongoing;
-- They would do the logic seperate by the live streaming room.
+- They would do the logic separate by the live streaming room.
 
-As we known, the ongoing live streaming room is storage in the online databases, we could only query the ongoing live streaming room ids by scan these tables, it would be a extravagant operation, expecialy for lots of business and process doing these concurrently.
+As we know, the ongoing live streaming rooms are stored in the online databases, we can only query the ongoing live streaming room ids by scanning these tables, it would be an extravagant operation, especially for lots of businesses and processes scan concurrently.
 
-We can use a service named "OngoingQuery" to protect the daatabases.
+We can use a service named "OngoingQuery" to protect the databases.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0om5ilpczj21fl0u0dka.jpg)
 
-The OngingQuery service scan the databases periodly for update the entire data, and they subscribe the binlog of databases for instant update.
+The OngoingQuery service will store all the room ids of ongoing live streaming.
 
-In this way, the OngoingQuery service will store all the room ids of ongoing live streaming.
+They scan the databases periodically to update the entire cache of themselves, and they the binlog of databases for instantly update. In this way, the cache of the OngoingQuery service will be the same as the data of the database eventually.
 
-When we deploy an amount of shard tasks for processing some business data, the shard tasks will register themselives to ZooKeeper at first, and then run periodly to do these things.
+When we deploy a number of shard tasks for processing some business data, the shard tasks will register themselves to ZooKeeper at first, and then run periodically to do these things.
 
 - Query the ZooKeeper to know how many process instances at this moment;
-- Find out the index of itself of all the process instances;
-- Request Ongoinng Query service to get the part of the partition result;
+- Find out the index itself of all the process instances;
+- Request Ongoing Query service to get the part of the partition result;
 - Process the business of the part.
 
-With these partition abstraction, we can seperate the process task to several process instances and they can run concurrently.
+With these partition abstractions, we can separate the process task into several process instances and they can run concurrently.
 
 ### Account Transporting
 
-Almost every live streaming platform will support gift feature.
+Almost every live streaming platform will support gift features.
 
-The key content of live streaming gift is account transporting. When a audience pay a gift for the anchor, there will be a account transporting between the account of audience and the account of anchor.
+The key content of the live streaming gift is account transporting. When an audience tries to pay a gift for the anchor, there will be an account transporting between the account of the audience and the account of the anchor.
 
-As we known, pltform offen storage the balance of different user in different databases for scalability. So the account transporting in live streaming will always be a distributed transaction, which is very expensive.
+As we know, platforms often store the balance of different users in different databases for scalability. So the account transporting in live streaming will always be a distributed transaction, which is very expensive.
 
 We can use a virtual account to improve the transporting performance.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0omsn1ul4j21570u0jw6.jpg)
 
-When the live streaming room begin, we will create an virtual account for this live streaming room in each databases of user balance.
+When the live streaming room begins, we will create a virtual account for this live streaming room in each database of user balance.
 
-The gifting operation during the live streaming will be a transportion between audience account and virtual account.
+The gifting operation during the live streaming will be transportation between the audience account and the virtual account of the database which the audience account belongs to.
 
-When the live stream room end, the service named "Settler" will collect all the virtual account and do the distributed transation between virtual account and the anchor account.
+When the live stream room end, the service named "Settler" will collect all of the virtual accounts and do the distributed transaction between virtual accounts and the anchor account.
 
 ### HTTP Service
 
-There a lots of load-balancing strategy for HTTP service, so I will not talk about this topic a lot.
+There are lots of load-balancing strategies for HTTP services, so I will not talk about this topic a lot.
 
-The only thing I want to mention is that we can use a route policy in Nginx, for routing same room id to a same group of service nodes, that would help for us to increate the hit-rate of local-cache.
+The only thing I want to mention is that we can use a route policy in Nginx, for routing the same room id to the same group of service nodes, which would help us to increase the hit rate of local-cache.
 
 ### Signaling Servers
 
-We have talked this in the [How to Build a Scalable Live Streaming Interactive Service - Part I](https://xhinliang.win/2022/01/backend/livestreaming/scalable-interactive-service-1/).
+We have talked about this in the [How to Build a Scalable Live Streaming Interactive Service - Part I](https://xhinliang.win/2022/01/backend/livestreaming/scalable-interactive-service-1/).
 
 ## Summary
 
-In this article, we have discussed the scale strategies of the stateful services of live streaming interactive service. Some people also called these strategies "sharding strategy".
+In this article, we have discussed the scale strategies of the stateful services of live streaming interactive services. Some people also called these strategies "sharding strategy".
 
-All of these things have a core concept commonly -- "Split the big thing into small things", oh we have learn it in our university, isn't it?
+All of these things have a core concept commonly -- "Split the big thing into small things", oh we have learned it in our university, isn't it?
 
 Next time I will share my thoughts on building a multi-region or cross-region live streaming platform, hope you will like it.
 
