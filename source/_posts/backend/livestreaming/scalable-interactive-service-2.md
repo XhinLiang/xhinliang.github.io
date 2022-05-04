@@ -9,7 +9,7 @@ toc: true
 
 Because of the networking improvement and the influent of the COVID-19, live streaming has become the hottest technology on the Internet, again.
 
-![](/uploads/persister-how-to-build-a-scalable-live streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
+![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
 
 In the past article we have discussed signal modeling and interactive modeling, this time we will discuss the scale methods of interactive service.
 
