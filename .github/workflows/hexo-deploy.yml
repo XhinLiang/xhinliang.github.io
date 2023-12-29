@@ -1,0 +1,16 @@
+name: Deploy Hexo Site
+on:
+  push:
+    branches:
+      - master  # or your default branch name
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12'  # specify a node version compatible with your project
+    # Add more steps here for installing dependencies, building your site, and deploying
