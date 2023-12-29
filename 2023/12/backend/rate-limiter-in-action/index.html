@@ -14,25 +14,23 @@ var _hmt = _hmt || [];
 <head><meta name="generator" content="Hexo 3.9.0">
     <meta charset="utf-8">
     
-    <title>Rate Limiter in Action | XhinLiang</title>
+    <title>Rate Limiter In Action | XhinLiang</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
-        <meta name="keywords" content="Backend">
+        <meta name="keywords" content="Java,Backend,Concurrent,Distributed">
     
-    <meta name="description" content="OverviewThe backend systems which have lots of requests per second always need a local rate limiter to protect themself. Which “local” means that this rate limiter worked in only this process and was">
-<meta name="keywords" content="Backend">
+    <meta name="description" content="OverviewThe backend systems which have lots of request per second always need a local rate limiter to protect themself. Which “local” means that this rate limiter worked in only this process and not s">
+<meta name="keywords" content="Java,Backend,Concurrent,Distributed">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Rate Limiter in Action">
-<meta property="og:url" content="https://xhinliang.win/2022/01/backend/rate-limiter-in-action/index.html">
+<meta property="og:title" content="Rate Limiter In Action">
+<meta property="og:url" content="https://xhinliang.win/2023/12/backend/rate-limiter-in-action/index.html">
 <meta property="og:site_name" content="XhinLiang">
-<meta property="og:description" content="OverviewThe backend systems which have lots of requests per second always need a local rate limiter to protect themself. Which “local” means that this rate limiter worked in only this process and was">
+<meta property="og:description" content="OverviewThe backend systems which have lots of request per second always need a local rate limiter to protect themself. Which “local” means that this rate limiter worked in only this process and not s">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.tukuppt.com%2Fpng_preview%2F00%2F50%2F57%2FjN4Ve3UXmr.jpg%21%2Ffw%2F780&amp;refer=http%3A%2F%2Fimg.tukuppt.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1650972113&amp;t=c9a01cb1b4c3b8b98be53cfd6a55d89c">
-<meta property="og:updated_time" content="2022-05-04T04:19:39.247Z">
+<meta property="og:updated_time" content="2023-12-29T11:18:32.639Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Rate Limiter in Action">
-<meta name="twitter:description" content="OverviewThe backend systems which have lots of requests per second always need a local rate limiter to protect themself. Which “local” means that this rate limiter worked in only this process and was">
-<meta name="twitter:image" content="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.tukuppt.com%2Fpng_preview%2F00%2F50%2F57%2FjN4Ve3UXmr.jpg%21%2Ffw%2F780&amp;refer=http%3A%2F%2Fimg.tukuppt.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1650972113&amp;t=c9a01cb1b4c3b8b98be53cfd6a55d89c">
+<meta name="twitter:title" content="Rate Limiter In Action">
+<meta name="twitter:description" content="OverviewThe backend systems which have lots of request per second always need a local rate limiter to protect themself. Which “local” means that this rate limiter worked in only this process and not s">
     
 
     
@@ -151,23 +149,24 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
                 
     
         <h1 class="article-title" itemprop="name">
-        Rate Limiter in Action
+        Rate Limiter In Action
         </h1>
     
 
             </header>
         
         <div class="article-subtitle">
-            <a href="/2022/01/backend/rate-limiter-in-action/" class="article-date">
-    <time datetime="2022-01-16T00:00:00.000Z" itemprop="datePublished">2022-01-16</time>
+            <a href="/2023/12/backend/rate-limiter-in-action/" class="article-date">
+    <time datetime="2023-12-29T00:00:00.000Z" itemprop="datePublished">2023-12-29</time>
 </a>
             
-    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Backend/">Backend</a></li></ul>
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Backend/">Backend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Concurrent/">Concurrent</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Distributed/">Distributed</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li></ul>
 
         </div>
         <div class="article-entry" itemprop="articleBody">
-            <h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><p>The backend systems which have lots of requests per second always need a local rate limiter to protect themself. Which “local” means that this rate limiter worked in only this process and was not shared with another.</p>
-<p>Here are some local rate limiters used in the production environment.</p>
+            <h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><p>The backend systems which have lots of request per second always need a local rate limiter to protect themself.</p>
+<p>Which “local” means that this rate limiter worked in only this process and not shared with another.</p>
+<p>Here are some local rate limiter used in prodction evironment.</p>
 <ul>
 <li>Fixed Window</li>
 <li>Floating Window</li>
@@ -176,15 +175,20 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 </ul>
 <p>And we will discuss them one by one.</p>
 <h2 id="Fixed-Window"><a href="#Fixed-Window" class="headerlink" title="Fixed Window"></a>Fixed Window</h2><p>Fixed Window means that we can split a time to some window, and perform the action for a limit in a window.</p>
-<p>The disadvantage is that the throughput of this system can be not such steady.<br>Image this scenario, we have a rate limiter for 1000 per second and perform not one request in the first 999ms.<br>After this, we perform 1000 requests in 1ms, all of these requests will be granted.<br>And then we perform 1000 requests in 1ms too, as we can see, the latest 1000 requests will be granted too because these two parts of the request match the different time windows.</p>
-<p>We can reduce this defect by splitting out the time window smaller. For example, when we need a rate limiter for 1000 per second, we can split one second as 100 “ten milliseconds” then limit 10 actions per “ten milliseconds”. As we can see, the smaller you slit the time window, the smoother it rate limiter can be.</p>
-<h2 id="Floating-Window"><a href="#Floating-Window" class="headerlink" title="Floating Window"></a>Floating Window</h2><p>The ideology of Floating Window is just like the combination of a big amount of little Fixed Window. We limit the total quota with the range of little Fixed Window, and calculate the floating consumption and floating allowance dynamically.</p>
-<h2 id="Leaky-Bucket"><a href="#Leaky-Bucket" class="headerlink" title="Leaky Bucket"></a>Leaky Bucket</h2><p>We could use a queue to store the request temporarily, and use another thread to accept the request asynchronously, this thought is called Leaky Bucket.</p>
-<p>Actually, people would not use a queue and a thread to do this, because it’s commonly a waste of thread resources.</p>
-<p><img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.tukuppt.com%2Fpng_preview%2F00%2F50%2F57%2FjN4Ve3UXmr.jpg%21%2Ffw%2F780&amp;refer=http%3A%2F%2Fimg.tukuppt.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1650972113&amp;t=c9a01cb1b4c3b8b98be53cfd6a55d89c" alt></p>
-<h2 id="Token-Bucket"><a href="#Token-Bucket" class="headerlink" title="Token Bucket"></a>Token Bucket</h2><p>Token Bucket means that we have a bucket that contains lots of buckets, and there is another thread that will supply the token in a fixed-rate at the same time.</p>
-<p>The backend system will take a token from the bucket per request. When the bucket is run out of tokens, the request will be blocked.</p>
-<p>Token Bucket seems like Leaky Bucket but can be more effective, because we can just record the number of the bucket and the latest time when we supply the bucket, instead of using a token-supplier thread.</p>
+<p>The disatvantage is that the throughput of this system can be not such steady.<br>Image this scenario, we have a rate limiter for 1000 per second, and perform not one request in first 999ms.<br>After this, we perform 1000 request in 1ms, all of these request will be granted.<br>And then we perform 1000 request in 1ms too, as we can see, the latest 1000 requests will be granted too, because there two part of request matches the different time window.</p>
+<p>We can reduce this defect by splitting out the time window smaller.<br>For example, when we need a rate limiter for 1000 per second, we can split one second as 100 “tenMs” then limit 10 actions per “tenMs”.<br>As we can see, the smaller you slit the time window, the smoother it rate limiter can be.</p>
+<p>After discussing the concept of Fixed Window rate limiting, it’s beneficial to provide a code example. Here is a simple implementation in Java:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FixedWindowRateLimiter</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> capacity;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> windowSizeInMillis;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> windowStart;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> usedCapacity;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FixedWindowRateLimiter</span><span class="params">(<span class="keyword">long</span> capacity, <span class="keyword">long</span> windowSizeInMillis)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.capacity = capacity;</span><br><span class="line">        <span class="keyword">this</span>.windowSizeInMillis = windowSizeInMillis;</span><br><span class="line">        <span class="keyword">this</span>.windowStart = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">this</span>.usedCapacity = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">tryAcquire</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> currentTime = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">if</span> (currentTime - windowStart &gt; windowSizeInMillis) &#123;</span><br><span class="line">            windowStart = currentTime;</span><br><span class="line">            usedCapacity = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (usedCapacity &lt; capacity) &#123;</span><br><span class="line">            usedCapacity++;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>In this example, the FixedWindowRateLimiter class defines a rate limiter with a fixed capacity and window size. The tryAcquire method checks if the current window has expired and resets it if necessary. If the capacity within the current window hasn’t been exceeded, it allows the request.</p>
+<h2 id="Floating-Window"><a href="#Floating-Window" class="headerlink" title="Floating Window"></a>Floating Window</h2><p>Now let’s discuss the Floating Window rate limiter.</p>
+<p>The Floating Window rate limiter improves upon the Fixed Window by smoothing out the request allowance over time. It avoids the scenario where a burst of requests is allowed at the boundary of the time windows.</p>
+<p>A Floating Window rate limiter can be more complex to implement as it requires tracking the timestamps of individual requests.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FloatingWindowRateLimiter</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> windowSizeInMillis;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> maxRequests;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Deque&lt;Long&gt; requestTimestamps = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FloatingWindowRateLimiter</span><span class="params">(<span class="keyword">long</span> windowSizeInMillis, <span class="keyword">int</span> maxRequests)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.windowSizeInMillis = windowSizeInMillis;</span><br><span class="line">        <span class="keyword">this</span>.maxRequests = maxRequests;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">allowRequest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> currentTime = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">while</span> (!requestTimestamps.isEmpty() &amp;&amp; currentTime - requestTimestamps.peek() &gt; windowSizeInMillis) &#123;</span><br><span class="line">            requestTimestamps.poll();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (requestTimestamps.size() &lt; maxRequests) &#123;</span><br><span class="line">            requestTimestamps.add(currentTime);</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Leaky-Bucket"><a href="#Leaky-Bucket" class="headerlink" title="Leaky Bucket"></a>Leaky Bucket</h2><p>The Leaky Bucket algorithm models rate limiting as a bucket that leaks requests at a constant rate. This approach helps in smoothing out bursts of traffic.</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeakyBucketRateLimiter</span> &#123;</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> capacity;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> leakRateInMillis;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> availableTokens;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> lastLeakTimestamp;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">LeakyBucketRateLimiter</span><span class="params">(<span class="keyword">long</span> capacity, <span class="keyword">long</span> leakRateInMillis)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.capacity = capacity;</span><br><span class="line">        <span class="keyword">this</span>.leakRateInMillis = leakRateInMillis;</span><br><span class="line">        <span class="keyword">this</span>.availableTokens = capacity;</span><br><span class="line">        <span class="keyword">this</span>.lastLeakTimestamp = System.currentTimeMillis();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> synchronized <span class="keyword">boolean</span> <span class="title">allowRequest</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> currentTime = System.currentTimeMillis();</span><br><span class="line">        <span class="keyword">long</span> timeSinceLastLeak = currentTime - lastLeakTimestamp;</span><br><span class="line">        <span class="keyword">long</span> tokensToLeak = timeSinceLastLeak / leakRateInMillis;</span><br><span class="line">        <span class="keyword">if</span> (tokensToLeak &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            availableTokens = Math.<span class="built_in">min</span>(capacity, availableTokens + tokensToLeak);</span><br><span class="line">            lastLeakTimestamp = currentTime;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (availableTokens &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            availableTokens--;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Token-Bucket"><a href="#Token-Bucket" class="headerlink" title="Token Bucket"></a>Token Bucket</h2><p>Token Bucket means that we have a bucket which contains lots of bucket, and there is another thread will supply the token in a fixed rate at the same time.</p>
+<p>Backend system will take a token from the bucket for per request. When the bucket is run out of token, the request will be blocked.</p>
+<p>Token Bucket seems like Leaky Bucket but can be more effective, because we can just record the number of bucket and the latest time when we supply the bucket, instead of using a token-supplier thread.</p>
 <p>Here is a simple implementation.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RateLimiter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">long</span> latestSupplyTimestamp = <span class="number">0L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicLong tokenCount = <span class="keyword">new</span> AtomicLong();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> performPerSecond;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RateLimiter</span><span class="params">(<span class="keyword">int</span> performPerSecond)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.performPerSecond = performPerSecond;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">canDo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">long</span> now = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());</span><br><span class="line">        <span class="keyword">long</span> diff = now - latestSupplyTimestamp;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (diff == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> tokenCount.decrementAndGet() &gt; <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (diff &gt;= <span class="number">1000L</span>) &#123;</span><br><span class="line">                latestSupplyTimestamp = now;</span><br><span class="line">                tokenCount.set(performPerSecond - <span class="number">1L</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 0 &lt; diff &lt; 1000</span></span><br><span class="line">            <span class="keyword">long</span> shouldSupply = diff * performPerSecond - <span class="number">1L</span>;</span><br><span class="line">            latestSupplyTimestamp = now;</span><br><span class="line">            <span class="keyword">return</span> tokenCount.addAndGet(shouldSupply) &gt;= <span class="number">0L</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -194,7 +198,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 
 
 
-    <a data-url="https://xhinliang.win/2022/01/backend/rate-limiter-in-action/" data-id="cl2r2m9qh000ckkn5dtzxz2gs" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="https://xhinliang.win/2023/12/backend/rate-limiter-in-action/" data-id="clqqjj9p5000cdkoxxu81vvef" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
@@ -338,20 +342,10 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
         
 <nav id="article-nav">
     
-        <a href="/2022/03/backend/livestreaming/scalable-interactive-service-2/" id="article-nav-newer" class="article-nav-link-wrap">
-        <strong class="article-nav-caption">newer</strong>
-        <p class="article-nav-title">
-        
-            How to Build a Scalable Live Streaming Interactive Service - Part II
-        
-        </p>
-        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
-    </a>
     
-    
-        <a href="/2022/01/backend/livestreaming/scalable-interactive-service-1/" id="article-nav-older" class="article-nav-link-wrap">
+        <a href="/2022/03/backend/livestreaming/scalable-interactive-service-2/" id="article-nav-older" class="article-nav-link-wrap">
         <strong class="article-nav-caption">older</strong>
-        <p class="article-nav-title">How to Build a Scalable Live Streaming Interactive Service - Part I</p>
+        <p class="article-nav-title">How to Build a Scalable Live Streaming Interactive Service - Part II</p>
         <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
         </a>
     
@@ -370,6 +364,25 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
                     <li>
                         
                         <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action/" class="title">Rate Limiter In Action</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T00:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
                             <a href="/2022/03/backend/livestreaming/scalable-interactive-service-2/" class="thumbnail">
     
     
@@ -383,25 +396,6 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
                             <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
                             <p class="item-title"><a href="/2022/03/backend/livestreaming/scalable-interactive-service-2/" class="title">How to Build a Scalable Live Streaming Interactive Service - Part II</a></p>
                             <p class="item-date"><time datetime="2022-03-27T00:00:00.000Z" itemprop="datePublished">2022-03-27</time></p>
-                        </div>
-                    </li>
-                
-                    <li>
-                        
-                        <div class="item-thumbnail">
-                            <a href="/2022/01/backend/rate-limiter-in-action/" class="thumbnail">
-    
-    
-        <span style="background-image:url(https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.tukuppt.com%2Fpng_preview%2F00%2F50%2F57%2FjN4Ve3UXmr.jpg%21%2Ffw%2F780&amp;refer=http%3A%2F%2Fimg.tukuppt.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1650972113&amp;t=c9a01cb1b4c3b8b98be53cfd6a55d89c)" alt="Rate Limiter in Action" class="thumbnail-image"></span>
-    
-    
-</a>
-                        </div>
-                        
-                        <div class="item-inner">
-                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
-                            <p class="item-title"><a href="/2022/01/backend/rate-limiter-in-action/" class="title">Rate Limiter in Action</a></p>
-                            <p class="item-date"><time datetime="2022-01-16T00:00:00.000Z" itemprop="datePublished">2022-01-16</time></p>
                         </div>
                     </li>
                 
@@ -481,7 +475,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
     <div class="widget-wrap widget-list">
         <h3 class="widget-title">archives</h3>
         <div class="widget">
-            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
         </div>
     </div>
 
@@ -491,7 +485,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
     <div class="widget-wrap widget-float">
         <h3 class="widget-title">tag cloud</h3>
         <div class="widget tagcloud">
-            <a href="/tags/Algorithm/" style="font-size: 17.5px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12.5px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Computer/" style="font-size: 12.5px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 10px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 15px;">Java</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Live/" style="font-size: 12.5px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12.5px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/macOS/" style="font-size: 12.5px;">macOS</a>
+            <a href="/tags/Algorithm/" style="font-size: 17.5px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12.5px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Computer/" style="font-size: 12.5px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 12.5px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 17.5px;">Java</a> <a href="/tags/Linux/" style="font-size: 15px;">Linux</a> <a href="/tags/Live/" style="font-size: 12.5px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12.5px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/macOS/" style="font-size: 12.5px;">macOS</a>
         </div>
     </div>
 
@@ -531,7 +525,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
                 <h1 class="logo-wrap">
                     <a href="/" class="logo"></a>
                 </h1>
-                <p>&copy; 2022 XhinLiang</p>
+                <p>&copy; 2023 XhinLiang</p>
                 <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
             </div>
         </div>
