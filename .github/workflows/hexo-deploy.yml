@@ -1,16 +1,37 @@
-name: Deploy Hexo Site
+name: Hexo Deploy
+
 on:
   push:
     branches:
-      - master  # or your default branch name
+      - master
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+
     - name: Set up Node.js
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v2
       with:
-        node-version: '12'  # specify a node version compatible with your project
-    # Add more steps here for installing dependencies, building your site, and deploying
+        node-version: '10.24.1'
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Generate static files
+      run: ./node_modules/hexo/bin/hexo generate
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GH_TOKEN }}
+        publish_dir: ./public
