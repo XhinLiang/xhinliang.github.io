@@ -35,4 +35,6 @@ jobs:
       with:
         github_token: ${{ secrets.GH_TOKEN }}
         publish_dir: ./public
+        external_repository: XhinLiang/xhinliang.github.io
+        publish_branch: master
         cname: xhinliang.win
