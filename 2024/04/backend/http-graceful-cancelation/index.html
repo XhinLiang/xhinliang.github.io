@@ -27,7 +27,7 @@ var _hmt = _hmt || [];
 <meta property="og:site_name" content="XhinLiang">
 <meta property="og:description" content="OutlineImagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is comp">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2024-04-24T15:04:19.906Z">
+<meta property="og:updated_time" content="2024-04-24T15:07:57.294Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTP Graceful Cancelation">
 <meta name="twitter:description" content="OutlineImagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is comp">
@@ -197,12 +197,8 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 <p>For HTTP/2 and HTTP/3, the situation is different. Both protocols support explicit request cancellation. In HTTP/2 and HTTP/3, a client can send a RST_STREAM frame to the server, which effectively tells the server to stop processing a specific stream (which corresponds to a request). This allows for more efficient cancellation and resource management on the server, as it can immediately stop processing a request upon receiving a cancellation notice.</p>
 <p>Here’s how each protocol handles cancellation:</p>
 <ul>
-<li><p><strong>HTTP/1.1</strong>: Depends on whether the TCP connection is reused or not. </p>
-<ul>
-<li>If reused: the server may notice that the client</li>
-</ul>
-<p>has disconnected when it attempts to send a response and fails due to a broken TCP connection. The server might also implement timeouts or other mechanisms to detect that a client has stopped responding.</p>
-<ul>
+<li><strong>HTTP/1.1</strong>: Depends on whether the TCP connection is reused or not. <ul>
+<li>If reused: the server may notice that the client has disconnected when it attempts to send a response and fails due to a broken TCP connection. The server might also implement timeouts or other mechanisms to detect that a client has stopped responding.</li>
 <li>If not reused: means the TCP connection has been closed by the client. The server can detect that the client has disconnected and stop processing the request.</li>
 </ul>
 </li>
@@ -231,9 +227,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 <h4 id="Scenario-1-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-1-1"><a href="#Scenario-1-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-1-1" class="headerlink" title="Scenario 1: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/1.1)"></a>Scenario 1: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/1.1)</h4><ol>
 <li>Client Cancels Request: The client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame to Nginx.</li>
 <li>Nginx Behavior: Upon receiving the RST_STREAM frame, Nginx recognizes that the client has cancelled the request. Given that the connection to the server is over HTTP/1.1, which doesn’t support RST_STREAM, Nginx has the option to either continue processing the request or terminate the TCP connection to the server. The action Nginx takes can depend on how it’s configured: it might be set to close the connection to free up resources more quickly or to simply drop the response if the server completes the request.</li>
-<li><p>Server Side: If Nginx decides to close the TCP connection, the server might detect this as a connection error or failure when attempting to send a response. This abrupt closing can signal to the server that it should stop processing, albeit indirectly. Without a connection to send a response, the server may halt operations, reducing</p>
-<p>unnecessary resource usage.</p>
-</li>
+<li>Server Side: If Nginx decides to close the TCP connection, the server might detect this as a connection error or failure when attempting to send a response. This abrupt closing can signal to the server that it should stop processing, albeit indirectly. Without a connection to send a response, the server may halt operations, reducing unnecessary resource usage.</li>
 </ol>
 <h4 id="Scenario-2-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-2"><a href="#Scenario-2-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-2" class="headerlink" title="Scenario 2: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/2)"></a>Scenario 2: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/2)</h4><ol>
 <li>Client Cancels Request: As before, the client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame.</li>
@@ -247,7 +241,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 
 
 
-    <a data-url="https://xhinliang.win/2024/04/backend/http-graceful-cancelation/" data-id="clvdy4bam0023cspydu61ul1n" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="https://xhinliang.win/2024/04/backend/http-graceful-cancelation/" data-id="clvdy91ie0023d5qcq8o02jyn" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
