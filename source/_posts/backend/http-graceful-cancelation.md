@@ -267,9 +267,7 @@ For HTTP/2 and HTTP/3, the situation is different. Both protocols support explic
 Here’s how each protocol handles cancellation:
 
 - **HTTP/1.1**: Depends on whether the TCP connection is reused or not. 
-	- If reused: the server may notice that the client
-
- has disconnected when it attempts to send a response and fails due to a broken TCP connection. The server might also implement timeouts or other mechanisms to detect that a client has stopped responding.
+	- If reused: the server may notice that the client has disconnected when it attempts to send a response and fails due to a broken TCP connection. The server might also implement timeouts or other mechanisms to detect that a client has stopped responding.
 	- If not reused: means the TCP connection has been closed by the client. The server can detect that the client has disconnected and stop processing the request.
 - **HTTP/2 and HTTP/3**: The client can send a RST_STREAM frame to explicitly cancel a request. This lets the server know immediately that the request should be aborted, which is more efficient and can help in managing server resources effectively.
 
@@ -380,9 +378,7 @@ When there is an Nginx reverse proxy sitting between the client and the server, 
 
 1. Client Cancels Request: The client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame to Nginx.
 2. Nginx Behavior: Upon receiving the RST_STREAM frame, Nginx recognizes that the client has cancelled the request. Given that the connection to the server is over HTTP/1.1, which doesn’t support RST_STREAM, Nginx has the option to either continue processing the request or terminate the TCP connection to the server. The action Nginx takes can depend on how it’s configured: it might be set to close the connection to free up resources more quickly or to simply drop the response if the server completes the request.
-3. Server Side: If Nginx decides to close the TCP connection, the server might detect this as a connection error or failure when attempting to send a response. This abrupt closing can signal to the server that it should stop processing, albeit indirectly. Without a connection to send a response, the server may halt operations, reducing
-
- unnecessary resource usage.
+3. Server Side: If Nginx decides to close the TCP connection, the server might detect this as a connection error or failure when attempting to send a response. This abrupt closing can signal to the server that it should stop processing, albeit indirectly. Without a connection to send a response, the server may halt operations, reducing unnecessary resource usage.
 
 #### Scenario 2: Client (HTTP/2) -> Nginx -> Server (HTTP/2)
 
