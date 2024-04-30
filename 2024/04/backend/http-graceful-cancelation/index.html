@@ -19,18 +19,18 @@ var _hmt = _hmt || [];
     
         <meta name="keywords" content="XHR,HTTP,HttpClient,Nginx,HTTP/2,Cancelation,Cancel">
     
-    <meta name="description" content="OutlineImagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is comp">
+    <meta name="description" content="Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is completed.">
 <meta name="keywords" content="XHR,HTTP,HttpClient,Nginx,HTTP&#x2F;2,Cancelation,Cancel">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HTTP Graceful Cancelation">
 <meta property="og:url" content="https://xhinliang.win/2024/04/backend/http-graceful-cancelation/index.html">
 <meta property="og:site_name" content="XhinLiang">
-<meta property="og:description" content="OutlineImagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is comp">
+<meta property="og:description" content="Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is completed.">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2024-04-24T15:07:57.294Z">
+<meta property="og:updated_time" content="2024-04-30T13:20:54.518Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTP Graceful Cancelation">
-<meta name="twitter:description" content="OutlineImagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is comp">
+<meta name="twitter:description" content="Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete. When a client starts a request, it may cancel it before the long-running task is completed.">
     
 
     
@@ -164,7 +164,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 
         </div>
         <div class="article-entry" itemprop="articleBody">
-            <h2 id="Outline"><a href="#Outline" class="headerlink" title="Outline"></a>Outline</h2><p>Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete.</p>
+            <p>Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete.</p>
 <p>When a client starts a request, it may cancel it before the long-running task is completed.</p>
 <p>The question we’re addressing here is: can the server be aware that the client has cancelled the request? If the server can be aware, it can stop the costly subsequent operation in advance to save server resources.</p>
 <h2 id="Without-Nginx"><a href="#Without-Nginx" class="headerlink" title="Without Nginx"></a>Without Nginx</h2><h3 id="HTTP-1-1"><a href="#HTTP-1-1" class="headerlink" title="HTTP/1.1"></a>HTTP/1.1</h3><p>Let’s start with a simple example using Go’s Gin framework to serve the endpoint <code>/http1</code>.</p>
@@ -241,7 +241,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 
 
 
-    <a data-url="https://xhinliang.win/2024/04/backend/http-graceful-cancelation/" data-id="clvdy91ie0023d5qcq8o02jyn" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="https://xhinliang.win/2024/04/backend/http-graceful-cancelation/" data-id="clvmf2h840023dgp56ogebo5x" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         $('body').on('click', function() {

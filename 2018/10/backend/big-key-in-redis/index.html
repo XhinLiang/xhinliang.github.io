@@ -28,7 +28,7 @@ var _hmt = _hmt || [];
 <meta property="og:description" content="Preview 公司里某位工程师小斌发现在一个 Redis 集群中的 some_big_list 经常出现慢查询，而且 QPS 特别高。初步定位是出现了一个热点的 Key。12newexplore&amp;gt; llen some_big_list500000 上面的命令发现，这个 some_big_list 是一个大 Key，导致 Redis Server 的服务器 CPU idle 很低，结果出现了">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://xhinliang.win/uploads/persister-big-key-in-redis-overview-Redis.png">
-<meta property="og:updated_time" content="2024-04-24T15:07:57.294Z">
+<meta property="og:updated_time" content="2024-04-30T13:20:54.518Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="为什么不建议在 Redis 使用大 Key">
 <meta name="twitter:description" content="Preview 公司里某位工程师小斌发现在一个 Redis 集群中的 some_big_list 经常出现慢查询，而且 QPS 特别高。初步定位是出现了一个热点的 Key。12newexplore&amp;gt; llen some_big_list500000 上面的命令发现，这个 some_big_list 是一个大 Key，导致 Redis Server 的服务器 CPU idle 很低，结果出现了">
@@ -243,7 +243,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 
 
 
-    <a data-url="https://xhinliang.win/2018/10/backend/big-key-in-redis/" data-id="clvdy91id0021d5qcm71rqef7" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="https://xhinliang.win/2018/10/backend/big-key-in-redis/" data-id="clvmf2h830021dgp5b4zb1la3" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         $('body').on('click', function() {

@@ -19,19 +19,19 @@ var _hmt = _hmt || [];
     
         <meta name="keywords" content="Java,Backend,Concurrent">
     
-    <meta name="description" content="Overview 总览在高并发量的后端业务中，多级缓存是一个非常常见的设计。事实上，多级缓存策略在计算机硬件也是普遍存在的。  为什么会有多级缓存？通常缓存都是比原数据要小的，设立缓存的目的很简单：某些数据经常用到，我们不想每次都去最深的地方（这里一般是指数据库）去找，所以我们就在更方便取到数据的地方把这些数据保存起来。 那么，为什么要用多级缓存呢？对于所有的数据来说，并不是每一份数据使用的频率都">
+    <meta name="description" content="在高并发量的后端业务中，多级缓存是一个非常常见的设计。事实上，多级缓存策略在计算机硬件也是普遍存在的。  为什么会有多级缓存？通常缓存都是比原数据要小的，设立缓存的目的很简单：某些数据经常用到，我们不想每次都去最深的地方（这里一般是指数据库）去找，所以我们就在更方便取到数据的地方把这些数据保存起来。 那么，为什么要用多级缓存呢？对于所有的数据来说，并不是每一份数据使用的频率都一样。对于使用频率非常">
 <meta name="keywords" content="Java,Backend,Concurrent">
 <meta property="og:type" content="article">
 <meta property="og:title" content="多级缓存的设计与实现">
 <meta property="og:url" content="https://xhinliang.win/2018/10/backend/multi-level-cache/index.html">
 <meta property="og:site_name" content="XhinLiang">
-<meta property="og:description" content="Overview 总览在高并发量的后端业务中，多级缓存是一个非常常见的设计。事实上，多级缓存策略在计算机硬件也是普遍存在的。  为什么会有多级缓存？通常缓存都是比原数据要小的，设立缓存的目的很简单：某些数据经常用到，我们不想每次都去最深的地方（这里一般是指数据库）去找，所以我们就在更方便取到数据的地方把这些数据保存起来。 那么，为什么要用多级缓存呢？对于所有的数据来说，并不是每一份数据使用的频率都">
+<meta property="og:description" content="在高并发量的后端业务中，多级缓存是一个非常常见的设计。事实上，多级缓存策略在计算机硬件也是普遍存在的。  为什么会有多级缓存？通常缓存都是比原数据要小的，设立缓存的目的很简单：某些数据经常用到，我们不想每次都去最深的地方（这里一般是指数据库）去找，所以我们就在更方便取到数据的地方把这些数据保存起来。 那么，为什么要用多级缓存呢？对于所有的数据来说，并不是每一份数据使用的频率都一样。对于使用频率非常">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://xhinliang.win/uploads/persister-multi-level-cache-overview-cache-memory-4113.jpg">
-<meta property="og:updated_time" content="2024-04-24T15:07:57.294Z">
+<meta property="og:updated_time" content="2024-04-30T13:20:54.518Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="多级缓存的设计与实现">
-<meta name="twitter:description" content="Overview 总览在高并发量的后端业务中，多级缓存是一个非常常见的设计。事实上，多级缓存策略在计算机硬件也是普遍存在的。  为什么会有多级缓存？通常缓存都是比原数据要小的，设立缓存的目的很简单：某些数据经常用到，我们不想每次都去最深的地方（这里一般是指数据库）去找，所以我们就在更方便取到数据的地方把这些数据保存起来。 那么，为什么要用多级缓存呢？对于所有的数据来说，并不是每一份数据使用的频率都">
+<meta name="twitter:description" content="在高并发量的后端业务中，多级缓存是一个非常常见的设计。事实上，多级缓存策略在计算机硬件也是普遍存在的。  为什么会有多级缓存？通常缓存都是比原数据要小的，设立缓存的目的很简单：某些数据经常用到，我们不想每次都去最深的地方（这里一般是指数据库）去找，所以我们就在更方便取到数据的地方把这些数据保存起来。 那么，为什么要用多级缓存呢？对于所有的数据来说，并不是每一份数据使用的频率都一样。对于使用频率非常">
 <meta name="twitter:image" content="https://xhinliang.win/uploads/persister-multi-level-cache-overview-cache-memory-4113.jpg">
     
 
@@ -166,7 +166,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 
         </div>
         <div class="article-entry" itemprop="articleBody">
-            <h2 id="Overview-总览"><a href="#Overview-总览" class="headerlink" title="Overview 总览"></a>Overview 总览</h2><p>在高并发量的后端业务中，多级缓存是一个非常常见的设计。<br>事实上，多级缓存策略在计算机硬件也是普遍存在的。</p>
+            <p>在高并发量的后端业务中，多级缓存是一个非常常见的设计。<br>事实上，多级缓存策略在计算机硬件也是普遍存在的。</p>
 <p><img src="/uploads/persister-multi-level-cache-overview-cache-memory-4113.jpg" alt="overview"></p>
 <p>为什么会有多级缓存？<br>通常缓存都是比原数据要小的，设立缓存的目的很简单：某些数据经常用到，我们不想每次都去最深的地方（这里一般是指数据库）去找，所以我们就在更方便取到数据的地方把这些数据保存起来。</p>
 <p>那么，为什么要用多级缓存呢？<br>对于所有的数据来说，并不是每一份数据使用的频率都一样。对于使用频率非常高的数据，我们称为热点数据。<br>例如，某个大V发了一条微博，告诉大家，他结婚了，那么这一条微博就是一个热点数据，热到不行的数据，我们的服务器平均下来每一毫秒要访问这条数据一万次（不夸张。。）<br>我前一篇文章也说了，分布式缓存 100us 的读取已经是正常成绩了，但是这个成绩完全不够支撑啊。我们必须有更快的缓存来保存这条数据，以减轻分布式缓存的压力。</p>
@@ -190,7 +190,7 @@ _st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
 
 
 
-    <a data-url="https://xhinliang.win/2018/10/backend/multi-level-cache/" data-id="clvdy91ho0007d5qc3dtcdkh1" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+    <a data-url="https://xhinliang.win/2018/10/backend/multi-level-cache/" data-id="clvmf2h7l000cdgp5c0bukskr" class="article-share-link"><i class="fa fa-share"></i>Share</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
