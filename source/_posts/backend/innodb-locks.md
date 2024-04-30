@@ -7,8 +7,6 @@ toc: true
 
 ![MySQL](/uploads/persister-innodb-locks-MySQL-1200px-MySQL.svg.png)
 
-## Overview
-
 InnoDB is a storage engine for MySQL. 
 After more than ten years of development, InnoDB has becomed the most common storage engine in Internet compony usages.
 

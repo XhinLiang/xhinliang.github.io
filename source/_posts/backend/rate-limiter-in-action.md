@@ -5,8 +5,6 @@ categories: Backend
 toc: true
 ---
 
-## Overview
-
 The backend systems which have lots of request per second always need a local rate limiter to protect themself.
 
 Which "local" means that this rate limiter worked in only this process and not shared with another.

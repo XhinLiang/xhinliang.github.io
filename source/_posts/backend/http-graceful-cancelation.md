@@ -5,8 +5,6 @@ categories: Backend
 toc: true
 ---
 
-## Outline
-
 Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete.
 
 When a client starts a request, it may cancel it before the long-running task is completed.
