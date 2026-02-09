@@ -24,11 +24,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: npm
+          node-version: 10.24.1
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund --legacy-peer-deps
+        run: npm install
 
       - name: Build
         run: npx hexo generate
