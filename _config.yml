@@ -12,7 +12,7 @@ timezone:
 avatar: /uploads/avatar.png
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://xhinliang.win
+url: https://xhinliang.github.io
 root: /
 permalink: :year/:month/:title/
 permalink_defaults:
@@ -69,7 +69,7 @@ theme: hueman
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: git@github.com:xhinliang/xhinliang.github.io.git
-  banch: master
+  repo: git@github.com:XhinLiang/xhinliang.github.io.git
+  branch: master
 
 duoshuo_shortname: xhinliang

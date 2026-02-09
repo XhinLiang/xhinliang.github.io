@@ -1,3 +1,5 @@
 .idea
 db.json
 public
+node_modules
+.deploy_git
