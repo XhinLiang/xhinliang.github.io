@@ -40,7 +40,8 @@ search:
 comment:
   # disqus: xhinliang
   # valine: xhinliang
-  gitalk: xhinliang
+  giscus: true
+  # gitalk: xhinliang
 
 # Share
 share: default # options: jiathis, bdshare, addtoany, default
