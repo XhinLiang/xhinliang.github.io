@@ -1,42 +1,29 @@
-title: HTTP 请求的优雅取消（Graceful Cancellation）
+title: HTTP Graceful Cancelation
 date: 2024-04-24
 tags: [XHR,HTTP,HttpClient,Nginx,HTTP/2,Cancelation,Cancel]
 categories: Backend
 toc: true
 ---
 
-我们经常会写一些“很慢”的 HTTP 接口：比如触发导出、跑一段复杂计算、调用外部服务、或者生成大文件。
+Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete.
 
-问题在于：**客户端可能在任务完成前就取消了请求**（关闭页面、点了取消、网络切换、超时等）。
+When a client starts a request, it may cancel it before the long-running task is completed.
 
-那服务端能不能“及时知道”客户端已经取消？如果能知道，就可以尽早停止后续的昂贵操作，省 CPU/IO/下游资源。
+The question we're addressing here is: can the server be aware that the client has cancelled the request? If the server can be aware, it can stop the costly subsequent operation in advance to save server resources.
 
-这篇文章用一个简单的 Go + Gin 示例，把常见场景拆开说清楚：
+## Without Nginx
 
-- 不经过 Nginx：HTTP/1.1、HTTP/2
-- 客户端“主动取消” vs “突然断网离线”
-- 经过 Nginx 反向代理时：Nginx→Server 用 HTTP/1.1 或 HTTP/2
+### HTTP/1.1
 
-核心结论先说：
-
-1. **Go 服务端可以通过 `Request.Context()` 感知“连接生命周期”的结束**，从而在 handler 里停止工作。
-2. **HTTP/2/HTTP/3 支持显式取消（RST_STREAM）**，通常能更“及时地”通知服务端。
-3. **突然离线（没有 FIN/RST/RST_STREAM）时，服务端往往感知不到**，除非你自己做了超时、心跳、或应用层中断机制。
-
-## 不经过 Nginx
-
-### HTTP/1.1：用 request context 做中断
-
-下面用 Gin 写一个慢接口 `/http1`：每秒做一次“昂贵操作”，并在每一轮检查 `ctx.Done()`。
+Let's start with a simple example using Go's Gin framework to serve the endpoint `/http1`.
 
 ```go
 package main
 
 import (
-    "context"
     "fmt"
     "time"
-
+    "context"
     "github.com/gin-gonic/gin"
 )
 
@@ -44,168 +31,355 @@ func main() {
     router := gin.Default()
 
     router.GET("/http1", func(c *gin.Context) {
+        // Context from the Gin handler
         ctx := c.Request.Context()
 
+        // Simulate a long-running task with periodic checks
         for i := 0; i < 10; i++ {
+            // Costly operation
             if err := costlyOperation(ctx, i); err != nil {
-                // 499 并不是标准 HTTP code，但在 Nginx 世界里常用来表示 client closed request
-                c.AbortWithStatusJSON(499, gin.H{"error": "client disconnected"})
+                c.AbortWithStatusJSON(499, gin.H{"error": "Client has disconnected"})
                 return
             }
         }
 
-        c.JSON(200, gin.H{"status": "ok"})
+        // Complete the task
+        c.JSON(200, gin.H{"status": "Task completed successfully"})
     })
 
-    router.Run(":8080")
+    router.Run(":8080") // listen and serve on 0.0.0.0:8080
 }
 
 func costlyOperation(ctx context.Context, i int) error {
     select {
-    case <-time.After(1 * time.Second):
+    case <-time.After(1 * time.Second): // simulate work by sleeping
         fmt.Println("Working...", i)
-        return nil
-    case <-ctx.Done():
-        fmt.Println("Client disconnected. Stop.", i)
-        return fmt.Errorf("client disconnected")
+    case <-ctx.Done(): // check if the context is done
+        fmt.Println("Client has disconnected. Stopping task.", i)
+        return fmt.Errorf("client has disconnected")
     }
+    return nil
 }
 ```
 
-#### 用 cURL 测试（HTTP/1.1）
+#### cURL
 
-```sh
+We use local cURL via HTTP/1.1 to test it:
+
+```shell
 curl http://localhost:8080/http1
-^C  # 过几秒手动中断
+^C # after 2 seconds
 ```
 
-你会看到服务端在某个循环里打印到 `ctx.Done()` 的分支，说明 **服务端感知到连接已经关闭**。
+The server log is:
 
-#### 用浏览器 XHR 测试
+```shell
+[GIN-debug] Listening and serving HTTP on :8080
+Working... 0
+Working... 1
+Working... 2
+Client has disconnected. Stopping task.  3
+[GIN] 2024/04/23 - 23:14:17 | 499 |  3.332915625s |       127.0.0.1 | GET      "/http1"
+```
 
-```js
+This means the server is aware that the client has cancelled the request.
+
+#### XHR
+
+We use XHR in a browser to test it:
+```javascript
 var xhr = new XMLHttpRequest();
-xhr.open('GET', 'http://localhost:8080/http1');
+xhr.open("GET", "http://localhost:8080/http1");
+xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+            console.log("Response:", xhr.responseText);
+        } else {
+            console.error("Request failed with status:", xhr.status);
+        }
+    }
+};
 xhr.send();
-
-setTimeout(() => xhr.abort(), 7000);
+xhr.abort(); // after 7 seconds
 ```
 
-一般也能触发服务端的取消感知（取决于浏览器/网络栈，通常会导致连接关闭或复用连接上的中断）。
+The server log is:
+```
+Working... 0
+Working... 1
+Working... 2
+Working... 3
+Working... 4
+Working... 5
+Working... 6
+Working... 7
+Client has disconnected. Stopping task.  8
+```
 
-#### 这背后发生了什么？
+#### How it works?
 
-在 Go 里，每个请求的 `Context` 会绑定到请求/连接的生命周期。
+The context included with each HTTP request in Go is linked to the lifecycle of the request. If the underlying TCP connection is closed, Go’s HTTP server automatically cancels this context. The cancellation can occur due to client disconnection (TCP FIN or RST), server-side timeout, or if the server manually cancels the context for other reasons (like application logic deciding to abort the request processing).
 
-- 当底层 TCP 连接被关闭（FIN/RST），Go 的 net/http 会取消这个 context
-- handler 里只要在耗时操作之间不断检查 `ctx.Done()`，就能“尽快”停下来
+### HTTP/2
 
-注意：Go 不会神奇地“打断”你正在执行的 CPU 密集型函数，它只会把 `ctx.Done()` 变成可读。**是否及时停下来，取决于你是否在关键路径里检查并传播 context。**
-
-### HTTP/2：更明确的取消信号
-
-Gin 在 TLS 下可以跑 HTTP/2（本地实验可以用自签证书）：
+Since Gin supports HTTP/2, let's use it to conduct our tests.
 
 ```go
-// 为了启用 HTTP/2，把 Run 换成 RunTLS
-router.RunTLS(":8081", "/tmp/server.crt", "/tmp/server.key")
+package main
+
+import (
+    "fmt"
+    "time"
+    "context"
+    "github.com/gin-gonic/gin"
+)
+
+func main() {
+    // ... no changes in the router setup
+
+    // To enable HTTP/2, replace the `Run` method with `RunTLS`
+    router.RunTLS(":8081", "/tmp/server.crt", "/tmp/server.key") // listen and serve on 0.0.0.0:8081 using TLS, necessary for HTTP/2
+}
+
+// ... no changes in the handler
 ```
 
-#### 用 cURL（HTTP/2）测试
+#### cURL
+
+We use local cURL via HTTP/2 to test it:
+
+```shell
+curl https://localhost:8081/http2 --insecure --verbose
+*   Trying 127.0.0.1:8081...
+* Connected to
+
+ localhost (127.0.0.1) port 8081 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* successfully set certificate verify locations:
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256
+* ALPN, server accepted h2 as the protocol
+* Server certificate:
+*  subject: C=AU; ST=Some-State; O=Internet Widgits Pty Ltd
+*  start date: Apr 23 15:35:12 2024 GMT
+*  expire date: Apr 23 15:35:12 2025 GMT
+*  issuer: C=AU; ST=Some-State; O=Internet Widgits Pty Ltd
+*  SSL certificate verify result: self signed certificate (18), continuing anyway.
+* Using HTTP2, server supports multiplexing
+* Using Stream ID: 1 (easy handle 0x14e80bc00)
+> GET /http2 HTTP/2
+> Host: localhost:8081
+> user-agent: curl/7.86.0
+> accept: */*
+>
+* Connection state changed (MAX_CONCURRENT_STREAMS == 250)!
+```
+
+The server log is:
+
+```shell
+Working... 0
+Working... 1
+Working... 2
+Working... 3
+Working... 4
+Client has disconnected. Stopping task.  5
+```
+
+This indicates that the server is aware that the client has cancelled the request.
+
+#### XHR
+
+```javascript
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "https://localhost:8081/http2");
+xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200) {
+            console.log("Response:", xhr.responseText);
+        } else {
+            console.error("Request failed with status:", xhr.status);
+        }
+    }
+};
+xhr.send();
+xhr.abort(); // after 6 seconds
+```
+
+The server log is:
+
+```shell
+Working... 0
+Working... 1
+Working... 2
+Working... 3
+Working... 4
+Working... 5
+Working... 6
+Client has disconnected. Stopping task.  7
+```
+
+### Offline
+
+When the user suddenly makes the device offline (without any network notification e.g., TCP FIN&RST or HTTP/2 RST), what will happen?
+
+We can use another device to test it.
 
 ```sh
-curl https://localhost:8081/http2 --insecure --verbose
-^C  # 中断
+# 0. setup the WiFi
+# 1. open the browser and go to http://localhost:8080/http1
+# 2. close the WiFi
 ```
 
-HTTP/2 支持对单个 stream 发送 RST_STREAM 来取消请求，所以服务端通常能更早收到“取消”的明确语义。
+The server log is:
 
-### 突然离线（Offline）：最容易误判的场景
+```shell
+Working... 0
+Working... 1
+Working... 2
+Working... 3
+Working... 4
+Working... 5
+Working... 6
+Working... 7
+Working... 8
+Working... 9
+[GIN] 2024/04/23 - 23:49:49 | 200 | 10.011190667s |   192.168.0.105 | GET      "/http1"
+```
 
-如果用户不是“点取消/关闭连接”，而是直接断网（例如手机关 Wi‑Fi、飞行模式），可能不会马上产生 TCP FIN/RST，也可能不会立刻发 HTTP/2 RST_STREAM。
+It means the server is not aware that the client has cancelled the request.
 
-结果就是：**服务端还以为请求正常进行**，你会看到循环完整跑完，最后写响应时才可能发现对端不可达（甚至写响应时也可能没立刻报错，取决于内核缓冲和重传）。
+### Summary
 
-所以：
+In the context of HTTP/1.1, cancellation is not explicitly handled by the protocol itself. If a client sends a request and then closes the connection before receiving the response, the server might detect that the connection has been closed when it tries to write the response. However, by that time, the server might have already processed or even completed processing the request. This type of cancellation is detected through TCP/IP connection management rather than through HTTP protocol features.
 
-- “能否感知取消” ≠ “用户不想等了”
-- 仅靠连接状态，无法覆盖所有“用户已离线/不再关心”的情况
+For HTTP/2 and HTTP/3, the situation is different. Both protocols support explicit request cancellation. In HTTP/2 and HTTP/3, a client can send a RST_STREAM frame to the server, which effectively tells the server to stop processing a specific stream (which corresponds to a request). This allows for more efficient cancellation and resource management on the server, as it can immediately stop processing a request upon receiving a cancellation notice.
 
-### 小结（不经过 Nginx）
+Here’s how each protocol handles cancellation:
 
-- HTTP/1.1：更多是依赖 TCP 连接状态（FIN/RST），通常在你下一次读写或检查 context 时才知道
-- HTTP/2/HTTP/3：协议层有显式取消（RST_STREAM），更及时、更明确
-- Offline：可能没有任何显式信号，服务端往往无法立刻知道
+- **HTTP/1.1**: Depends on whether the TCP connection is reused or not. 
+	- If reused: the server may notice that the client has disconnected when it attempts to send a response and fails due to a broken TCP connection. The server might also implement timeouts or other mechanisms to detect that a client has stopped responding.
+	- If not reused: means the TCP connection has been closed by the client. The server can detect that the client has disconnected and stop processing the request.
+- **HTTP/2 and HTTP/3**: The client can send a RST_STREAM frame to explicitly cancel a request. This lets the server know immediately that the request should be aborted, which is more efficient and can help in managing server resources effectively.
 
-## 经过 Nginx（反向代理）
+Servers that support HTTP/2 or HTTP/3 are thus better equipped to handle request cancellations gracefully. In any case, how well cancellation is handled can also depend on how the server's application logic is implemented, such as whether it periodically checks for connection status or interruptions during lengthy operations.
 
-现实里，大多数服务端前面还有 Nginx：
+## With Nginx
 
-- Client → Nginx：常见是 HTTP/2
-- Nginx → Server：可能是 HTTP/1.1，也可能是 HTTP/2
+We usually use Nginx as a reverse proxy between the client and the server.
 
-这会影响“取消信号”是否能传递到你的应用。
+Since we commonly use HTTP/2 on the Nginx side, so after integrating with Nginx, the process flow will be like:
 
-下面是一个示意配置（仅用于说明）：
+```shell
+Client - HTTP/2 -> Nginx - HTTP/1.1 -> Server
+```
+or
+```shell
+Client - HTTP/2 -> Nginx - HTTP/2 -> Server
+```
+
+So we prepared the nginx configuration file in the `nginx.conf`
 
 ```conf
-events { worker_connections 1024; }
-
+events {
+    worker_connections 1024;
+}
+# HTTP block
 http {
-  error_log /tmp/https_error.log debug;
+  error_log /tmp/https_error.log debug;  # Specify a custom path and log level
 
-  server {
-    listen 443 ssl http2;
-    server_name local_nginx_http_2;
+    # HTTPS server
+    server {
+        listen 443 ssl http2;
+        server_name local_nginx_http_2;
 
-    ssl_certificate /tmp/server.crt;
-    ssl_certificate_key /tmp/server.key;
+        ssl_certificate /tmp/server.crt;
+        ssl_certificate_key /tmp/server.key;
 
-    location /http1 {
-      proxy_pass http://127.0.0.1:8080;
-      proxy_set_header Host $host;
-      proxy_http_version 1.1;
+        location /http1 {
+            proxy_pass http://127.0.0.1:8080;
+            proxy_set_header Host $host;
+            proxy_http_version 1.1;
+        }
+
+        location /http2 {
+            proxy_pass https://127.0.0.1:8081;
+            proxy_set_header Host $host;
+            proxy_ssl_verify off;  # Add this line to disable SSL verification for the proxy
+        }        
     }
-
-    location /http2 {
-      proxy_pass https://127.0.0.1:8081;
-      proxy_set_header Host $host;
-      proxy_ssl_verify off;
-    }
-  }
 }
 ```
 
-### 场景 1：Client(HTTP/2) → Nginx → Server(HTTP/1.1)
+In the above part, we have a conclusion that both cURL and XHR can perform a graceful cancellation.
 
-- 客户端取消：对 Nginx 来说是 HTTP/2 RST_STREAM
-- 但 Nginx 到后端是 HTTP/1.1，**没有“RST_STREAM”这种语义**
-- Nginx 只能选择：
-  - 关闭到后端的 TCP 连接（让后端通过连接断开间接感知）
-  - 或者继续把后端请求跑完但丢弃响应（浪费后端资源）
+So in this part, to simplify, we will just use a cURL to test these cases.
 
-是否会“帮你断后端连接”，取决于 Nginx 行为和配置，以及后端写回时机。
+#### Nginx - HTTP/1.1 -> Server
 
-### 场景 2：Client(HTTP/2) → Nginx → Server(HTTP/2)
+The cURL is like:
 
-- 客户端取消：Nginx 收到 RST_STREAM
-- Nginx 到后端也是 HTTP/2：**可以把取消语义转发**（再发一个 RST_STREAM）
-- 后端能更快、更明确地停止工作
+```shell
+curl https://localhost/http1 --insecure
+^C # after 6 seconds
+```
 
-### 小结（经过 Nginx）
+The server log is:
 
-如果你的业务非常在意“取消要尽快释放资源”，优先保证：
+```shell
+Working... 0
+Working... 1
+Working... 2
+Working... 3
+Working... 4
+Working... 5
+Client has disconnected. Stopping task.  6
+```
 
-- 后端代码层面：长任务支持 `context` 贯穿（DB/HTTP/RPC 调用都能被中断/超时）
-- 链路层面：尽量让 Nginx→Server 也跑 HTTP/2（或至少让连接断开能被后端及时感知）
+It means the server is aware that the client has cancelled the request.
 
-## 实战建议（避免“以为能取消，但其实没停”）
+#### Nginx - HTTP/2 -> Server
 
-1. **所有慢操作都要接收并传播 `context.Context`**：DB 查询、HTTP 调用、队列 publish、文件上传等。
-2. **为长任务设置上限**：服务端超时（`context.WithTimeout`）比“等客户端取消”可靠。
-3. **把“请求取消”当成优化而不是正确性依赖**：离线、网络抖动、代理行为都可能让你感知不到。
-4. **对昂贵任务用异步化**：把任务丢到队列，HTTP 只返回 task id；客户端取消不影响任务一致性，由你控制是否可取消。
+The cURL is like:
 
----
+```shell
+curl https://localhost/http2 --insecure
+^C # after 6 seconds
+```
 
-如果你想我补一段更贴近生产的示例（例如：Gin handler 里同时调用 DB + 下游 HTTP，并在中断时做清理/指标上报/日志关联 trace id），我也可以基于这个文章继续扩展。
+The server log is:
+
+```shell
+Working... 0
+Working... 1
+Working... 2
+Working... 3
+Working... 4
+Working... 5
+Client has disconnected. Stopping task.  6
+```
+
+It means the server is aware that the client has cancelled the request.
+
+### Summary
+
+When there is an Nginx reverse proxy sitting between the client and the server, handling client requests and forwarding them to the server, the behavior upon cancellation can vary depending on the protocols used between the client and Nginx, and between Nginx and the server. Let's consider the two scenarios:
+
+#### Scenario 1: Client (HTTP/2) -> Nginx -> Server (HTTP/1.1)
+
+1. Client Cancels Request: The client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame to Nginx.
+2. Nginx Behavior: Upon receiving the RST_STREAM frame, Nginx recognizes that the client has cancelled the request. Given that the connection to the server is over HTTP/1.1, which doesn’t support RST_STREAM, Nginx has the option to either continue processing the request or terminate the TCP connection to the server. The action Nginx takes can depend on how it’s configured: it might be set to close the connection to free up resources more quickly or to simply drop the response if the server completes the request.
+3. Server Side: If Nginx decides to close the TCP connection, the server might detect this as a connection error or failure when attempting to send a response. This abrupt closing can signal to the server that it should stop processing, albeit indirectly. Without a connection to send a response, the server may halt operations, reducing unnecessary resource usage.
+
+#### Scenario 2: Client (HTTP/2) -> Nginx -> Server (HTTP/2)
+
+1. Client Cancels Request: As before, the client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame.
+2. Nginx Behavior: Since the connections both to the client and from Nginx to the server use HTTP/2, Nginx can forward the cancellation directly by sending another RST_STREAM frame to the server. This maintains protocol integrity and allows for seamless communication of the client's intention to cancel.
+3. Server Side: The server, upon receiving the RST_STREAM frame from Nginx, knows immediately that the request has been cancelled and can stop processing right away. This protocol-supported method of cancellation is efficient and clear, minimizing wasted resources.
