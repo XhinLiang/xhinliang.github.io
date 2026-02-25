@@ -7,19 +7,19 @@ toc: true
 
 ## Background
 
-Because of the networking improvement and the influent of the COVID-19, live streaming has become the hottest technology on the Internet, again.
+Because of network improvements and the impact of COVID-19, live streaming has become the hottest technology on the Internet, again.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
 
-Fortunately, I have been participating in building a live streaming platform. In other words, I also have some experience in this domain. Today I am gonna talk about the "Interactive Service" of live streaming, my most familiar part of the platform.
+Fortunately, I have been participating in building a live streaming platform. In other words, I also have some experience in this domain. Today I am going to talk about the "Interactive Service" of live streaming, my most familiar part of the platform.
 
-At first, I have to define the "Interactive Service". Commonly, people always split the live streaming platform into two parts: "Video Steaming" and "Interactive Service".
+At first, I have to define the "Interactive Service". Commonly, people always split the live streaming platform into two parts: "Video Streaming" and "Interactive Service".
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oblby6l5j20z60u0tbv.jpg)
 
-"Video Streaming" means the audio and video that people can instantly watch and hear. "Video Streaming" is the bastion of live streaming, we can't see anything and hear any word from the anchor without it, the live streaming totally becomes a boring group chat.
+"Video Streaming" means the audio and video that people can instantly watch and hear. "Video Streaming" is the foundation of live streaming, we can't see anything and hear any word from the anchor without it, the live streaming totally becomes a boring group chat.
 
-"Interactive Service" means all the other parts without "Video Streaming". Almost everything you can join to the live streaming is the result of "Interactive Service". For example, comments, gifts, e-commerce notifications, etc. "Interactive Service" gives live streaming a soul so that live streaming is never a monologue of the anchor, it's a party between the anchor and all of the audiences.
+"Interactive Service" means all the other parts without "Video Streaming". Almost everything you can join to the live streaming is the result of "Interactive Service". For example, comments, gifts, e-commerce notifications, etc. "Interactive Service" gives live streaming a soul so that live streaming is never a monologue of the anchor, it's a party between the anchor and all audiences.
 
 ## Interactive Service
 
@@ -27,9 +27,9 @@ In my opinion, "Interactive Service" is a full-feature eco-system.
 
 Anchors and audiences can generate signals to it, and it would deliver the signals to the other people in the live room. For example, the audience foo can comment on a signal "You look good" to the "Interactive Service", and "Interactive Service" will broadcast this signal to the other people after a while.
 
-On the other hand, "Interactive Service" can generate some event by itself. For example, "Interactive Service" will broadcast the exact number of users online of every live room by period, so that people can see how many people do the live room has now.
+On the other hand, "Interactive Service" can also generate events on its own. For example, "Interactive Service" will broadcast the exact number of users online of every live room periodically, so that people can see how many people do the live room has now.
 
-How to build an "Interactive Service" to deliver such signals in a safe, quick, and economic way, are the core parts we discuss in this article.
+How to build an "Interactive Service" that delivers these signals safely, quickly, and cost-effectively is the core topic of this article.
 
 - Safe
   - "Interactive Service" should check the authority of the request/connection
@@ -42,19 +42,19 @@ How to build an "Interactive Service" to deliver such signals in a safe, quick, 
 
 ## Signal Types
 
-Before we discuss the different modelings of "Interactive Service", we should talk about 3 types of signals whiches should implement in different ways.
+Before we discuss the different modelings of "Interactive Service", we should talk about 3 types of signals that should be implemented in different ways.
 
 ### State Sync Signal
 
-The clients should init some state just after entering the live room. When the states have been changed, clients should be noticed and do something about these changes.
+Clients should initialize some state just after entering the live room. When the states have been changed, clients should be noticed and do something about these changes.
 
-A modal implementation is using "Total and Partial Version" to describe state changes of the business state updating of live streaming.
+A common implementation is using "Total and Partial Version" to describe state changes of the business state updating of live streaming.
 
 In this implementation, servers and clients should store the total version and partial versions. Clients should fetch the total version by interval and then fetch the outdated partial versions if the fetched total version is different from the local total version.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oc8bkeruj21d90u078y.jpg)
 
-We call this model `SS Signal` for a shortcut.
+We call this model `SS Signal` for short.
 
 ### Time Series Signal
 
@@ -66,11 +66,11 @@ We can use several ways to implement time-series signals. But there are two diff
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oc8tju01j219g0u0djh.jpg)
 
-We call this model `TS Signal` for a shortcut.
+We call this model `TS Signal` for short.
 
 ### Peer Delivery Signal
 
-SS signal and Ts signal are designed for all of the people in the same live room. When one of the state change or some action happen, these signals should be delivered to all of the clients in these live room. But peer signals are designed for just some of the people in the live room.
+SS signal and TS signal are designed for all of the people in the same live room. When one of the state change or some action happen, these signals should be delivered to all of the clients in a live room. But peer signals are designed for just some of the people in the live room.
 
 We could use signals with some filters to implement peer signals, but it will have lots of performance issues.
 
@@ -101,7 +101,7 @@ As we all know, CDN services can achieve higher performance and less latency. So
 
 ### Server-Push Modeling
 
-When the live room is updated fastly, using a custom application layer based on a proper transport layer is considerable.
+When the live room is updated rapidly, using a custom application layer based on a proper transport layer is considerable.
 
 In this way, we could choose WebSocket to reach more compatibility, or use QUIC to reach more efficiency, or just use TCP typically.
 
@@ -111,14 +111,14 @@ In HTTP Server, each server is stateless so it's easier to implement the load ba
 
 In the C/S Modeling part, we talked about the grouping of HTTP Server, the conception works in Server-Push Modeling, too. There are several models of this conception.
 
-- Split up the server into some groups, and each group has its endpoint, the clients choose the targe endpoint by the id of the live room
+- Split up the server into some groups, and each group has its endpoint, the clients choose the target endpoint by the id of the live room
 - Using or implementing an application-level load balancing algorithm.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oc72dn9yj21fc0u0afn.jpg)
 
 ## Summary
 
-Buiding a live streaming platform is such a large project, so I cannot write down all of my thoughts in one article.
+Building a live streaming platform is such a large project, so I cannot write down all of my thoughts in one article.
 
 But in this part, we have discussed some core concepts of live streaming.
 

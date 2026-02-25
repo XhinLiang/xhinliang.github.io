@@ -8,15 +8,15 @@ toc: true
 ![MySQL](/uploads/persister-innodb-locks-MySQL-1200px-MySQL.svg.png)
 
 InnoDB is a storage engine for MySQL. 
-After more than ten years of development, InnoDB has becomed the most common storage engine in Internet compony usages.
+After more than ten years of evolution, InnoDB has become the most widely used storage engine for internet applications.
 
-There are lots of articles talk over the locks of InnoDB, and today I am going to discuss them again.
+There are many articles about InnoDB locks, and today I want to revisit the topic.
 
-## SHOW YOUR LOCKS IN MYSQL
+## HOW TO VIEW LOCKS IN MYSQL
 
 To learn the locks effectively, you should learn to show the locks of current database.
 
-Typing this command in mysql client, and you will get all of the locks whiches InnoDB is holding.
+Typing this command in mysql client, and you will get all of the locks that InnoDB is currently holding.
 
 ```sql
 mysql> select * from performance_schema.data_locks\G
@@ -38,7 +38,7 @@ OBJECT_INSTANCE_BEGIN: 140616462868960
             LOCK_DATA: NULL -- index of the lock using
 ```
 
-We have learnd the way to show the locks of current database in the code block above, and we notice that there are some key fileds whe should care about.
+As shown above, we can inspect current locks in the database. There are several key fields we should pay attention to.
 
 - INDEX_NAME The name of the locked index, always non-NULL for innoDB tables.
 - LOCK_TYPE 
@@ -46,11 +46,11 @@ We have learnd the way to show the locks of current database in the code block a
 - LOCK_STATUS
 - LOCK_DATA
 
-In these five fields, we can learn mostly all of the information we regard.
+From these five fields, we can get almost all the lock details we care about.
 
 ### LOCK_TYPE
 
-LOCK_TYPE is the first filed and the most easy field we got, it can be TABLE or RECORD, indicates that the scope of this lock affected to.
+LOCK_TYPE is the first and easiest field to understand. It can be TABLE or RECORD and indicates the scope affected by the lock.
 
 ### LOCK_MODE
 
@@ -69,8 +69,8 @@ LOCK_MODE has several options
 
 ### LOCK_STATUS
 
-LOCK_STATUS show the aquire status of this lock, could be GRANTED or WAITING.
-When the LOCK_STATUS is GRANTED means that the session aquired this lock, otherwise means that the session of this lock is waiting.
+LOCK_STATUS shows the acquisition state of this lock: GRANTED or WAITING.
+When the LOCK_STATUS is GRANTED means that the session acquired this lock, otherwise means that the session of this lock is waiting.
 
 ### LOCK_DATA
 
@@ -100,7 +100,7 @@ mysql> select * from child
 4 rows in set (0.00 sec)
 ```
 
-And then we begin an session an lock a nonexistent row.
+Then we start a session and lock a non-existent row.
 ```
 mysql> begin;
 Query OK, 0 rows affected (0.00 sec)
@@ -109,7 +109,7 @@ mysql> select * from child where id = 100 for update;
 Empty set (0.00 sec)
 ```
 
-When we query the locks of this database, we can see that the (90, 102) have been lock as Exclusive Gap Lock.
+When we query the locks of this database, we can see that the (90, 102) has been locked as an Exclusive Gap Lock.
 
 ```
 mysql> select * from performance_schema.data_locks\G
