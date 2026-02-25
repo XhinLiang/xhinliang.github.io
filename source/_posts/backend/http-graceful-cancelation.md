@@ -1,6 +1,6 @@
-title: HTTP Graceful Cancelation
+title: HTTP Graceful Cancellation
 date: 2024-04-24
-tags: [XHR,HTTP,HttpClient,Nginx,HTTP/2,Cancelation,Cancel]
+tags: [XHR,HTTP,HttpClient,Nginx,HTTP/2,Cancellation,Cancel]
 categories: Backend
 toc: true
 ---
@@ -9,7 +9,7 @@ Imagine we are writing an HTTP server as described below, where the endpoint tak
 
 When a client starts a request, it may cancel it before the long-running task is completed.
 
-The question we're addressing here is: can the server be aware that the client has cancelled the request? If the server can be aware, it can stop the costly subsequent operation in advance to save server resources.
+The question we're addressing here is: can the server detect that the client has canceled the request? If the server can detect this in time, it can stop costly downstream work and save resources.
 
 ## Without Nginx
 
@@ -116,7 +116,7 @@ Working... 7
 Client has disconnected. Stopping task.  8
 ```
 
-#### How it works?
+#### How does it work?
 
 The context included with each HTTP request in Go is linked to the lifecycle of the request. If the underlying TCP connection is closed, Go’s HTTP server automatically cancels this context. The cancellation can occur due to client disconnection (TCP FIN or RST), server-side timeout, or if the server manually cancels the context for other reasons (like application logic deciding to abort the request processing).
 
@@ -228,7 +228,7 @@ Client has disconnected. Stopping task.  7
 
 ### Offline
 
-When the user suddenly makes the device offline (without any network notification e.g., TCP FIN&RST or HTTP/2 RST), what will happen?
+When a user suddenly takes the device offline (without any network notification such as TCP FIN/RST or HTTP/2 RST), what happens?
 
 We can use another device to test it.
 
@@ -275,7 +275,7 @@ Servers that support HTTP/2 or HTTP/3 are thus better equipped to handle request
 
 We usually use Nginx as a reverse proxy between the client and the server.
 
-Since we commonly use HTTP/2 on the Nginx side, so after integrating with Nginx, the process flow will be like:
+Since HTTP/2 is commonly used on the client-to-Nginx side, after integrating Nginx the traffic flow typically looks like this:
 
 ```shell
 Client - HTTP/2 -> Nginx - HTTP/1.1 -> Server
@@ -320,7 +320,7 @@ http {
 
 In the above part, we have a conclusion that both cURL and XHR can perform a graceful cancellation.
 
-So in this part, to simplify, we will just use a cURL to test these cases.
+So in this part, to simplify, we will just use curl to test these cases.
 
 #### Nginx - HTTP/1.1 -> Server
 

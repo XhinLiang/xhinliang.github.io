@@ -7,25 +7,25 @@ toc: true
 
 ## Background
 
-Because of the networking improvement and the influent of the COVID-19, live streaming has become the hottest technology on the Internet, again.
+Because of network improvements and the impact of COVID-19, live streaming has become the hottest technology on the Internet, again.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
 
-In the past article we have discussed signal modeling and interactive modeling, this time we will discuss the scale methods of interactive service.
+In the previous article, we discussed signal and interaction modeling. This time, we will focus on scaling methods for interactive services.
 
 ## Limitations
 
-As we all know, there are simply two kinds of services in the backend, called stateless service and stateful service.
+In backend systems, there are two broad categories of services: stateless and stateful.
 
 Stateless service means that the service processes requests based only on the information relayed with each request and doesn’t rely on information from earlier requests.
 
 Stateful service means that the service processes requests based on the information relayed with each request and information stored from earlier requests.
 
-The biggest difference between stateless service and stateful service is that stateless service can route requests to different instances easily and stateful service can't.
+The biggest difference between stateless service and stateful service is that stateless service can route requests to different instances easily and stateful services cannot.
 
-The stateless services are easy to scale so that the bottleneck of the entire system commonly comes from the stateful parts.
+Stateless services are easier to scale, so system bottlenecks usually come from stateful components.
 
-The interactive service of live streaming is composed of a few parts as I mention below.
+The interactive service of live streaming is composed of a few parts as mentioned below.
 
 - Storages
   - Relational Databases
@@ -39,11 +39,11 @@ The interactive service of live streaming is composed of a few parts as I mentio
 - HTTP Servers
 - Signaling Servers
 
-And today the scaling methods of interactive service are aiming at these parts, too.
+And today the scaling methods for interactive services also target these components.
 
 ## Scaling Methods
 
-The distributed systems are often constructed by several small instances, we can increase the capacity and performance by scaling the instance up. But before scaling it up we have to make our system scalable.
+The distributed systems are often constructed by several small instances, we can increase capacity and performance by scaling instances out. But before scaling out we have to make our system scalable.
 
 ### Relational Databases
 
@@ -69,11 +69,11 @@ When we are querying the database by offline live streaming room id, we can just
 
 We use Redis to implement the structured collections, so the method to scale the structured collections is to scale the Redis servers.
 
-We never use `Redis Cluster` technology as our `Redis Cluster` solution. Conversely, we just use twemproxy to reroute the write and query. So the `Redis Cluster` we talk about below is not as same as the official `Redis Cluster` but the cluster constructed by several Twemproxy, Redis-Master, Redis-Slave, and Redis-Sentinal.
+We never use `Redis Cluster` technology as our `Redis Cluster` solution. Conversely, we just use twemproxy to reroute the write and query. So the `Redis Cluster` we talk about below is not the same as the official `Redis Cluster` but the cluster constructed by several Twemproxy, Redis-Master, Redis-Slave, and Redis-Sentinal.
 
 On the other hand, we often build two same Redis Cluster in different AZ(Available Zone) and assign one of them as the main cluster by config.
 
-The write operation of the main cluster would replica to the secondary cluster by Kafka Message.
+The write operation of the main cluster is replicated to the secondary cluster by Kafka Message.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0ofdhqbrcj215g0u078o.jpg)
 
@@ -89,7 +89,7 @@ Big-key often comes from the write operation of sorted set keys and hash keys. I
 Hot-Key often comes from the read operation, in order to prevent it, we can use these ways below.
 
 - Use another cache to store the result temporarily. For example, we can build a local cache in our service and this local cache will serve all the requests before expired;
-- Storage the key redundantly and choose a key randomly to read. In the general Redis Cluster solution, the different keys will locate in a different Redis-Server, so that all the requests will not be routed in a certain Redis-Server, too.
+- Store keys redundantly and choose a key randomly to read. In the general Redis Cluster solution, the different keys will locate in a different Redis-Server, so that all the requests will not be routed in a certain Redis-Server, too.
 
 ![](/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0olq9yfdqj21aw0u00wc.jpg)
 
@@ -117,12 +117,12 @@ One more thing worth mentioning is that the hash salts of different Memcached Cl
 
 In this way cache, we will have the highest availability.
 
-- If one Memcached node is down, no cached will be lost because clients will read the lost keys from another Memcached Cluster and write back;
+- If one Memcached node is down, no cache will be lost because clients will read the lost keys from another Memcached Cluster and write back;
 - If two Memcached nodes of different Memcached Clusters are down, only 1/M * 1/N data will be lost. (M, N means the nodes count of the Memcached Clusters)
 
 ### Scheduled Tasks
 
-Processing some business periodically is a very common live streaming backend. Most of the process tasks do have these properties.
+Processing some business periodically is a very common live streaming backend. Most of these processing tasks do have these properties.
 
 - They should know which rooms are ongoing;
 - They would do the logic separate by the live streaming room.
@@ -135,7 +135,7 @@ We can use a service named "OngoingQuery" to protect the databases.
 
 The OngoingQuery service will store all the room ids of ongoing live streaming.
 
-They scan the databases periodically to update the entire cache of themselves, and they the binlog of databases for instantly update. In this way, the cache of the OngoingQuery service will be the same as the data of the database eventually.
+They scan the databases periodically to update the entire cache of themselves, and tail database binlogs for near-real-time updates. In this way, the cache of the OngoingQuery service will be the same as the data of the database eventually.
 
 When we deploy a number of shard tasks for processing some business data, the shard tasks will register themselves to ZooKeeper at first, and then run periodically to do these things.
 
@@ -160,9 +160,9 @@ We can use a virtual account to improve the transporting performance.
 
 When the live streaming room begins, we will create a virtual account for this live streaming room in each database of user balance.
 
-The gifting operation during the live streaming will be transportation between the audience account and the virtual account of the database which the audience account belongs to.
+The gifting operation during the live streaming will be transfers between the audience account and the virtual account of the database which the audience account belongs to.
 
-When the live stream room end, the service named "Settler" will collect all of the virtual accounts and do the distributed transaction between virtual accounts and the anchor account.
+When the live-stream room ends, the service named "Settler" will collect all of the virtual accounts and do the distributed transaction between virtual accounts and the anchor account.
 
 ### HTTP Service
 
@@ -176,7 +176,7 @@ We have talked about this in the [How to Build a Scalable Live Streaming Interac
 
 ## Summary
 
-In this article, we have discussed the scale strategies of the stateful services of live streaming interactive services. Some people also called these strategies "sharding strategy".
+In this article, we have discussed the scaling strategies of the stateful services of live streaming interactive services. Some people also called these strategies "sharding strategy".
 
 All of these things have a core concept commonly -- "Split the big thing into small things", oh we have learned it in our university, isn't it?
 

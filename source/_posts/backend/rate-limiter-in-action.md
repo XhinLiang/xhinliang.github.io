@@ -5,11 +5,11 @@ categories: Backend
 toc: true
 ---
 
-The backend systems which have lots of request per second always need a local rate limiter to protect themself.
+Backend systems that handle many requests per second often need a local rate limiter to protect themselves.
 
-Which "local" means that this rate limiter worked in only this process and not shared with another.
+Here, "local" means the limiter works only within a single process and is not shared across processes.
 
-Here are some local rate limiter used in prodction evironment.
+Here are some local rate-limiting strategies commonly used in production environments.
 
 - Fixed Window
 - Floating Window
@@ -22,14 +22,14 @@ And we will discuss them one by one.
 
 Fixed Window means that we can split a time to some window, and perform the action for a limit in a window.
 
-The disatvantage is that the throughput of this system can be not such steady.
-Image this scenario, we have a rate limiter for 1000 per second, and perform not one request in first 999ms.
-After this, we perform 1000 request in 1ms, all of these request will be granted.
-And then we perform 1000 request in 1ms too, as we can see, the latest 1000 requests will be granted too, because there two part of request matches the different time window.
+The disadvantage is that system throughput may be uneven.
+Imagine this scenario: we set a rate limit of 1000 requests per second and receive no requests in the first 999 ms.
+Then, 1000 requests arrive within 1 ms, and all of them are granted.
+Right after that, another 1000 requests arrive within 1 ms and can also be granted because they fall into a new window.
 
 We can reduce this defect by splitting out the time window smaller.
 For example, when we need a rate limiter for 1000 per second, we can split one second as 100 "tenMs" then limit 10 actions per "tenMs".
-As we can see, the smaller you slit the time window, the smoother it rate limiter can be.
+As we can see, the smaller you split the time window, the smoother the limiter behavior becomes.
 
 After discussing the concept of Fixed Window rate limiting, it's beneficial to provide a code example. Here is a simple implementation in Java:
 
@@ -136,11 +136,11 @@ public class LeakyBucketRateLimiter {
 
 ## Token Bucket
 
-Token Bucket means that we have a bucket which contains lots of bucket, and there is another thread will supply the token in a fixed rate at the same time.
+Token Bucket means we have a bucket that holds tokens, and tokens are replenished at a fixed rate.
 
-Backend system will take a token from the bucket for per request. When the bucket is run out of token, the request will be blocked.
+The backend system consumes one token per request. When the bucket runs out of tokens, requests are rejected or delayed.
 
-Token Bucket seems like Leaky Bucket but can be more effective, because we can just record the number of bucket and the latest time when we supply the bucket, instead of using a token-supplier thread.
+Token Bucket seems like Leaky Bucket but can be more effective, because we can track only the token count and the last refill timestamp instead of running a dedicated refill thread.
 
 Here is a simple implementation.
 
