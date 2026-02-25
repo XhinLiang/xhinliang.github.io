@@ -5,17 +5,17 @@ categories: Backend
 toc: true
 ---
 
-Imagine we are writing an HTTP server as described below, where the endpoint takes a long time to complete.
+Suppose we’re writing an HTTP server with an endpoint that takes a long time to finish.
 
-When a client starts a request, it may cancel it before the long-running task is completed.
+A client may start a request and then cancel it before the handler completes (closing the tab, navigating away, hitting “stop”, etc.).
 
-The question we're addressing here is: can the server detect that the client has canceled the request? If the server can detect this in time, it can stop costly downstream work and save resources.
+The question is: can the server detect that the client has canceled the request, and do so early enough to stop expensive downstream work?
 
 ## Without Nginx
 
 ### HTTP/1.1
 
-Let's start with a simple example using Go's Gin framework to serve the endpoint `/http1`.
+Let’s start with a simple example using Go’s Gin framework to serve the endpoint `/http1`.
 
 ```go
 package main
@@ -64,7 +64,7 @@ func costlyOperation(ctx context.Context, i int) error {
 
 #### cURL
 
-We use local cURL via HTTP/1.1 to test it:
+Test with local curl over HTTP/1.1:
 
 ```shell
 curl http://localhost:8080/http1
@@ -82,11 +82,14 @@ Client has disconnected. Stopping task.  3
 [GIN] 2024/04/23 - 23:14:17 | 499 |  3.332915625s |       127.0.0.1 | GET      "/http1"
 ```
 
-This means the server is aware that the client has cancelled the request.
+This shows the server notices the disconnect and cancels the request context.
 
 #### XHR
 
-We use XHR in a browser to test it:
+Now test the same endpoint from a browser using XHR.
+
+In real code you would call `xhr.abort()` from a timer or a user action; the snippet below just highlights the cancellation call site.
+
 ```javascript
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "http://localhost:8080/http1");
@@ -118,11 +121,13 @@ Client has disconnected. Stopping task.  8
 
 #### How does it work?
 
-The context included with each HTTP request in Go is linked to the lifecycle of the request. If the underlying TCP connection is closed, Go’s HTTP server automatically cancels this context. The cancellation can occur due to client disconnection (TCP FIN or RST), server-side timeout, or if the server manually cancels the context for other reasons (like application logic deciding to abort the request processing).
+In Go, each request carries a `context.Context` that is tied to the request lifecycle. If the underlying connection is closed, Go’s HTTP server cancels that context, and frameworks like Gin surface it via `c.Request.Context()`.
+
+This cancellation can be triggered by a client disconnect (TCP FIN/RST), a server-side timeout, or application logic choosing to abort the request processing.
 
 ### HTTP/2
 
-Since Gin supports HTTP/2, let's use it to conduct our tests.
+Gin can also serve HTTP/2 when TLS is enabled, so we can repeat the same experiment over HTTP/2.
 
 ```go
 package main
@@ -146,7 +151,7 @@ func main() {
 
 #### cURL
 
-We use local cURL via HTTP/2 to test it:
+Test with local curl over HTTP/2:
 
 ```shell
 curl https://localhost:8081/http2 --insecure --verbose
@@ -193,7 +198,7 @@ Working... 4
 Client has disconnected. Stopping task.  5
 ```
 
-This indicates that the server is aware that the client has cancelled the request.
+Again, the server detects the cancellation while the handler is still running.
 
 #### XHR
 
@@ -228,9 +233,9 @@ Client has disconnected. Stopping task.  7
 
 ### Offline
 
-When a user suddenly takes the device offline (without any network notification such as TCP FIN/RST or HTTP/2 RST), what happens?
+What if the client disappears without a clean close—for example, the device loses Wi‑Fi or switches to airplane mode? In that case the server might not receive a TCP FIN/RST (or an HTTP/2 reset) immediately.
 
-We can use another device to test it.
+We can use another device to test it:
 
 ```sh
 # 0. setup the WiFi
@@ -254,22 +259,20 @@ Working... 9
 [GIN] 2024/04/23 - 23:49:49 | 200 | 10.011190667s |   192.168.0.105 | GET      "/http1"
 ```
 
-It means the server is not aware that the client has cancelled the request.
+In this run, the server keeps working and completes the handler; from the server’s perspective, nothing was canceled.
 
 ### Summary
 
-In the context of HTTP/1.1, cancellation is not explicitly handled by the protocol itself. If a client sends a request and then closes the connection before receiving the response, the server might detect that the connection has been closed when it tries to write the response. However, by that time, the server might have already processed or even completed processing the request. This type of cancellation is detected through TCP/IP connection management rather than through HTTP protocol features.
+At a high level, HTTP/1.1 doesn’t have an explicit, per-request “cancel” signal. What you usually get is “the connection went away”, and the server only learns that once the TCP stack (or the application runtime) notices the close.
 
-For HTTP/2 and HTTP/3, the situation is different. Both protocols support explicit request cancellation. In HTTP/2 and HTTP/3, a client can send a RST_STREAM frame to the server, which effectively tells the server to stop processing a specific stream (which corresponds to a request). This allows for more efficient cancellation and resource management on the server, as it can immediately stop processing a request upon receiving a cancellation notice.
+HTTP/2 and HTTP/3 are different: they support stream-level cancellation. A client can reset a single stream (e.g., via a `RST_STREAM` frame), which makes it much easier for the server to stop work promptly.
 
-Here’s how each protocol handles cancellation:
+In practice:
 
-- **HTTP/1.1**: Depends on whether the TCP connection is reused or not. 
-	- If reused: the server may notice that the client has disconnected when it attempts to send a response and fails due to a broken TCP connection. The server might also implement timeouts or other mechanisms to detect that a client has stopped responding.
-	- If not reused: means the TCP connection has been closed by the client. The server can detect that the client has disconnected and stop processing the request.
-- **HTTP/2 and HTTP/3**: The client can send a RST_STREAM frame to explicitly cancel a request. This lets the server know immediately that the request should be aborted, which is more efficient and can help in managing server resources effectively.
+- **HTTP/1.1**: “Cancellation” is typically the client closing the TCP connection. The server may only notice on read/write, or when the runtime surfaces the disconnect (for Go, that means `Request.Context()` is canceled).
+- **HTTP/2 and HTTP/3**: The client can explicitly cancel a request by resetting the stream, so the server can stop work sooner and more reliably.
 
-Servers that support HTTP/2 or HTTP/3 are thus better equipped to handle request cancellations gracefully. In any case, how well cancellation is handled can also depend on how the server's application logic is implemented, such as whether it periodically checks for connection status or interruptions during lengthy operations.
+No matter the protocol, cancellation is only useful if your handler checks for it during long-running work.
 
 ## With Nginx
 
@@ -285,7 +288,7 @@ or
 Client - HTTP/2 -> Nginx - HTTP/2 -> Server
 ```
 
-So we prepared the nginx configuration file in the `nginx.conf`
+So we prepare an Nginx configuration in `nginx.conf`:
 
 ```conf
 events {
@@ -318,13 +321,13 @@ http {
 }
 ```
 
-In the above part, we have a conclusion that both cURL and XHR can perform a graceful cancellation.
+Above (without a proxy), we saw that both curl and XHR can trigger graceful cancellation.
 
-So in this part, to simplify, we will just use curl to test these cases.
+In this section, to keep things simple, we’ll only use curl to test cancellation through Nginx.
 
 #### Nginx - HTTP/1.1 -> Server
 
-The cURL is like:
+The curl command is:
 
 ```shell
 curl https://localhost/http1 --insecure
@@ -343,11 +346,11 @@ Working... 5
 Client has disconnected. Stopping task.  6
 ```
 
-It means the server is aware that the client has cancelled the request.
+This shows the upstream server still observes the cancellation.
 
 #### Nginx - HTTP/2 -> Server
 
-The cURL is like:
+The curl command is:
 
 ```shell
 curl https://localhost/http2 --insecure
@@ -366,7 +369,7 @@ Working... 5
 Client has disconnected. Stopping task.  6
 ```
 
-It means the server is aware that the client has cancelled the request.
+This shows the upstream server still observes the cancellation.
 
 ### Summary
 
@@ -375,11 +378,11 @@ When there is an Nginx reverse proxy sitting between the client and the server, 
 #### Scenario 1: Client (HTTP/2) -> Nginx -> Server (HTTP/1.1)
 
 1. Client Cancels Request: The client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame to Nginx.
-2. Nginx Behavior: Upon receiving the RST_STREAM frame, Nginx recognizes that the client has cancelled the request. Given that the connection to the server is over HTTP/1.1, which doesn’t support RST_STREAM, Nginx has the option to either continue processing the request or terminate the TCP connection to the server. The action Nginx takes can depend on how it’s configured: it might be set to close the connection to free up resources more quickly or to simply drop the response if the server completes the request.
-3. Server Side: If Nginx decides to close the TCP connection, the server might detect this as a connection error or failure when attempting to send a response. This abrupt closing can signal to the server that it should stop processing, albeit indirectly. Without a connection to send a response, the server may halt operations, reducing unnecessary resource usage.
+2. Nginx Behavior: Nginx can observe the reset from the client. Toward the upstream (HTTP/1.1), it can’t forward a per-request reset frame, so it either keeps the upstream request running and drops the response later, or it closes the upstream connection to force the server to observe a disconnect. Which path it takes depends on configuration and internal behavior.
+3. Server Side: If Nginx closes the upstream connection, the server sees a disconnect and can stop work (e.g., via request context cancellation). If Nginx keeps the upstream request running, the server may do unnecessary work even though the client is already gone.
 
 #### Scenario 2: Client (HTTP/2) -> Nginx -> Server (HTTP/2)
 
 1. Client Cancels Request: As before, the client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame.
-2. Nginx Behavior: Since the connections both to the client and from Nginx to the server use HTTP/2, Nginx can forward the cancellation directly by sending another RST_STREAM frame to the server. This maintains protocol integrity and allows for seamless communication of the client's intention to cancel.
-3. Server Side: The server, upon receiving the RST_STREAM frame from Nginx, knows immediately that the request has been cancelled and can stop processing right away. This protocol-supported method of cancellation is efficient and clear, minimizing wasted resources.
+2. Nginx Behavior: Because both legs use HTTP/2, Nginx can forward the cancellation to the upstream by resetting the corresponding stream.
+3. Server Side: The server receives an explicit stream reset and can stop work immediately, which is both clearer and more efficient.

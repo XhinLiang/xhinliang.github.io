@@ -8,22 +8,22 @@ toc: true
 
 **Video Games: A Lifelong Journey**
 
-Video games have been a significant part of my life. Recently, I completed "The Witcher 3: Wild Hunt," renowned as one of the world’s most famous RPGs.
+Video games have been a significant part of my life. Recently, I finally finished "The Witcher 3: Wild Hunt", a modern classic RPG.
 
-Although I love video games, I haven't always dedicated much time to them. My gaming history spans from classic titles like Contra and Ninja Gaiden to iconic PC games such as Counter-Strike and Warcraft. I've also enjoyed portable gaming on devices like the Game Boy Advance and PSP, exploring worlds in games like Pokémon and God of War.
+Even though I love video games, I haven’t always had much time for them. I’ve played everything from classics like Contra and Ninja Gaiden to iconic PC games like Counter-Strike and Warcraft. I also spent a lot of time on handhelds such as the Game Boy Advance and PSP, getting lost in games like Pokémon and God of War.
 
-Video games have always offered me hope, happiness, and a boundless imagination. However, they also require time—a resource that was scarce due to my studies. Though I often fell in love with a game, I had to set it aside after a few days to focus on my academics.
+Games have always given me hope, happiness, and room to imagine. But they also require time—which I didn’t have much of during school. I would fall in love with a game and then put it down after a few days to get back to studying.
 
-As I transitioned into adulthood, my studies gave way to career challenges. After a long day’s work, fatigue often dulled my interest in engaging titles, especially energy-consuming games like Dota 2 and PUBG. These days, I find myself gravitating towards mobile games, as building a high-end PC setup has become prohibitively expensive.
+As I grew older, homework turned into work deadlines. After a long day, I rarely had the energy for competitive games like Dota 2 or PUBG. Over time I drifted toward mobile games—partly because building a high-end PC has become prohibitively expensive.
 
-However, "The Witcher 3: Wild Hunt" broke this pattern. It captivated me enough to invest nearly three months to complete it—my most significant gaming commitment since university.
+"The Witcher 3: Wild Hunt" broke that pattern. It pulled me in enough that I spent nearly three months finishing it—my biggest gaming commitment since university.
 
-This summer, I invested in a 4K TV and began searching for a console that would match its capabilities. I settled on a used Xbox One X, which proved to be a perfect fit. I immediately stocked up on games optimized for 4K resolution and 60 FPS, including "NBA 2K21," "Dirt Rally 2.0," "Titanfall 2," and "Battlefield 5."
+That summer, I bought a 4K TV and started looking for a console that could make good use of it. I settled on a used Xbox One X, which turned out to be a great fit. I also picked up a few games known to run well at 4K/60 FPS, including "NBA 2K21," "Dirt Rally 2.0," "Titanfall 2," and "Battlefield 5."
 
-Over three months, I devoted considerable time to "Battlefield 5" and "The Witcher 3." While "Battlefield 5" impressed with its graphics, its short main storyline and the challenges of FPS gameplay on a wireless controller led me to move on quickly. On the other hand, "The Witcher 3" felt right at home on the Xbox with its immersive action RPG elements and comfortable wireless controller setup.
+Over the next three months, I spent most of my gaming time on "Battlefield 5" and "The Witcher 3." "Battlefield 5" looked great, but the campaign was short and aiming in an FPS with a controller still isn’t my strength, so I moved on quickly. "The Witcher 3", on the other hand, felt right at home on the Xbox: it’s an action RPG, and the controller experience is comfortable.
 
-Despite not being groundbreaking, "The Witcher 3" remains one of the finest fantasy games I've ever experienced. It allowed me to traverse vast grasslands and snowy fields, battle monsters with magic and swords, and wander through the cobbled streets of medieval cities.
+It may not reinvent the genre, but "The Witcher 3" is still one of the best fantasy games I’ve played. It let me cross vast grasslands and snowy fields, fight monsters with magic and swords, and wander the cobbled streets of medieval cities.
 
-After spending substantial time with it, I believe "The Witcher 3" epitomizes the "AAA" game category, which signifies a title developed with significant time, resources, and financial investment. It demanded a lot from me, but also gave much in return.
+After sinking so many hours into it, I get why people call it a “AAA” game: it’s huge, polished, and clearly built with a lot of time and resources. It asked a lot of me, but it also gave a lot back.
 
-Some might question the wisdom of investing time in gaming in today's hyper-competitive society. To them, I say I am grateful for my Xbox and its games. They enrich my life, bringing satisfaction and joy through virtual adventures. Games are, without a doubt, an essential part of my life.
+In today’s busy and competitive world, it’s easy to feel guilty about spending time on games. Still, I’m grateful for my Xbox and the games I’ve played on it. They make my life richer, and they’re an important part of how I relax and recharge.
