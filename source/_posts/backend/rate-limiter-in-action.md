@@ -5,33 +5,32 @@ categories: Backend
 toc: true
 ---
 
-Backend systems that handle many requests per second often need a local rate limiter to protect themselves.
+Backend systems that handle high QPS often need a local rate limiter to protect themselves.
 
-Here, "local" means the limiter works only within a single process and is not shared across processes.
+Here, “local” means the limiter runs within a single process and does not coordinate state across instances.
 
-Here are some local rate-limiting strategies commonly used in production environments.
+Below are a few classic local rate-limiting strategies that show up in production code:
 
 - Fixed Window
 - Floating Window
 - Leaky Bucket
 - Token Bucket
 
-And we will discuss them one by one.
+We’ll go through them one by one.
 
 ## Fixed Window
 
-Fixed Window means that we can split a time to some window, and perform the action for a limit in a window.
+Fixed Window rate limiting splits time into discrete windows and allows up to `N` actions per window.
 
-The disadvantage is that system throughput may be uneven.
-Imagine this scenario: we set a rate limit of 1000 requests per second and receive no requests in the first 999 ms.
-Then, 1000 requests arrive within 1 ms, and all of them are granted.
-Right after that, another 1000 requests arrive within 1 ms and can also be granted because they fall into a new window.
+The downside is that throughput can be uneven around window boundaries. Imagine we set a limit of 1000 requests per second:
 
-We can reduce this defect by splitting out the time window smaller.
-For example, when we need a rate limiter for 1000 per second, we can split one second as 100 "tenMs" then limit 10 actions per "tenMs".
-As we can see, the smaller you split the time window, the smoother the limiter behavior becomes.
+- No requests arrive in the first 999 ms.
+- Then 1000 requests arrive within 1 ms and all are allowed.
+- Immediately after that, another 1000 requests arrive within 1 ms and are also allowed because they land in the next window.
 
-After discussing the concept of Fixed Window rate limiting, it's beneficial to provide a code example. Here is a simple implementation in Java:
+One common mitigation is to make the window smaller (at the cost of a little more bookkeeping). For example, for “1000 per second”, you can split one second into 100 × 10 ms windows and limit 10 actions per 10 ms. The smaller the window, the smoother the limiter behaves.
+
+Here is a minimal Java implementation:
 
 ```java
 public class FixedWindowRateLimiter {
@@ -64,15 +63,13 @@ public class FixedWindowRateLimiter {
 }
 ```
 
-In this example, the FixedWindowRateLimiter class defines a rate limiter with a fixed capacity and window size. The tryAcquire method checks if the current window has expired and resets it if necessary. If the capacity within the current window hasn't been exceeded, it allows the request.
+This implementation tracks a window start time plus a counter. When the window expires it resets the counter; otherwise it allows the request until the capacity is reached.
 
 ## Floating Window
 
-Now let's discuss the Floating Window rate limiter.
+The Floating Window rate limiter smooths out Fixed Window’s boundary bursts by evaluating the request count over a moving time range.
 
-The Floating Window rate limiter improves upon the Fixed Window by smoothing out the request allowance over time. It avoids the scenario where a burst of requests is allowed at the boundary of the time windows.
-
-A Floating Window rate limiter can be more complex to implement as it requires tracking the timestamps of individual requests.
+It’s more expensive to implement because it typically requires tracking individual request timestamps (or maintaining buckets that approximate them).
 
 ```java
 public class FloatingWindowRateLimiter {
@@ -101,7 +98,7 @@ public class FloatingWindowRateLimiter {
 
 ## Leaky Bucket
 
-The Leaky Bucket algorithm models rate limiting as a bucket that leaks requests at a constant rate. This approach helps in smoothing out bursts of traffic.
+The Leaky Bucket algorithm models rate limiting as a bucket that “leaks” at a constant rate. Bursts can be absorbed up to the bucket capacity, but the outflow rate stays stable.
 
 ```
 public class LeakyBucketRateLimiter {
@@ -136,13 +133,13 @@ public class LeakyBucketRateLimiter {
 
 ## Token Bucket
 
-Token Bucket means we have a bucket that holds tokens, and tokens are replenished at a fixed rate.
+Token Bucket uses a bucket of tokens. Tokens are replenished at a fixed rate.
 
 The backend system consumes one token per request. When the bucket runs out of tokens, requests are rejected or delayed.
 
-Token Bucket seems like Leaky Bucket but can be more effective, because we can track only the token count and the last refill timestamp instead of running a dedicated refill thread.
+Compared with Leaky Bucket, Token Bucket is often more flexible because it allows short bursts (up to the bucket size) while still enforcing an average rate. It’s also convenient to implement by tracking only the token count and the last refill timestamp, without a dedicated refill thread.
 
-Here is a simple implementation.
+Here is a simple implementation:
 
 ```java
 public class RateLimiter {

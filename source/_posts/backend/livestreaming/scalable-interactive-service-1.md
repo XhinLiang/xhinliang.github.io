@@ -7,50 +7,50 @@ toc: true
 
 ## Background
 
-Because of network improvements and the impact of COVID-19, live streaming has become the hottest technology on the Internet, again.
+With faster networks and the push from COVID-era remote life, live streaming has become popular again.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
 
-Fortunately, I have been participating in building a live streaming platform. In other words, I also have some experience in this domain. Today I am going to talk about the "Interactive Service" of live streaming, my most familiar part of the platform.
+I’ve been involved in building a live streaming platform, and the part I’ve spent the most time on is the “Interactive Service”. This series is a write-up of how I think about that component.
 
-At first, I have to define the "Interactive Service". Commonly, people always split the live streaming platform into two parts: "Video Streaming" and "Interactive Service".
+First, let’s define what “Interactive Service” means. A useful mental model is to split a live streaming platform into two subsystems: “Video Streaming” and “Interactive Service”.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oblby6l5j20z60u0tbv.jpg)
 
-"Video Streaming" means the audio and video that people can instantly watch and hear. "Video Streaming" is the foundation of live streaming, we can't see anything and hear any word from the anchor without it, the live streaming totally becomes a boring group chat.
+“Video Streaming” is the audio/video pipeline that viewers watch and listen to in (near) real time. It’s the foundation of live streaming—without it, there’s nothing to watch, and the room degenerates into a plain group chat.
 
-"Interactive Service" means all the other parts without "Video Streaming". Almost everything you can join to the live streaming is the result of "Interactive Service". For example, comments, gifts, e-commerce notifications, etc. "Interactive Service" gives live streaming a soul so that live streaming is never a monologue of the anchor, it's a party between the anchor and all audiences.
+“Interactive Service” is everything else: comments, gifts, e-commerce notifications, moderation actions, presence, and so on. It turns a stream from a one-way broadcast into a shared room where the host and audience can interact.
 
 ## Interactive Service
 
-In my opinion, "Interactive Service" is a full-feature eco-system.
+I think of an “Interactive Service” as a full-featured ecosystem.
 
-Anchors and audiences can generate signals to it, and it would deliver the signals to the other people in the live room. For example, the audience foo can comment on a signal "You look good" to the "Interactive Service", and "Interactive Service" will broadcast this signal to the other people after a while.
+Both hosts and viewers generate signals (events/messages) to it, and it delivers those signals to other participants in the room. For example, a viewer `foo` can send a comment like “You look good”, and the interactive service will broadcast that comment to everyone else shortly after.
 
-On the other hand, "Interactive Service" can also generate events on its own. For example, "Interactive Service" will broadcast the exact number of users online of every live room periodically, so that people can see how many people do the live room has now.
+The interactive service can also generate events on its own. For example, it might periodically broadcast the current online user count so everyone can see how many viewers are in the room.
 
-How to build an "Interactive Service" that delivers these signals safely, quickly, and cost-effectively is the core topic of this article.
+The core topic of this article is how to build an interactive service that delivers signals safely, quickly, and cost-effectively:
 
 - Safe
-  - "Interactive Service" should check the authority of the request/connection
-  - Client should not receive any signal not belonging to them
+  - The interactive service should authenticate and authorize requests/connections.
+  - Clients should not receive any signals they are not allowed to see.
 - Quick
-  - "Interactive Service" should deliver any signal in a certain and short duration no matter how many people are watching this live streaming
+  - The interactive service should deliver signals within a bounded, low latency—regardless of room size.
 - Economic
-  - "Interactive Service" should have the ability to serve a big live room that has a huge number of audiences
-  - "Interactive Service" should use fewer resources, less CPU, RAM, disk, networking bandwidth, etc.
+  - The interactive service should support very large rooms with huge audiences.
+  - It should use resources efficiently: CPU, memory, disk, and network bandwidth.
 
 ## Signal Types
 
-Before we discuss the different modelings of "Interactive Service", we should talk about 3 types of signals that should be implemented in different ways.
+Before we discuss different ways to model an interactive service, it helps to classify the signals you need to deliver. In my experience, there are three types, and each tends to want a different implementation.
 
 ### State Sync Signal
 
-Clients should initialize some state just after entering the live room. When the states have been changed, clients should be noticed and do something about these changes.
+Right after entering a room, clients need an initial snapshot of state (room metadata, configuration, pinned content, and so on). When that state changes, clients should be notified and update their local view.
 
-A common implementation is using "Total and Partial Version" to describe state changes of the business state updating of live streaming.
+A common implementation uses a “total + partial versions” scheme to describe business state changes.
 
-In this implementation, servers and clients should store the total version and partial versions. Clients should fetch the total version by interval and then fetch the outdated partial versions if the fetched total version is different from the local total version.
+In this scheme, both servers and clients track a total version plus multiple partial versions. Clients poll the total version periodically; if it differs from the local total version, the client fetches only the partial versions it is missing.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oc8bkeruj21d90u078y.jpg)
 
@@ -58,11 +58,11 @@ We call this model `SS Signal` for short.
 
 ### Time Series Signal
 
-Time Series Signal is a temporary signal in this live room. The time-series signals that happened before the client entered would not be sent to this client, because the missing of some time-series signals should not affect the experience.
+A Time Series Signal is a temporary event in a room. Events that happened before a client joined are usually not replayed, and missing a few time-series events typically should not break the experience.
 
-We can use several ways to implement time-series signals. But there are two different routes to them.
-- Using a Messaging System, such as Redis Pub/Sub or Kafka Messaging
-- Use a Time Series Database, and fetch them periodically
+There are multiple ways to implement time-series signals, but two common approaches are:
+- Use a messaging system, such as Redis Pub/Sub or Kafka.
+- Store events in a time-series database and have clients fetch them periodically.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oc8tju01j219g0u0djh.jpg)
 
@@ -70,61 +70,61 @@ We call this model `TS Signal` for short.
 
 ### Peer Delivery Signal
 
-SS signal and TS signal are designed for all of the people in the same live room. When one of the state change or some action happen, these signals should be delivered to all of the clients in a live room. But peer signals are designed for just some of the people in the live room.
+SS signals and TS signals are designed to reach everyone in the same live room. When state changes or an action happens, these signals are delivered to all clients in that room. Peer delivery signals, in contrast, target only a subset of participants.
 
-We could use signals with some filters to implement peer signals, but it will have lots of performance issues.
+You can implement peer delivery by broadcasting and letting clients filter, but it tends to create performance issues (especially bandwidth waste) as rooms grow.
 
-A more effective way to treat the peer signal of live streaming as a normal signal on the Instant Messaging System. With a typical Instant Messaging System, we can find which server is the target client connecting, so that sending it signals is efficient.
+A more efficient approach is to treat peer delivery like instant messaging. With a typical IM system, you can locate which server the target client is connected to, so sending peer signals is both direct and efficient.
 
 ## Connection Modeling
 
-Servers and the clients should have a way to communicate, called connection modeling. There are different ideas for implementing it, I will explain them briefly.
+The interactive service also needs a way for servers and clients to communicate. There are several common connection models; I’ll briefly outline a few.
 
 ### C/S Modeling
 
-As we all know, it's easy to optimize a C/S model, so people usually choose HTTP as a communication protocol between server and client.
+Traditional request/response is easy to scale and optimize, so many systems start with an HTTP-based client/server (C/S) model.
 
-So can we use this model to implement the "Interactive Service"? Sure we can!
+Can we use this model to implement an interactive service? Sure—especially for pull-based delivery.
 
-In the most famous IM software Wechat, we saw that every account has its signal list. Clients can request the unread signals via the cursor, after pulling the signals, clients will save the newest cursor to the local storage, and use it for the next request.
+A familiar example is WeChat: each account has a message list, and clients request unread messages via a cursor. After pulling messages, the client stores the latest cursor locally and uses it for the next request.
 
-We can use this theory to "Interactive Service" too, but we should make some differences.
+We can apply the same idea to an interactive service, with a few differences:
 
-- We should split the server into several groups, classify the clients from the live room they attempt to request, and then redirect them to the correct server group.
-- We should process the big live rooms and the little live rooms in different ways because some live rooms would have lots of audiences. When the big room is created, we should use all the groups of the server to receive the response.
+- Split servers into groups, classify clients by the live room they are watching, and route them to the correct server group.
+- Handle large rooms differently from small ones. Some rooms can have huge audiences, and a single group may become a bottleneck; those rooms often need extra fan-out capacity across multiple groups.
 
 ### CDN Modeling
 
-When we finished the C/S Modeling "Interactive Service", we could find that the C/S Modeling "Interactive Service" is very much like the CDN Service.
+Once you have a pull-based C/S interactive service, it starts to resemble a CDN: lots of stateless nodes accepting requests, caching aggressively, and serving responses close to users.
 
-As we all know, CDN services can achieve higher performance and less latency. So we could use CDN services to help us to accept requests and deliver the signals.
+CDN-style architectures can improve latency and throughput, so it can be useful to borrow the same ideas (or even reuse CDN infrastructure) to accept requests and deliver some classes of signals.
 
 ### Server-Push Modeling
 
-When the live room is updated rapidly, using a custom application layer based on a proper transport layer is considerable.
+When a room updates rapidly, server-push is often a better fit than repeated polling.
 
-In this way, we could choose WebSocket to reach more compatibility, or use QUIC to reach more efficiency, or just use TCP typically.
+In this model, you might choose WebSocket for compatibility, QUIC for efficiency, or plain TCP for simplicity in a controlled environment.
 
-The protocol is easy, but the difficult part is load balancing. 
+The transport is relatively straightforward; the difficult part is load balancing stateful connections.
 
-In HTTP Server, each server is stateless so it's easier to implement the load balancing. 
+With classic HTTP request/response, each request is mostly independent, which makes load balancing simpler.
 
-In the C/S Modeling part, we talked about the grouping of HTTP Server, the conception works in Server-Push Modeling, too. There are several models of this conception.
+The “server grouping” idea from the C/S model also applies to server-push. Common approaches include:
 
-- Split up the server into some groups, and each group has its endpoint, the clients choose the target endpoint by the id of the live room
-- Using or implementing an application-level load balancing algorithm.
+- Split servers into groups and give each group its own endpoint. Clients choose the endpoint based on the live room ID.
+- Use (or implement) an application-level load balancing algorithm to assign and migrate connections.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0oc72dn9yj21fc0u0afn.jpg)
 
 ## Summary
 
-Building a live streaming platform is such a large project, so I cannot write down all of my thoughts in one article.
+Building a live streaming platform is a large project, so I can’t capture all of my thoughts in a single post.
 
-But in this part, we have discussed some core concepts of live streaming.
+In Part I, we discussed a few core concepts that will be useful later:
 
-- Differences between Interactive Service and Video Streaming Service;
-- Differences between Instant Messages and Live Streaming Signals;
-- Different types of Live Streaming signals;
-- Different types of Interactive Service connection modelings.
+- The boundary between the Interactive Service and the Video Streaming service;
+- How live streaming signals differ from instant messages;
+- Different types of live streaming signals;
+- Different connection models for an interactive service.
 
-Next time I will share my thoughts on the scaling method of interactive service, hope you will like it.
+In Part II, I’ll share my thoughts on scaling methods for interactive services.
