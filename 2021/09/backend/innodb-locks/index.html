@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>MySQL InnoDB Locks | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Backend,MySQL,InnoDB,Lock">
+    
+    <meta name="description" content="InnoDB is MySQL’s transactional storage engine. After more than a decade of development, it has become the default choice for most production workloads. There are plenty of good deep-dives on InnoDB">
+<meta name="keywords" content="Backend,MySQL,InnoDB,Lock">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL InnoDB Locks">
+<meta property="og:url" content="https://xhinliang.github.io/2021/09/backend/innodb-locks/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="InnoDB is MySQL’s transactional storage engine. After more than a decade of development, it has become the default choice for most production workloads. There are plenty of good deep-dives on InnoDB">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://xhinliang.github.io/uploads/persister-innodb-locks-MySQL-1200px-MySQL.svg.png">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.608Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MySQL InnoDB Locks">
+<meta name="twitter:description" content="InnoDB is MySQL’s transactional storage engine. After more than a decade of development, it has become the default choice for most production workloads. There are plenty of good deep-dives on InnoDB">
+<meta name="twitter:image" content="https://xhinliang.github.io/uploads/persister-innodb-locks-MySQL-1200px-MySQL.svg.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Backend/">Backend</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-backend/innodb-locks" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        MySQL InnoDB Locks
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2021/09/backend/innodb-locks/" class="article-date">
+    <time datetime="2021-09-13T00:00:00.000Z" itemprop="datePublished">2021-09-13</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Backend/">Backend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/InnoDB/">InnoDB</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lock/">Lock</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="/uploads/persister-innodb-locks-MySQL-1200px-MySQL.svg.png" alt="MySQL"></p>
+<p>InnoDB is MySQL’s transactional storage engine. After more than a decade of development, it has become the default choice for most production workloads.</p>
+<p>There are plenty of good deep-dives on InnoDB locks already; this post is a short refresher focused on how to inspect locks in a running database.</p>
+<h2 id="HOW-TO-VIEW-LOCKS-IN-MYSQL"><a href="#HOW-TO-VIEW-LOCKS-IN-MYSQL" class="headerlink" title="HOW TO VIEW LOCKS IN MYSQL"></a>HOW TO VIEW LOCKS IN MYSQL</h2><p>To understand locking behavior, start by learning how to inspect the locks currently held in your database.</p>
+<p>Run the following in the MySQL client to list all locks InnoDB is currently holding:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select * from performance_schema.data_locks\G</span><br><span class="line">*************************** 1. row ***************************</span><br><span class="line">               ENGINE: INNODB</span><br><span class="line">       ENGINE_LOCK_ID: 140616303283528:1157:140616462868960</span><br><span class="line">ENGINE_TRANSACTION_ID: 4492</span><br><span class="line">            THREAD_ID: 58</span><br><span class="line">             EVENT_ID: 75</span><br><span class="line">        OBJECT_SCHEMA: xhinliang_test <span class="comment">--- the database you used</span></span><br><span class="line">          OBJECT_NAME: locking_test <span class="comment">--- the table which of the lock occur</span></span><br><span class="line">       PARTITION_NAME: NULL</span><br><span class="line">    SUBPARTITION_NAME: NULL</span><br><span class="line">           INDEX_NAME: NULL</span><br><span class="line">OBJECT_INSTANCE_BEGIN: 140616462868960</span><br><span class="line">            LOCK_TYPE: TABLE <span class="comment">--- TABLE or RECORD, we will explain it below</span></span><br><span class="line">            LOCK_MODE: IX <span class="comment">--- several options, we will explain it below</span></span><br><span class="line">          LOCK_STATUS: GRANTED <span class="comment">--- whether the lock is granted or waiting?</span></span><br><span class="line">            LOCK_DATA: NULL <span class="comment">-- index of the lock using</span></span><br></pre></td></tr></table></figure>
+<p>As shown above, you can inspect the current locks in the database. There are several key fields worth focusing on:</p>
+<ul>
+<li><code>INDEX_NAME</code>: The index involved in the lock. For table locks, this can be <code>NULL</code>.</li>
+<li><code>LOCK_TYPE</code>: Whether the lock is a <code>TABLE</code> lock or a <code>RECORD</code> lock.</li>
+<li><code>LOCK_MODE</code>: The specific lock mode (e.g., intention locks, record locks, gap locks).</li>
+<li><code>LOCK_STATUS</code>: Whether the lock is <code>GRANTED</code> or <code>WAITING</code>.</li>
+<li><code>LOCK_DATA</code>: For record locks, what record (or boundary) the lock refers to.</li>
+</ul>
+<p>From these fields you can usually tell what is locked, what kind of lock it is, and why a transaction is blocked.</p>
+<h3 id="LOCK-TYPE"><a href="#LOCK-TYPE" class="headerlink" title="LOCK_TYPE"></a>LOCK_TYPE</h3><p>LOCK_TYPE is the easiest field to interpret. It is either <code>TABLE</code> or <code>RECORD</code> and tells you the scope of the lock.</p>
+<h3 id="LOCK-MODE"><a href="#LOCK-MODE" class="headerlink" title="LOCK_MODE"></a>LOCK_MODE</h3><p>LOCK_MODE is the trickiest field in this post; it’s also the one people most often confuse with LOCK_TYPE.</p>
+<p>LOCK_MODE has several common values:</p>
+<ul>
+<li>IX -&gt; Intention Exclusive Lock</li>
+<li>IS -&gt; Intention Share Lock</li>
+<li>X,REC_NOT_GAP -&gt; Exclusive Record Lock</li>
+<li>X,GAP -&gt; Exclusive Gap Lock</li>
+<li>X -&gt; Exclusive Next-Key Lock</li>
+<li>S,REC_NOT_GAP -&gt; Share Record Lock</li>
+<li>S,GAP -&gt; Share Gap Lock</li>
+<li>S -&gt; Share Next-Key Lock</li>
+</ul>
+<h3 id="LOCK-STATUS"><a href="#LOCK-STATUS" class="headerlink" title="LOCK_STATUS"></a>LOCK_STATUS</h3><p>LOCK_STATUS shows whether the lock is currently held or still being waited on:</p>
+<ul>
+<li><code>GRANTED</code>: the session has acquired the lock.</li>
+<li><code>WAITING</code>: the session is blocked, waiting to acquire it.</li>
+</ul>
+<h3 id="LOCK-DATA"><a href="#LOCK-DATA" class="headerlink" title="LOCK_DATA"></a>LOCK_DATA</h3><p>LOCK_DATA indicates what data this lock refers to.</p>
+<p>For example, suppose we have a table named <code>child</code> with the following rows:</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; desc child;</span><br><span class="line"><span class="code">+-------+</span>------<span class="code">+------+</span>-----<span class="code">+---------+</span>-------+</span><br><span class="line">| Field | Type | Null | Key | Default | Extra |</span><br><span class="line"><span class="code">+-------+</span>------<span class="code">+------+</span>-----<span class="code">+---------+</span>-------+</span><br><span class="line">| id    | int  | NO   | PRI | NULL    |       |</span><br><span class="line"><span class="code">+-------+</span>------<span class="code">+------+</span>-----<span class="code">+---------+</span>-------+</span><br><span class="line">1 row in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; select * from child</span><br><span class="line"><span class="code">    -&gt; ;</span></span><br><span class="line"><span class="code">+-----+</span></span><br><span class="line">| id  |</span><br><span class="line"><span class="code">+-----+</span></span><br><span class="line">|  89 |</span><br><span class="line">|  90 |</span><br><span class="line">| 102 |</span><br><span class="line">| 151 |</span><br><span class="line"><span class="code">+-----+</span></span><br><span class="line">4 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<p>Now, in one session, try to lock a row that doesn’t exist:<br><figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; <span class="keyword">begin</span>;</span><br><span class="line">Query OK, <span class="number">0</span> rows affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; <span class="keyword">select</span> * <span class="keyword">from</span> child <span class="keyword">where</span> id = <span class="number">100</span> <span class="keyword">for</span> update;</span><br><span class="line"><span class="keyword">Empty</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure></p>
+<p>If we inspect <code>performance_schema.data_locks</code> now, we can see that the gap between <code>(90, 102)</code> is locked as an exclusive gap lock.</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">mysql&gt;</span> <span class="string">select</span> <span class="string">*</span> <span class="string">from</span> <span class="string">performance_schema.data_locks\G</span></span><br><span class="line"><span class="string">***************************</span> <span class="number">1</span><span class="string">.</span> <span class="string">row</span> <span class="string">***************************</span></span><br><span class="line">               <span class="attr">ENGINE:</span> <span class="string">INNODB</span></span><br><span class="line">       <span class="attr">ENGINE_LOCK_ID:</span> <span class="number">140459538615624</span><span class="string">:1158:140458948850848</span></span><br><span class="line"><span class="attr">ENGINE_TRANSACTION_ID:</span> <span class="number">5640</span></span><br><span class="line">            <span class="attr">THREAD_ID:</span> <span class="number">49</span></span><br><span class="line">             <span class="attr">EVENT_ID:</span> <span class="number">25</span></span><br><span class="line">        <span class="attr">OBJECT_SCHEMA:</span> <span class="string">xhinliang_test</span></span><br><span class="line">          <span class="attr">OBJECT_NAME:</span> <span class="string">child</span></span><br><span class="line">       <span class="attr">PARTITION_NAME:</span> <span class="literal">NULL</span></span><br><span class="line">    <span class="attr">SUBPARTITION_NAME:</span> <span class="literal">NULL</span></span><br><span class="line">           <span class="attr">INDEX_NAME:</span> <span class="literal">NULL</span></span><br><span class="line"><span class="attr">OBJECT_INSTANCE_BEGIN:</span> <span class="number">140458948850848</span></span><br><span class="line">            <span class="attr">LOCK_TYPE:</span> <span class="string">TABLE</span></span><br><span class="line">            <span class="attr">LOCK_MODE:</span> <span class="string">IX</span></span><br><span class="line">          <span class="attr">LOCK_STATUS:</span> <span class="string">GRANTED</span></span><br><span class="line">            <span class="attr">LOCK_DATA:</span> <span class="literal">NULL</span></span><br><span class="line"><span class="string">***************************</span> <span class="number">2</span><span class="string">.</span> <span class="string">row</span> <span class="string">***************************</span></span><br><span class="line">               <span class="attr">ENGINE:</span> <span class="string">INNODB</span></span><br><span class="line">       <span class="attr">ENGINE_LOCK_ID:</span> <span class="number">140459538615624</span><span class="string">:3:4:3:140459473245216</span></span><br><span class="line"><span class="attr">ENGINE_TRANSACTION_ID:</span> <span class="number">5640</span></span><br><span class="line">            <span class="attr">THREAD_ID:</span> <span class="number">49</span></span><br><span class="line">             <span class="attr">EVENT_ID:</span> <span class="number">25</span></span><br><span class="line">        <span class="attr">OBJECT_SCHEMA:</span> <span class="string">xhinliang_test</span></span><br><span class="line">          <span class="attr">OBJECT_NAME:</span> <span class="string">child</span></span><br><span class="line">       <span class="attr">PARTITION_NAME:</span> <span class="literal">NULL</span></span><br><span class="line">    <span class="attr">SUBPARTITION_NAME:</span> <span class="literal">NULL</span></span><br><span class="line">           <span class="attr">INDEX_NAME:</span> <span class="string">PRIMARY</span></span><br><span class="line"><span class="attr">OBJECT_INSTANCE_BEGIN:</span> <span class="number">140459473245216</span></span><br><span class="line">            <span class="attr">LOCK_TYPE:</span> <span class="string">RECORD</span></span><br><span class="line">            <span class="attr">LOCK_MODE:</span> <span class="string">X,GAP</span></span><br><span class="line">          <span class="attr">LOCK_STATUS:</span> <span class="string">GRANTED</span></span><br><span class="line">            <span class="attr">LOCK_DATA:</span> <span class="number">102</span></span><br><span class="line"><span class="number">2</span> <span class="string">rows</span> <span class="string">in</span> <span class="string">set</span> <span class="string">(0.01</span> <span class="string">sec)</span></span><br></pre></td></tr></table></figure>
+<p>Once you get used to reading these fields, debugging lock contention becomes much more mechanical: take a snapshot of <code>performance_schema.data_locks</code>, identify <code>WAITING</code> locks, and then find the corresponding <code>GRANTED</code> locks on the same object/index.</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2021/09/backend/innodb-locks/" data-id="cmm1p24jx000bud3zkkvefkof" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2021/10/uncategorized/me-and-my-game-life/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            Me and My Game Life
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/04/uncategorized/writing-guide-for-markdown-programer/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">给 Markdown 程序员的写作能力提升指南</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

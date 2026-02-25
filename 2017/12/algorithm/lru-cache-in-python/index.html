@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>双向链表和哈希表实现 LRUCache | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Algorithm,Data Structure">
+    
+    <meta name="description" content="背景LRUCache 是一个很常用的缓存实现，本文会首先介绍一下 LRUCache 的定义，然后尝试用 Python 实现它。 定义LRUCache 首先是一个 Cache，那么对于一个 Cache 而言，肯定需要提供 get 和 set 两个方法，而且，这两个方法的时间复杂度越低越好，最好达到 O(1) 级别。 LRU 是 Least Recently Used 的缩写，近期最少使用策略。LRU">
+<meta name="keywords" content="Algorithm,Data Structure">
+<meta property="og:type" content="article">
+<meta property="og:title" content="双向链表和哈希表实现 LRUCache">
+<meta property="og:url" content="https://xhinliang.github.io/2017/12/algorithm/lru-cache-in-python/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="背景LRUCache 是一个很常用的缓存实现，本文会首先介绍一下 LRUCache 的定义，然后尝试用 Python 实现它。 定义LRUCache 首先是一个 Cache，那么对于一个 Cache 而言，肯定需要提供 get 和 set 两个方法，而且，这两个方法的时间复杂度越低越好，最好达到 O(1) 级别。 LRU 是 Least Recently Used 的缩写，近期最少使用策略。LRU">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.606Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="双向链表和哈希表实现 LRUCache">
+<meta name="twitter:description" content="背景LRUCache 是一个很常用的缓存实现，本文会首先介绍一下 LRUCache 的定义，然后尝试用 Python 实现它。 定义LRUCache 首先是一个 Cache，那么对于一个 Cache 而言，肯定需要提供 get 和 set 两个方法，而且，这两个方法的时间复杂度越低越好，最好达到 O(1) 级别。 LRU 是 Least Recently Used 的缩写，近期最少使用策略。LRU">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Algorithm/">Algorithm</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-algorithm/lru-cache-in-python" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        双向链表和哈希表实现 LRUCache
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2017/12/algorithm/lru-cache-in-python/" class="article-date">
+    <time datetime="2017-12-29T00:36:29.000Z" itemprop="datePublished">2017-12-29</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Algorithm/">Algorithm</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Data-Structure/">Data Structure</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><p>LRUCache 是一个很常用的缓存实现，本文会首先介绍一下 LRUCache 的定义，然后尝试用 Python 实现它。</p>
+<h4 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h4><p>LRUCache 首先是一个 Cache，那么对于一个 Cache 而言，肯定需要提供 <code>get</code> 和 <code>set</code> 两个方法，而且，这两个方法的时间复杂度越低越好，最好达到 O(1) 级别。</p>
+<p>LRU 是 Least Recently Used 的缩写，近期最少使用策略。<br>LRUCache 意味着一个带有容量的缓存，当缓存的容量已满而且需要插入新值的时候，缓存需要淘汰一个旧值。具体淘汰的策略就是 LRU。</p>
+<p>LRU 意味着这样的功能：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果 Cache 里有两个 key =&gt; `a` 和 `b`，而且 Cache 的容量是 2</span></span><br><span class="line">cache.get(<span class="string">'a'</span>)</span><br><span class="line"><span class="comment"># ... 无数次</span></span><br><span class="line">cache.get(<span class="string">'a'</span>)</span><br><span class="line">cache.get(<span class="string">'b'</span>)</span><br><span class="line">cache.put(<span class="string">'c'</span>, <span class="string">'c-value'</span>)</span><br><span class="line"><span class="comment"># cache =&gt; &#123;'b': 'b-value', 'c': 'c-value'&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到，无论 <code>a</code> 之前 <code>get</code>，过多少次，只要最后一个 <code>get(&#39;b&#39;)</code> 的操作在最后一个 <code>get(&#39;a&#39;)</code> 的操作之后，那么 淘汰 <code>b</code> 的优先级肯定在 <code>a</code> 之后，这就是 LRU 策略的实例化解释。</p>
+<h4 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h4><p>通常使用双向链表和字典来实现 LRUCache。</p>
+<p>为了能很快找到双向链表的头和尾，我们需要一个虚拟头节点，这个头节点的 <code>next</code> 指针始终指向真实的头节点（以下称为头节点）；类似地，我们也需要一个虚拟尾节点，它的 pre 指针始终指向真实的尾节点（以下称为尾节点）。</p>
+<p>双向链表的头节点就是淘汰优先级最低的点，尾节点就是淘汰优先级最高的点。<br>当 LRUCache 容量达到上限后，应该首先淘汰尾节点。</p>
+<p>链表节点的 val 字段指向一个数组 [key, value]。这个 key 和 value 就是整个 LRUCache 中 <code>get</code> 和 <code>set</code> 方法的 key 和 value。</p>
+<p>map 的 key 也是 LRUCache 的 key，但是 map 的 value 是双向链表的节点。</p>
+<p>那么对应 LRUCache 的两个方法 <code>get</code> <code>put</code>，我们可以想出以下思路：</p>
+<h5 id="get-key"><a href="#get-key" class="headerlink" title="get(key)"></a>get(key)</h5><p><code>get</code> 方法需要考虑两件事情：</p>
+<ol>
+<li>找到 key 对应的 value 值</li>
+<li>更新 key 的淘汰优先级</li>
+</ol>
+<p>具体思路如下：</p>
+<ul>
+<li>如果这个 key 在 map 中不存在，那么我们只需返回 null 即可</li>
+<li>如果这个 key 在 map 中存在，那么我们此时能马上获取到这个 key 对应的链表节点，通过链表节点我们能读取到真正的缓存的值。此时我们需要先将这个链表节点挪动到链表的头部，然后再返回链表的 value 字段</li>
+</ul>
+<h5 id="put-key-value"><a href="#put-key-value" class="headerlink" title="put(key, value)"></a>put(key, value)</h5><p><code>put</code> 方法需要考虑三个事情：</p>
+<ol>
+<li>更新 key 对应的 value</li>
+<li>更新 key 对应的淘汰优先级</li>
+<li>如果当前缓存容量达到上限，淘汰一个链表节点。</li>
+</ol>
+<p>具体思路如下：</p>
+<ul>
+<li>如果这个 key 原本就存在需要通过 map 找到链表节点，然后更新链表节点中的 value，然后将这个链表节点挪动到链表的头部</li>
+<li>如果这个 key 存在，那么我们需要构造一个 node，并插入到链表头部<ul>
+<li>如果容量未满，不用管</li>
+<li>如果容量满了，那么我们需要移除链表尾部的 node，并将其从 map 中也移除</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ListNode</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    LinkedListNode</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    __slots__ = [<span class="string">'val'</span>, <span class="string">'next'</span>, <span class="string">'pre'</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, x)</span>:</span></span><br><span class="line">        self.val = x</span><br><span class="line">        self.next = <span class="literal">None</span></span><br><span class="line">        self.pre = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LinkedList</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    LinkedList</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    __slots__ = [<span class="string">'head'</span>, <span class="string">'tail'</span>, <span class="string">'length'</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        init</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        self.head, self.tail = ListNode(<span class="number">-1</span>), ListNode(<span class="number">-1</span>)</span><br><span class="line">        self.head.next = self.tail</span><br><span class="line">        self.tail.pre = self.head</span><br><span class="line">        self.length = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">insert_head</span><span class="params">(self, node)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        insert a value to head</span></span><br><span class="line"><span class="string">        :param node: the value</span></span><br><span class="line"><span class="string">        :return: ListNode the node has been inserted</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        node.next = self.head.next</span><br><span class="line">        self.head.next.pre = node</span><br><span class="line">        node.pre = self.head</span><br><span class="line">        self.head.next = node</span><br><span class="line">        self.length += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> node</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">insert_tail</span><span class="params">(self, node)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        insert a node to tail</span></span><br><span class="line"><span class="string">        :param node: the value</span></span><br><span class="line"><span class="string">        :return: ListNode the node has been inserted</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        node.pre = self.tail.pre</span><br><span class="line">        node.next = self.tail</span><br><span class="line">        self.tail.pre = node</span><br><span class="line">        self.length += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> node</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pop_head</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        pop a node from head</span></span><br><span class="line"><span class="string">        :return: ListNode the node has been popped</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> self.length == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        tempNode = self.head.next.next</span><br><span class="line">        tempNode.pre = self.head</span><br><span class="line">        self.head.next = tempNode</span><br><span class="line">        self.length -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> tempNode</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">remove_node</span><span class="params">(self, node)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        remove a node from linkedlist</span></span><br><span class="line"><span class="string">        :param node: ListNode</span></span><br><span class="line"><span class="string">        :return: ListNode the node has been removed</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        node.next.pre = node.pre</span><br><span class="line">        node.pre.next = node.next</span><br><span class="line">        self.length -= <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pop_tail</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">        pop a node from tail</span></span><br><span class="line"><span class="string">        :return: ListNode the node has been popped</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        <span class="keyword">if</span> self.length == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">        shouldRemoveNode = self.tail.pre</span><br><span class="line">        tempNode = shouldRemoveNode.pre</span><br><span class="line">        tempNode.next = self.tail</span><br><span class="line">        self.tail.pre = tempNode</span><br><span class="line">        self.length -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> shouldRemoveNode</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">print_self</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> self.length == <span class="number">0</span>:</span><br><span class="line">            print(<span class="string">'none'</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        current_node = self.head.next</span><br><span class="line">        <span class="keyword">while</span> current_node.next <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            sys.stdout.write(str(current_node.val[<span class="number">0</span>]) + <span class="string">":"</span> + str(current_node.val[<span class="number">1</span>]) + <span class="string">" =&gt; "</span>)</span><br><span class="line">            current_node = current_node.next</span><br><span class="line">            <span class="keyword">if</span> current_node.next <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        sys.stdout.write(<span class="string">" None "</span>)</span><br><span class="line">        sys.stdout.write(<span class="string">" :: Length: "</span> + str(self.length))</span><br><span class="line">        sys.stdout.flush()</span><br><span class="line">        print(<span class="string">''</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LRUCache</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    LRUCache</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    __slots__ = [<span class="string">'map'</span>, <span class="string">'linkedlist'</span>, <span class="string">'cap'</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, cap)</span>:</span></span><br><span class="line">        self.cap = cap</span><br><span class="line">        self.map = &#123;&#125;</span><br><span class="line">        self.linkedlist = LinkedList()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">put</span><span class="params">(self, key, value)</span>:</span></span><br><span class="line">        <span class="comment"># if this key is exist, just update the value of the node and move this node to head</span></span><br><span class="line">        <span class="keyword">if</span> key <span class="keyword">in</span> self.map:</span><br><span class="line">            node = self.map[key]</span><br><span class="line">            node.val[<span class="number">1</span>] = value</span><br><span class="line">            self.get(key)</span><br><span class="line">            self.linkedlist.print_self()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># not exist yet, insert this value to head and put this node to map</span></span><br><span class="line">        newNode = self.linkedlist.insert_head(ListNode([key, value]))</span><br><span class="line">        self.map[key] = newNode</span><br><span class="line"></span><br><span class="line">        <span class="comment"># check the capacity, remove the tail node if LRUCache is full</span></span><br><span class="line">        <span class="keyword">if</span> self.linkedlist.length &gt; self.cap:</span><br><span class="line">            oldNode = self.linkedlist.pop_tail()</span><br><span class="line">            oldKey = oldNode.val[<span class="number">0</span>]</span><br><span class="line">            self.map.pop(oldKey)</span><br><span class="line"></span><br><span class="line">        self.linkedlist.print_self()</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, key)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> self.map:</span><br><span class="line">            self.linkedlist.print_self()</span><br><span class="line">            <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># get the node, move this node to head</span></span><br><span class="line">        node = self.map[key]</span><br><span class="line">        self.linkedlist.remove_node(node)</span><br><span class="line">        self.linkedlist.insert_head(node)</span><br><span class="line">        <span class="comment"># return the value</span></span><br><span class="line">        self.linkedlist.print_self()</span><br><span class="line">        <span class="keyword">return</span> node.val[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">cmds = [<span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>,</span><br><span class="line">        <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>,</span><br><span class="line">        <span class="string">"get"</span>,</span><br><span class="line">        <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>,</span><br><span class="line">        <span class="string">"get"</span>,</span><br><span class="line">        <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>,</span><br><span class="line">        <span class="string">"get"</span>,</span><br><span class="line">        <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>,</span><br><span class="line">        <span class="string">"get"</span>,</span><br><span class="line">        <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>,</span><br><span class="line">        <span class="string">"put"</span>,</span><br><span class="line">        <span class="string">"put"</span>, <span class="string">"get"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>, <span class="string">"put"</span>]</span><br><span class="line"></span><br><span class="line">params = [[<span class="number">10</span>, <span class="number">13</span>], [<span class="number">3</span>, <span class="number">17</span>], [<span class="number">6</span>, <span class="number">11</span>], [<span class="number">10</span>, <span class="number">5</span>], [<span class="number">9</span>, <span class="number">10</span>], [<span class="number">13</span>], [<span class="number">2</span>, <span class="number">19</span>], [<span class="number">2</span>], [<span class="number">3</span>], [<span class="number">5</span>, <span class="number">25</span>], [<span class="number">8</span>], [<span class="number">9</span>, <span class="number">22</span>], [<span class="number">5</span>, <span class="number">5</span>], [<span class="number">1</span>, <span class="number">30</span>],</span><br><span class="line">          [<span class="number">11</span>], [<span class="number">9</span>, <span class="number">12</span>], [<span class="number">7</span>], [<span class="number">5</span>], [<span class="number">8</span>], [<span class="number">9</span>], [<span class="number">4</span>, <span class="number">30</span>], [<span class="number">9</span>, <span class="number">3</span>], [<span class="number">9</span>], [<span class="number">10</span>], [<span class="number">10</span>], [<span class="number">6</span>, <span class="number">14</span>], [<span class="number">3</span>, <span class="number">1</span>], [<span class="number">3</span>], [<span class="number">10</span>, <span class="number">11</span>], [<span class="number">8</span>],</span><br><span class="line">          [<span class="number">2</span>, <span class="number">14</span>], [<span class="number">1</span>],</span><br><span class="line">          [<span class="number">5</span>], [<span class="number">4</span>], [<span class="number">11</span>, <span class="number">4</span>], [<span class="number">12</span>, <span class="number">24</span>], [<span class="number">5</span>, <span class="number">18</span>], [<span class="number">13</span>], [<span class="number">7</span>, <span class="number">23</span>], [<span class="number">8</span>], [<span class="number">12</span>], [<span class="number">3</span>, <span class="number">27</span>], [<span class="number">2</span>, <span class="number">12</span>], [<span class="number">5</span>], [<span class="number">2</span>, <span class="number">9</span>], [<span class="number">13</span>, <span class="number">4</span>],</span><br><span class="line">          [<span class="number">8</span>, <span class="number">18</span>],</span><br><span class="line">          [<span class="number">1</span>, <span class="number">7</span>], [<span class="number">6</span>], [<span class="number">9</span>, <span class="number">29</span>], [<span class="number">8</span>, <span class="number">21</span>], [<span class="number">5</span>], [<span class="number">6</span>, <span class="number">30</span>], [<span class="number">1</span>, <span class="number">12</span>], [<span class="number">10</span>], [<span class="number">4</span>, <span class="number">15</span>], [<span class="number">7</span>, <span class="number">22</span>], [<span class="number">11</span>, <span class="number">26</span>], [<span class="number">8</span>, <span class="number">17</span>], [<span class="number">9</span>, <span class="number">29</span>], [<span class="number">5</span>],</span><br><span class="line">          [<span class="number">3</span>, <span class="number">4</span>],</span><br><span class="line">          [<span class="number">11</span>, <span class="number">30</span>], [<span class="number">12</span>], [<span class="number">4</span>, <span class="number">29</span>], [<span class="number">3</span>], [<span class="number">9</span>], [<span class="number">6</span>], [<span class="number">3</span>, <span class="number">4</span>], [<span class="number">1</span>], [<span class="number">10</span>], [<span class="number">3</span>, <span class="number">29</span>], [<span class="number">10</span>, <span class="number">28</span>], [<span class="number">1</span>, <span class="number">20</span>], [<span class="number">11</span>, <span class="number">13</span>], [<span class="number">3</span>], [<span class="number">3</span>, <span class="number">12</span>],</span><br><span class="line">          [<span class="number">3</span>, <span class="number">8</span>],</span><br><span class="line">          [<span class="number">10</span>, <span class="number">9</span>], [<span class="number">3</span>, <span class="number">26</span>], [<span class="number">8</span>], [<span class="number">7</span>], [<span class="number">5</span>], [<span class="number">13</span>, <span class="number">17</span>], [<span class="number">2</span>, <span class="number">27</span>], [<span class="number">11</span>, <span class="number">15</span>], [<span class="number">12</span>], [<span class="number">9</span>, <span class="number">19</span>], [<span class="number">2</span>, <span class="number">15</span>], [<span class="number">3</span>, <span class="number">16</span>], [<span class="number">1</span>], [<span class="number">12</span>, <span class="number">17</span>],</span><br><span class="line">          [<span class="number">9</span>, <span class="number">1</span>],</span><br><span class="line">          [<span class="number">6</span>, <span class="number">19</span>], [<span class="number">4</span>], [<span class="number">5</span>], [<span class="number">5</span>], [<span class="number">8</span>, <span class="number">1</span>], [<span class="number">11</span>, <span class="number">7</span>], [<span class="number">5</span>, <span class="number">2</span>], [<span class="number">9</span>, <span class="number">28</span>], [<span class="number">1</span>], [<span class="number">2</span>, <span class="number">2</span>], [<span class="number">7</span>, <span class="number">4</span>], [<span class="number">4</span>, <span class="number">22</span>], [<span class="number">7</span>, <span class="number">24</span>], [<span class="number">9</span>, <span class="number">26</span>],</span><br><span class="line">          [<span class="number">13</span>, <span class="number">28</span>],</span><br><span class="line">          [<span class="number">11</span>, <span class="number">26</span>]]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">print_list</span><span class="params">(l)</span>:</span></span><br><span class="line">    sys.stdout.write(<span class="string">'['</span>)</span><br><span class="line">    sys.stdout.write(<span class="string">', '</span>.join(str(p) <span class="keyword">for</span> p <span class="keyword">in</span> l))</span><br><span class="line">    sys.stdout.write(<span class="string">']'</span>)</span><br><span class="line"></span><br><span class="line">cache = LRUCache(<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> xrange(len(cmds)):</span><br><span class="line">    cmd = cmds[i]</span><br><span class="line">    param = params[i]</span><br><span class="line"></span><br><span class="line">    sys.stdout.write(str(i) + <span class="string">" "</span> + cmd + <span class="string">" "</span>)</span><br><span class="line">    print_list(param)</span><br><span class="line">    sys.stdout.write(<span class="string">"\n"</span>)</span><br><span class="line">    val = getattr(cache, cmd)(*param)</span><br><span class="line">    print(<span class="string">"result "</span> + str(val))</span><br></pre></td></tr></table></figure>
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2017/12/algorithm/lru-cache-in-python/" data-id="cmm1p24kp002tud3zr4898acn" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/01/backend/counter-in-java/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            Java 计数器的「线程安全」和「非线程安全」实现
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2016/03/frontend/think-about-android-preference/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">Android 中设置界面的思考</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>HTTP Graceful Cancellation | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="XHR,HTTP,HttpClient,Nginx,HTTP/2,Cancel,Cancellation">
+    
+    <meta name="description" content="Suppose we’re writing an HTTP server with an endpoint that takes a long time to finish. A client may start a request and then cancel it before the handler completes (closing the tab, navigating away,">
+<meta name="keywords" content="XHR,HTTP,HttpClient,Nginx,HTTP&#x2F;2,Cancel,Cancellation">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP Graceful Cancellation">
+<meta property="og:url" content="https://xhinliang.github.io/2024/04/backend/http-graceful-cancelation/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="Suppose we’re writing an HTTP server with an endpoint that takes a long time to finish. A client may start a request and then cancel it before the handler completes (closing the tab, navigating away,">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.607Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HTTP Graceful Cancellation">
+<meta name="twitter:description" content="Suppose we’re writing an HTTP server with an endpoint that takes a long time to finish. A client may start a request and then cancel it before the handler completes (closing the tab, navigating away,">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Backend/">Backend</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-backend/http-graceful-cancelation" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        HTTP Graceful Cancellation
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2024/04/backend/http-graceful-cancelation/" class="article-date">
+    <time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Cancel/">Cancel</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Cancellation/">Cancellation</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/">HTTP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP-2/">HTTP/2</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HttpClient/">HttpClient</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nginx/">Nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/XHR/">XHR</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p>Suppose we’re writing an HTTP server with an endpoint that takes a long time to finish.</p>
+<p>A client may start a request and then cancel it before the handler completes (closing the tab, navigating away, hitting “stop”, etc.).</p>
+<p>The question is: can the server detect that the client has canceled the request, and do so early enough to stop expensive downstream work?</p>
+<h2 id="Without-Nginx"><a href="#Without-Nginx" class="headerlink" title="Without Nginx"></a>Without Nginx</h2><h3 id="HTTP-1-1"><a href="#HTTP-1-1" class="headerlink" title="HTTP/1.1"></a>HTTP/1.1</h3><p>Let’s start with a simple example using Go’s Gin framework to serve the endpoint <code>/http1</code>.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">    <span class="string">"context"</span></span><br><span class="line">    <span class="string">"github.com/gin-gonic/gin"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    router := gin.Default()</span><br><span class="line"></span><br><span class="line">    router.GET(<span class="string">"/http1"</span>, <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">        <span class="comment">// Context from the Gin handler</span></span><br><span class="line">        ctx := c.Request.Context()</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Simulate a long-running task with periodic checks</span></span><br><span class="line">        <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">10</span>; i++ &#123;</span><br><span class="line">            <span class="comment">// Costly operation</span></span><br><span class="line">            <span class="keyword">if</span> err := costlyOperation(ctx, i); err != <span class="literal">nil</span> &#123;</span><br><span class="line">                c.AbortWithStatusJSON(<span class="number">499</span>, gin.H&#123;<span class="string">"error"</span>: <span class="string">"Client has disconnected"</span>&#125;)</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Complete the task</span></span><br><span class="line">        c.JSON(<span class="number">200</span>, gin.H&#123;<span class="string">"status"</span>: <span class="string">"Task completed successfully"</span>&#125;)</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    router.Run(<span class="string">":8080"</span>) <span class="comment">// listen and serve on 0.0.0.0:8080</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">costlyOperation</span><span class="params">(ctx context.Context, i <span class="keyword">int</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    <span class="keyword">select</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> &lt;-time.After(<span class="number">1</span> * time.Second): <span class="comment">// simulate work by sleeping</span></span><br><span class="line">        fmt.Println(<span class="string">"Working..."</span>, i)</span><br><span class="line">    <span class="keyword">case</span> &lt;-ctx.Done(): <span class="comment">// check if the context is done</span></span><br><span class="line">        fmt.Println(<span class="string">"Client has disconnected. Stopping task."</span>, i)</span><br><span class="line">        <span class="keyword">return</span> fmt.Errorf(<span class="string">"client has disconnected"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="cURL"><a href="#cURL" class="headerlink" title="cURL"></a>cURL</h4><p>Test with local curl over HTTP/1.1:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl http://localhost:8080/http1</span><br><span class="line">^C # after 2 seconds</span><br></pre></td></tr></table></figure>
+<p>The server log is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[GIN-debug] Listening and serving HTTP on :8080</span><br><span class="line">Working... 0</span><br><span class="line">Working... 1</span><br><span class="line">Working... 2</span><br><span class="line">Client has disconnected. Stopping task.  3</span><br><span class="line">[GIN] 2024/04/23 - 23:14:17 | 499 |  3.332915625s |       127.0.0.1 | GET      "/http1"</span><br></pre></td></tr></table></figure>
+<p>This shows the server notices the disconnect and cancels the request context.</p>
+<h4 id="XHR"><a href="#XHR" class="headerlink" title="XHR"></a>XHR</h4><p>Now test the same endpoint from a browser using XHR.</p>
+<p>In real code you would call <code>xhr.abort()</code> from a timer or a user action; the snippet below just highlights the cancellation call site.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">xhr.open(<span class="string">"GET"</span>, <span class="string">"http://localhost:8080/http1"</span>);</span><br><span class="line">xhr.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (xhr.readyState === XMLHttpRequest.DONE) &#123;</span><br><span class="line">        <span class="keyword">if</span> (xhr.status === <span class="number">200</span>) &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">"Response:"</span>, xhr.responseText);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">console</span>.error(<span class="string">"Request failed with status:"</span>, xhr.status);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">xhr.send();</span><br><span class="line">xhr.abort(); <span class="comment">// after 7 seconds</span></span><br></pre></td></tr></table></figure>
+<p>The server log is:<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Working<span class="built_in">..</span>. 0</span><br><span class="line">Working<span class="built_in">..</span>. 1</span><br><span class="line">Working<span class="built_in">..</span>. 2</span><br><span class="line">Working<span class="built_in">..</span>. 3</span><br><span class="line">Working<span class="built_in">..</span>. 4</span><br><span class="line">Working<span class="built_in">..</span>. 5</span><br><span class="line">Working<span class="built_in">..</span>. 6</span><br><span class="line">Working<span class="built_in">..</span>. 7</span><br><span class="line">Client has disconnected. Stopping task.  8</span><br></pre></td></tr></table></figure></p>
+<h4 id="How-does-it-work"><a href="#How-does-it-work" class="headerlink" title="How does it work?"></a>How does it work?</h4><p>In Go, each request carries a <code>context.Context</code> that is tied to the request lifecycle. If the underlying connection is closed, Go’s HTTP server cancels that context, and frameworks like Gin surface it via <code>c.Request.Context()</code>.</p>
+<p>This cancellation can be triggered by a client disconnect (TCP FIN/RST), a server-side timeout, or application logic choosing to abort the request processing.</p>
+<h3 id="HTTP-2"><a href="#HTTP-2" class="headerlink" title="HTTP/2"></a>HTTP/2</h3><p>Gin can also serve HTTP/2 when TLS is enabled, so we can repeat the same experiment over HTTP/2.</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"time"</span></span><br><span class="line">    <span class="string">"context"</span></span><br><span class="line">    <span class="string">"github.com/gin-gonic/gin"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// ... no changes in the router setup</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// To enable HTTP/2, replace the `Run` method with `RunTLS`</span></span><br><span class="line">    router.RunTLS(<span class="string">":8081"</span>, <span class="string">"/tmp/server.crt"</span>, <span class="string">"/tmp/server.key"</span>) <span class="comment">// listen and serve on 0.0.0.0:8081 using TLS, necessary for HTTP/2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ... no changes in the handler</span></span><br></pre></td></tr></table></figure>
+<h4 id="cURL-1"><a href="#cURL-1" class="headerlink" title="cURL"></a>cURL</h4><p>Test with local curl over HTTP/2:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">curl https://localhost:8081/http2 --insecure --verbose</span><br><span class="line">*   Trying 127.0.0.1:8081...</span><br><span class="line">* Connected to</span><br><span class="line"></span><br><span class="line"> localhost (127.0.0.1) port 8081 (#0)</span><br><span class="line">* ALPN, offering h2</span><br><span class="line">* ALPN, offering http/1.1</span><br><span class="line">* successfully set certificate verify locations:</span><br><span class="line">* TLSv1.3 (OUT), TLS handshake, Client hello (1):</span><br><span class="line">* TLSv1.3 (IN), TLS handshake, Server hello (2):</span><br><span class="line">* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):</span><br><span class="line">* TLSv1.3 (IN), TLS handshake, Certificate (11):</span><br><span class="line">* TLSv1.3 (IN), TLS handshake, CERT verify (15):</span><br><span class="line">* TLSv1.3 (IN), TLS handshake, Finished (20):</span><br><span class="line">* TLSv1.3 (OUT), TLS handshake, Finished (20):</span><br><span class="line">* SSL connection using TLSv1.3 / AEAD-CHACHA20-POLY1305-SHA256</span><br><span class="line">* ALPN, server accepted h2 as the protocol</span><br><span class="line">* Server certificate:</span><br><span class="line">*  subject: C=AU; ST=Some-State; O=Internet Widgits Pty Ltd</span><br><span class="line">*  start date: Apr 23 15:35:12 2024 GMT</span><br><span class="line">*  expire date: Apr 23 15:35:12 2025 GMT</span><br><span class="line">*  issuer: C=AU; ST=Some-State; O=Internet Widgits Pty Ltd</span><br><span class="line">*  SSL certificate verify result: self signed certificate (18), continuing anyway.</span><br><span class="line">* Using HTTP2, server supports multiplexing</span><br><span class="line">* Using Stream ID: 1 (easy handle 0x14e80bc00)</span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> GET /http2 HTTP/2</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> Host: localhost:8081</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> user-agent: curl/7.86.0</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash"> accept: */*</span></span><br><span class="line"><span class="meta">&gt;</span></span><br><span class="line">* Connection state changed (MAX_CONCURRENT_STREAMS == 250)!</span><br></pre></td></tr></table></figure>
+<p>The server log is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Working... 0</span><br><span class="line">Working... 1</span><br><span class="line">Working... 2</span><br><span class="line">Working... 3</span><br><span class="line">Working... 4</span><br><span class="line">Client has disconnected. Stopping task.  5</span><br></pre></td></tr></table></figure>
+<p>Again, the server detects the cancellation while the handler is still running.</p>
+<h4 id="XHR-1"><a href="#XHR-1" class="headerlink" title="XHR"></a>XHR</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">xhr.open(<span class="string">"GET"</span>, <span class="string">"https://localhost:8081/http2"</span>);</span><br><span class="line">xhr.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (xhr.readyState === XMLHttpRequest.DONE) &#123;</span><br><span class="line">        <span class="keyword">if</span> (xhr.status === <span class="number">200</span>) &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">"Response:"</span>, xhr.responseText);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">console</span>.error(<span class="string">"Request failed with status:"</span>, xhr.status);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">xhr.send();</span><br><span class="line">xhr.abort(); <span class="comment">// after 6 seconds</span></span><br></pre></td></tr></table></figure>
+<p>The server log is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Working... 0</span><br><span class="line">Working... 1</span><br><span class="line">Working... 2</span><br><span class="line">Working... 3</span><br><span class="line">Working... 4</span><br><span class="line">Working... 5</span><br><span class="line">Working... 6</span><br><span class="line">Client has disconnected. Stopping task.  7</span><br></pre></td></tr></table></figure>
+<h3 id="Offline"><a href="#Offline" class="headerlink" title="Offline"></a>Offline</h3><p>What if the client disappears without a clean close—for example, the device loses Wi‑Fi or switches to airplane mode? In that case the server might not receive a TCP FIN/RST (or an HTTP/2 reset) immediately.</p>
+<p>We can use another device to test it:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 0. setup the WiFi</span></span><br><span class="line"><span class="comment"># 1. open the browser and go to http://localhost:8080/http1</span></span><br><span class="line"><span class="comment"># 2. close the WiFi</span></span><br></pre></td></tr></table></figure>
+<p>The server log is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Working... 0</span><br><span class="line">Working... 1</span><br><span class="line">Working... 2</span><br><span class="line">Working... 3</span><br><span class="line">Working... 4</span><br><span class="line">Working... 5</span><br><span class="line">Working... 6</span><br><span class="line">Working... 7</span><br><span class="line">Working... 8</span><br><span class="line">Working... 9</span><br><span class="line">[GIN] 2024/04/23 - 23:49:49 | 200 | 10.011190667s |   192.168.0.105 | GET      "/http1"</span><br></pre></td></tr></table></figure>
+<p>In this run, the server keeps working and completes the handler; from the server’s perspective, nothing was canceled.</p>
+<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>At a high level, HTTP/1.1 doesn’t have an explicit, per-request “cancel” signal. What you usually get is “the connection went away”, and the server only learns that once the TCP stack (or the application runtime) notices the close.</p>
+<p>HTTP/2 and HTTP/3 are different: they support stream-level cancellation. A client can reset a single stream (e.g., via a <code>RST_STREAM</code> frame), which makes it much easier for the server to stop work promptly.</p>
+<p>In practice:</p>
+<ul>
+<li><strong>HTTP/1.1</strong>: “Cancellation” is typically the client closing the TCP connection. The server may only notice on read/write, or when the runtime surfaces the disconnect (for Go, that means <code>Request.Context()</code> is canceled).</li>
+<li><strong>HTTP/2 and HTTP/3</strong>: The client can explicitly cancel a request by resetting the stream, so the server can stop work sooner and more reliably.</li>
+</ul>
+<p>No matter the protocol, cancellation is only useful if your handler checks for it during long-running work.</p>
+<h2 id="With-Nginx"><a href="#With-Nginx" class="headerlink" title="With Nginx"></a>With Nginx</h2><p>We usually use Nginx as a reverse proxy between the client and the server.</p>
+<p>Since HTTP/2 is commonly used on the client-to-Nginx side, after integrating Nginx the traffic flow typically looks like this:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Client - HTTP/2 -&gt; Nginx - HTTP/1.1 -&gt; Server</span><br></pre></td></tr></table></figure>
+<p>or<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Client - HTTP/2 -&gt; Nginx - HTTP/2 -&gt; Server</span><br></pre></td></tr></table></figure></p>
+<p>So we prepare an Nginx configuration in <code>nginx.conf</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">events &#123;</span><br><span class="line">    worker_connections 1024;</span><br><span class="line">&#125;</span><br><span class="line"># HTTP block</span><br><span class="line">http &#123;</span><br><span class="line">  error_log /tmp/https_error.log debug;  # Specify a custom path and log level</span><br><span class="line"></span><br><span class="line">    # HTTPS server</span><br><span class="line">    server &#123;</span><br><span class="line">        listen 443 ssl http2;</span><br><span class="line">        server_name local_nginx_http_2;</span><br><span class="line"></span><br><span class="line">        ssl_certificate /tmp/server.crt;</span><br><span class="line">        ssl_certificate_key /tmp/server.key;</span><br><span class="line"></span><br><span class="line">        location /http1 &#123;</span><br><span class="line">            proxy_pass http://127.0.0.1:8080;</span><br><span class="line">            proxy_set_header Host $host;</span><br><span class="line">            proxy_http_version 1.1;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        location /http2 &#123;</span><br><span class="line">            proxy_pass https://127.0.0.1:8081;</span><br><span class="line">            proxy_set_header Host $host;</span><br><span class="line">            proxy_ssl_verify off;  # Add this line to disable SSL verification for the proxy</span><br><span class="line">        &#125;        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Above (without a proxy), we saw that both curl and XHR can trigger graceful cancellation.</p>
+<p>In this section, to keep things simple, we’ll only use curl to test cancellation through Nginx.</p>
+<h4 id="Nginx-HTTP-1-1-gt-Server"><a href="#Nginx-HTTP-1-1-gt-Server" class="headerlink" title="Nginx - HTTP/1.1 -&gt; Server"></a>Nginx - HTTP/1.1 -&gt; Server</h4><p>The curl command is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl https://localhost/http1 --insecure</span><br><span class="line">^C # after 6 seconds</span><br></pre></td></tr></table></figure>
+<p>The server log is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Working... 0</span><br><span class="line">Working... 1</span><br><span class="line">Working... 2</span><br><span class="line">Working... 3</span><br><span class="line">Working... 4</span><br><span class="line">Working... 5</span><br><span class="line">Client has disconnected. Stopping task.  6</span><br></pre></td></tr></table></figure>
+<p>This shows the upstream server still observes the cancellation.</p>
+<h4 id="Nginx-HTTP-2-gt-Server"><a href="#Nginx-HTTP-2-gt-Server" class="headerlink" title="Nginx - HTTP/2 -&gt; Server"></a>Nginx - HTTP/2 -&gt; Server</h4><p>The curl command is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl https://localhost/http2 --insecure</span><br><span class="line">^C # after 6 seconds</span><br></pre></td></tr></table></figure>
+<p>The server log is:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Working... 0</span><br><span class="line">Working... 1</span><br><span class="line">Working... 2</span><br><span class="line">Working... 3</span><br><span class="line">Working... 4</span><br><span class="line">Working... 5</span><br><span class="line">Client has disconnected. Stopping task.  6</span><br></pre></td></tr></table></figure>
+<p>This shows the upstream server still observes the cancellation.</p>
+<h3 id="Summary-1"><a href="#Summary-1" class="headerlink" title="Summary"></a>Summary</h3><p>When there is an Nginx reverse proxy sitting between the client and the server, handling client requests and forwarding them to the server, the behavior upon cancellation can vary depending on the protocols used between the client and Nginx, and between Nginx and the server. Let’s consider the two scenarios:</p>
+<h4 id="Scenario-1-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-1-1"><a href="#Scenario-1-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-1-1" class="headerlink" title="Scenario 1: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/1.1)"></a>Scenario 1: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/1.1)</h4><ol>
+<li>Client Cancels Request: The client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame to Nginx.</li>
+<li>Nginx Behavior: Nginx can observe the reset from the client. Toward the upstream (HTTP/1.1), it can’t forward a per-request reset frame, so it either keeps the upstream request running and drops the response later, or it closes the upstream connection to force the server to observe a disconnect. Which path it takes depends on configuration and internal behavior.</li>
+<li>Server Side: If Nginx closes the upstream connection, the server sees a disconnect and can stop work (e.g., via request context cancellation). If Nginx keeps the upstream request running, the server may do unnecessary work even though the client is already gone.</li>
+</ol>
+<h4 id="Scenario-2-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-2"><a href="#Scenario-2-Client-HTTP-2-gt-Nginx-gt-Server-HTTP-2" class="headerlink" title="Scenario 2: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/2)"></a>Scenario 2: Client (HTTP/2) -&gt; Nginx -&gt; Server (HTTP/2)</h4><ol>
+<li>Client Cancels Request: As before, the client sends a request using HTTP/2 and cancels it by sending a RST_STREAM frame.</li>
+<li>Nginx Behavior: Because both legs use HTTP/2, Nginx can forward the cancellation to the upstream by resetting the corresponding stream.</li>
+<li>Server Side: The server receives an explicit stream reset and can stop work immediately, which is both clearer and more efficient.</li>
+</ol>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2024/04/backend/http-graceful-cancelation/" data-id="cmm1p24kr002vud3zcu5ybpzw" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2024/04/backend/http-graceful-cancelation-zh/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            HTTP 请求的优雅取消（Graceful Cancellation）
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2023/12/backend/rate-limiter-in-action-zh/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">本地限流器实战：四种经典算法与实现思路</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

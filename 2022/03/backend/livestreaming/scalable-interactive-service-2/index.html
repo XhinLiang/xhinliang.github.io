@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>How to Build a Scalable Live Streaming Interactive Service - Part II | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Backend,LiveStreaming,Live">
+    
+    <meta name="description" content="BackgroundWith faster networks and the push from COVID-era remote life, live streaming has become popular again.  In Part I, we discussed signal types and interaction/connection modeling. In Part II,">
+<meta name="keywords" content="Backend,LiveStreaming,Live">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Build a Scalable Live Streaming Interactive Service - Part II">
+<meta property="og:url" content="https://xhinliang.github.io/2022/03/backend/livestreaming/scalable-interactive-service-2/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="BackgroundWith faster networks and the push from COVID-era remote life, live streaming has become popular again.  In Part I, we discussed signal types and interaction/connection modeling. In Part II,">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://xhinliang.github.io/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.608Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How to Build a Scalable Live Streaming Interactive Service - Part II">
+<meta name="twitter:description" content="BackgroundWith faster networks and the push from COVID-era remote life, live streaming has become popular again.  In Part I, we discussed signal types and interaction/connection modeling. In Part II,">
+<meta name="twitter:image" content="https://xhinliang.github.io/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Backend/">Backend</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-backend/livestreaming/scalable-interactive-service-2" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        How to Build a Scalable Live Streaming Interactive Service - Part II
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2022/03/backend/livestreaming/scalable-interactive-service-2/" class="article-date">
+    <time datetime="2022-03-27T00:00:00.000Z" itemprop="datePublished">2022-03-27</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Backend/">Backend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Live/">Live</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LiveStreaming/">LiveStreaming</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="Background"><a href="#Background" class="headerlink" title="Background"></a>Background</h2><p>With faster networks and the push from COVID-era remote life, live streaming has become popular again.</p>
+<p><img src="/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg" alt></p>
+<p>In Part I, we discussed signal types and interaction/connection modeling. In Part II, we’ll focus on scaling methods for interactive services.</p>
+<h2 id="Limitations"><a href="#Limitations" class="headerlink" title="Limitations"></a>Limitations</h2><p>In backend systems, services are often described as either stateless or stateful.</p>
+<p>A stateless service can process a request using only the information carried with that request and does not rely on state from earlier requests.</p>
+<p>A stateful service relies on state accumulated from earlier requests (in memory or in storage) in addition to the data carried with the current request.</p>
+<p>This distinction matters because stateless workloads can usually be load-balanced freely, while stateful workloads often require affinity (sticky sessions, consistent hashing, sharding) and are harder to scale out.</p>
+<p>As a result, bottlenecks often come from stateful components.</p>
+<p>The interactive service of live streaming is composed of several parts:</p>
+<ul>
+<li>Storage<ul>
+<li>Relational databases</li>
+</ul>
+</li>
+<li>Caches<ul>
+<li>Structured collections</li>
+<li>Key-value caches</li>
+</ul>
+</li>
+<li>Compute Services<ul>
+<li>Scheduled tasks</li>
+</ul>
+</li>
+<li>Payment Service<ul>
+<li>Account transfers</li>
+</ul>
+</li>
+<li>HTTP Servers</li>
+<li>Signaling Servers</li>
+</ul>
+<p>The scaling methods discussed below largely target these components.</p>
+<h2 id="Scaling-Methods"><a href="#Scaling-Methods" class="headerlink" title="Scaling Methods"></a>Scaling Methods</h2><p>Distributed systems are usually built from many small instances. To increase capacity and throughput, we scale out by adding instances—but that only works if each component is designed to scale.</p>
+<h3 id="Relational-Databases"><a href="#Relational-Databases" class="headerlink" title="Relational Databases"></a>Relational Databases</h3><p>As an internet service, relational databases are usually the source of truth. The typical scaling approach is sharding: split data into partitions and store them in different databases.</p>
+<p>Live streaming data has a few useful characteristics that make sharding more approachable:</p>
+<ul>
+<li>Timeliness: live streams have a bounded lifetime. The longest sessions are under 480 hours, and the average duration is under 5 minutes. For online traffic, we mostly care about ongoing rooms and recent history, so we can keep only the most recent ~4 weeks in the “hot” dataset.</li>
+<li>Geography: users often consume streams that are geographically close or at least within the same region. That makes it natural to shard records by the host’s region.</li>
+</ul>
+<p>One practical routing scheme is:</p>
+<ol>
+<li>Generate the live streaming room ID based on the host (anchor) ID, and generate the host ID with a regional prefix (based on where the account was registered).</li>
+<li>Insert the room record into the database shard that the room ID maps to.</li>
+<li>When querying an ongoing room by room ID, route to the owning shard directly.</li>
+<li>When querying an offline (ended) room by room ID, route to an append-only archive database that can be scaled independently by adding nodes.</li>
+</ol>
+<p><img src="/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0oertdxcbj216h0u0tc7.jpg" alt></p>
+<h3 id="Structured-Collections"><a href="#Structured-Collections" class="headerlink" title="Structured Collections"></a>Structured Collections</h3><p>We use Redis to implement structured collections (lists, sets, sorted sets, hashes). Scaling this layer mostly means scaling Redis itself: add more shards and spread keys across them.</p>
+<p>In our setup, we don’t use the official <code>Redis Cluster</code> protocol. Instead, we use Twemproxy to shard reads/writes across a fleet of Redis master/replica nodes managed by Redis Sentinel. So the “Redis cluster” below means “Twemproxy + Redis + Sentinel”, not the built-in Redis Cluster feature.</p>
+<p>We also build two identical Redis clusters in different AZs (Availability Zones) and designate one as the primary via configuration.</p>
+<p>Writes to the primary cluster are replicated to the secondary cluster through Kafka.</p>
+<p><img src="/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0ofdhqbrcj215g0u078o.jpg" alt></p>
+<p>In the diagram above, notice that <code>Twemproxy</code> is stateless. You can scale it horizontally, and it shouldn’t be the bottleneck of the Redis layer.</p>
+<p>In practice, Redis keys are often derived from the room ID, which distributes load naturally once you have enough shards. The remaining work is to avoid creating big keys and hot keys.</p>
+<p>Big keys often come from writes to large sorted sets and hashes. In live streaming, two practical ways to avoid big keys are:</p>
+<ul>
+<li>Trim collections to a fixed size once they exceed a threshold.</li>
+<li>Limit write rate with a rate limiter (or other backpressure mechanism).</li>
+</ul>
+<p>Hot keys usually come from reads. To mitigate hot keys, you can:</p>
+<ul>
+<li>Add another cache layer for derived results (for example, a short-lived per-process local cache).</li>
+<li>Store the same logical value under multiple physical keys and choose a key randomly when reading. In most sharding schemes, those keys land on different Redis nodes, so the read load spreads out.</li>
+</ul>
+<p><img src="/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0olq9yfdqj21aw0u00wc.jpg" alt></p>
+<p>On large social-style platforms, hotspot detection plus special-case policies (rate limits, circuit breakers, pre-warming) are also common tools.</p>
+<h3 id="K-V-Caches"><a href="#K-V-Caches" class="headerlink" title="K-V Caches"></a>K-V Caches</h3><p>We use Memcached as our key-value cache. Most values cached in Memcached are derived from the relational databases.</p>
+<p>Unlike Redis, we don’t use a proxy in front of Memcached. Reads are routed by the client library (typically via consistent hashing).</p>
+<p>Memcached has no built-in primary/replica role. To improve availability, we run multiple equivalent clusters for the same purpose, and treat them as peers.</p>
+<p><img src="/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0ogzrpxaej20xn0u077z.jpg" alt></p>
+<p>When a client tries to read a value from Memcached, it follows a flow like this:</p>
+<ol>
+<li>Randomly pick one cluster in the same AZ, then hash the key and route to a Memcached node.</li>
+<li>Read from that node; if it’s a hit, return immediately.</li>
+<li>On a miss, randomly pick another cluster in the same AZ and route to its node.</li>
+<li>Read again; if it’s a hit, write the value back to the node from step 2 (to heal the miss) and then return.</li>
+<li>If it’s still a miss, call a service like <code>DbReader</code> to read from the database, then write back to both nodes (step 4 and step 2).</li>
+</ol>
+<p>One more detail: different clusters use different hash salts. That way, even if two clusters have the same number of nodes, “node 0” in cluster A does not tend to store the same set of keys as “node 0” in cluster B.</p>
+<p>With this approach, availability is high:</p>
+<ul>
+<li>If one Memcached node is down, clients can still read most keys from another cluster and heal the missing copy via write-back.</li>
+<li>If two nodes in different clusters are down, the expected lost portion is roughly <code>1/M * 1/N</code> (where <code>M</code> and <code>N</code> are the node counts of the two clusters).</li>
+</ul>
+<h3 id="Scheduled-Tasks"><a href="#Scheduled-Tasks" class="headerlink" title="Scheduled Tasks"></a>Scheduled Tasks</h3><p>Running periodic business jobs is common in live streaming backends. Many of these jobs share two properties:</p>
+<ul>
+<li>They should know which rooms are ongoing;</li>
+<li>Their logic can be partitioned by live room.</li>
+</ul>
+<p>Ongoing live rooms are stored in the online databases, but the naïve way to find them is scanning tables. That is expensive—especially when multiple jobs and services scan concurrently.</p>
+<p>We can use a service named “OngoingQuery” to protect the databases.</p>
+<p><img src="/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0om5ilpczj21fl0u0dka.jpg" alt></p>
+<p>The OngoingQuery service stores the room IDs of ongoing live streams.</p>
+<p>It periodically scans the database for a full refresh, and tails database binlogs for near-real-time updates. With this setup, its cache eventually converges to the database state.</p>
+<p>When we deploy a sharded job (multiple worker processes), workers register themselves in ZooKeeper and then run periodically:</p>
+<ul>
+<li>Query ZooKeeper to learn how many worker instances are currently running.</li>
+<li>Determine the worker’s own index among the instances.</li>
+<li>Request OngoingQuery for the worker’s partition of the ongoing room list.</li>
+<li>Process only that partition.</li>
+</ul>
+<p>With this partitioning abstraction, one logical job can be split across multiple processes and run concurrently.</p>
+<h3 id="Account-Transporting"><a href="#Account-Transporting" class="headerlink" title="Account Transporting"></a>Account Transporting</h3><p>Almost every live streaming platform will support gift features.</p>
+<p>The core of gifting is money movement: when a viewer sends a gift, balance is transferred from the viewer’s account to the host (anchor)’s account.</p>
+<p>For scalability, user balances are often sharded across databases. A direct viewer → host transfer therefore tends to become a distributed transaction, which is expensive.</p>
+<p>One way to reduce the cost is to introduce a virtual “room account”.</p>
+<p><img src="/uploads/persister-scalable-interactive-service-2--e6c9d24ely1h0omsn1ul4j21570u0jw6.jpg" alt></p>
+<p>When a live room begins, create a virtual room account in each balance database shard.</p>
+<p>During the live stream, gifts become transfers between the viewer’s account and the virtual room account in the same shard (a local transaction).</p>
+<p>When the live room ends, a service like “Settler” collects all virtual room accounts and performs settlement to the host’s account (the cross-shard part happens once, in batch).</p>
+<h3 id="HTTP-Service"><a href="#HTTP-Service" class="headerlink" title="HTTP Service"></a>HTTP Service</h3><p>There are many load-balancing strategies for HTTP services, so I won’t spend much time on this topic.</p>
+<p>One practical trick is to use an Nginx routing policy that sends the same room ID to the same service group, which can improve local-cache hit rate.</p>
+<h3 id="Signaling-Servers"><a href="#Signaling-Servers" class="headerlink" title="Signaling Servers"></a>Signaling Servers</h3><p>We have talked about this in the <a href="https://xhinliang.win/2022/01/backend/livestreaming/scalable-interactive-service-1/" target="_blank" rel="noopener">How to Build a Scalable Live Streaming Interactive Service - Part I</a>.</p>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><p>In this article, we discussed scaling strategies for the stateful parts of a live streaming interactive service. Many people refer to these ideas simply as “sharding strategies”.</p>
+<p>The common theme is simple: split a big thing into smaller, independent pieces.</p>
+<p>In the next post, I’ll share my thoughts on building a multi-region (or cross-region) live streaming platform.</p>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ul>
+<li><a href="https://en.wikipedia.org/wiki/Service_statelessness_principle#:~:text=Service%20statelessness%20is%20a%20design,their%20state%20data%20whenever%20possible" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Service_statelessness_principle#:~:text=Service%20statelessness%20is%20a%20design,their%20state%20data%20whenever%20possible</a>.</li>
+<li><a href="https://www.proud2becloud.com/stateful-vs-stateless-the-good-the-bad-and-the-ugly/" target="_blank" rel="noopener">https://www.proud2becloud.com/stateful-vs-stateless-the-good-the-bad-and-the-ugly/</a></li>
+</ul>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2022/03/backend/livestreaming/scalable-interactive-service-2/" data-id="cmm1p24lc004eud3zphrcjk00" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2023/12/backend/rate-limiter-in-action/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            Rate Limiter In Action
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2022/01/backend/livestreaming/scalable-interactive-service-1/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">How to Build a Scalable Live Streaming Interactive Service - Part I</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

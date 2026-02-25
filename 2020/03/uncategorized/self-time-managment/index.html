@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>自我时间管理 | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content>
+    
+    <meta name="description" content="Overview现在开始尝试一套更规范的自我时间管理机制。这套机制主要由三个工具支撑：番茄土豆、坚果云、VSCode。其中，番茄土豆用于管理碎片化时间和待办事项；坚果云用于存储更宏观的计划与日志；VSCode 用于管理坚果云中的文件。  制定 OKR每两个月制定一次个人 OKR，并落实到 okr.md 文件中。为便于聚焦，Objective 通常控制在三个以内。每个 Objective 需要配套">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自我时间管理">
+<meta property="og:url" content="https://xhinliang.github.io/2020/03/uncategorized/self-time-managment/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="Overview现在开始尝试一套更规范的自我时间管理机制。这套机制主要由三个工具支撑：番茄土豆、坚果云、VSCode。其中，番茄土豆用于管理碎片化时间和待办事项；坚果云用于存储更宏观的计划与日志；VSCode 用于管理坚果云中的文件。  制定 OKR每两个月制定一次个人 OKR，并落实到 okr.md 文件中。为便于聚焦，Objective 通常控制在三个以内。每个 Objective 需要配套">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://xhinliang.github.io/uploads/manage-self-time/pomodoro.png">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.609Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自我时间管理">
+<meta name="twitter:description" content="Overview现在开始尝试一套更规范的自我时间管理机制。这套机制主要由三个工具支撑：番茄土豆、坚果云、VSCode。其中，番茄土豆用于管理碎片化时间和待办事项；坚果云用于存储更宏观的计划与日志；VSCode 用于管理坚果云中的文件。  制定 OKR每两个月制定一次个人 OKR，并落实到 okr.md 文件中。为便于聚焦，Objective 通常控制在三个以内。每个 Objective 需要配套">
+<meta name="twitter:image" content="https://xhinliang.github.io/uploads/manage-self-time/pomodoro.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Uncategorized/">Uncategorized</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-uncategorized/self-time-managment" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        自我时间管理
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2020/03/uncategorized/self-time-managment/" class="article-date">
+    <time datetime="2020-03-08T00:00:00.000Z" itemprop="datePublished">2020-03-08</time>
+</a>
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><p>现在开始尝试一套更规范的自我时间管理机制。<br>这套机制主要由三个工具支撑：番茄土豆、坚果云、VSCode。<br>其中，番茄土豆用于管理碎片化时间和待办事项；坚果云用于存储更宏观的计划与日志；VSCode 用于管理坚果云中的文件。</p>
+<p><img src="/uploads/manage-self-time/pomodoro.png" alt></p>
+<h1 id="制定-OKR"><a href="#制定-OKR" class="headerlink" title="制定 OKR"></a>制定 OKR</h1><p>每两个月制定一次个人 OKR，并落实到 okr.md 文件中。<br>为便于聚焦，Objective 通常控制在三个以内。<br>每个 Objective 需要配套 Key Result，且 Key Result 应当可量化。<br>制定好 OKR 后，在坚果云中为这两个月建立文件夹，例如 2020-march-aprill，然后将 okr.md 文件放到该文件夹中。<br>接下来两个月的个人时间管理会围绕这份 OKR 进行。</p>
+<h1 id="灵感"><a href="#灵感" class="headerlink" title="灵感"></a>灵感</h1><p>OKR 制定完成后，随着时间的推移，往往会产生一些关于如何完成 OKR 的想法。<br>这些想法分为大想法和小想法。大想法一般需要更多时间完成，而小想法通常只需要一到两个番茄时间即可。</p>
+<p>对于大想法，记录到 okr.md 中，等到下个 sprint 再安排时间。<br>对于小想法，如果本周有充足的时间可以完成，则加到番茄土豆的待办事项中；如果没有，也放到 okr.md 中。</p>
+<p>如果有一些无关 OKR 的想法，也可以先记录到 okr.md 中，等到下个 OKR 再进行统一安排。</p>
+<h1 id="制定-Sprint"><a href="#制定-Sprint" class="headerlink" title="制定 Sprint"></a>制定 Sprint</h1><p>每周需要创建一个 sprint 文件，例如 sprint-march-1.md。<br>此文件用于记录本周个人时间管理的结果，应尽量保证可读性。</p>
+<p>sprint 文件必须包含的内容有：<br>本周目标。本周目标通常是相对比较大的工作，一般由 OKR 拆解而来。例如 <code>系统学习 ZooKeeper 相关的组件及实现原理</code><br>每日回顾。每天应该回顾一下工作和学习中值得记录的事情，学习了某篇很有意义的文章，可以将文章概要写下来；解决了某个 bug，可以将 bug 解决的过程记录下来。俗话说“好记性不如烂笔头”，希望这样一个机制能够让自己将知识更好地沉淀下来。<br>本周总结。将本周完成的目标和感触写下来，以达到复习的目的。</p>
+<h1 id="初始化待办事项"><a href="#初始化待办事项" class="headerlink" title="初始化待办事项"></a>初始化待办事项</h1><p>每周日，将本周需要完成的目标写到 sprint 文件中，称为本周目标。</p>
+<p>本周目标的制定与本周可用时间有关。<br>每个目标最好能够细化出完成目标预计需要花费的时间，并与本周可用时间一起配置。如果本周的可用时间较多，那么本周目标可以设定得更多一些。</p>
+<h1 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h1><p>在每日的执行工作中，强依赖番茄土豆这个工具，主要包括两方面：</p>
+<ol>
+<li>每日使用番茄钟来计算本日使用的时间。我手动将番茄钟的时间调整为 30 分钟，这是为了便于计算每日花费时间。</li>
+<li>将每天做的事情使用番茄土豆的待办事项进行管理。</li>
+</ol>
+<h2 id="温习"><a href="#温习" class="headerlink" title="温习"></a>温习</h2><p>每日工作完成后，需要对本日的学习和工作做一份总结，总结的来源一般是 git log 和番茄土豆的待办事项完成记录。<br>对于本日完成的有意义的事情，最好能够做一些概要性描述。</p>
+<p>每周工作完成后，回顾一遍 sprint.md，并根据每日目标的完成情况编写本周总结。</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2020/03/uncategorized/self-time-managment/" data-id="cmm1p24k6000rud3zl3cdliga" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/04/uncategorized/writing-guide-for-markdown-programer/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            给 Markdown 程序员的写作能力提升指南
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2019/02/computer/code-tools/open-vscode-via-terminal-in-macos/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">在 macOS 中使用命令行打开 VSCode</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

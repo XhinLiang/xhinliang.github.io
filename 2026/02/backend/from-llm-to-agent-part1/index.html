@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>从 LLM 到 Agent（上）：原理、局限与演进脉络 | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Agent,LLM,MCP,ReAct,DeepResearch,AI">
+    
+    <meta name="description" content="前言2025 年结束，Agent 这个概念在所有科技行业从业者中每天都会听到 10 次以上。那到底什么是 Agent，为什么有了 LLM 不够，还要做 Agent，我们是怎么从 LLM 演进到 Agent 的？ 本文尝试从下面两个方面解释清楚上面的问题：  理解 LLM/Chatbot 的结构性局限：为什么“会答”不等于“会做事” 搞清 Tool Calling / MCP / ReAct / D">
+<meta name="keywords" content="Agent,LLM,MCP,ReAct,DeepResearch,AI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从 LLM 到 Agent（上）：原理、局限与演进脉络">
+<meta property="og:url" content="https://xhinliang.github.io/2026/02/backend/from-llm-to-agent-part1/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="前言2025 年结束，Agent 这个概念在所有科技行业从业者中每天都会听到 10 次以上。那到底什么是 Agent，为什么有了 LLM 不够，还要做 Agent，我们是怎么从 LLM 演进到 Agent 的？ 本文尝试从下面两个方面解释清楚上面的问题：  理解 LLM/Chatbot 的结构性局限：为什么“会答”不等于“会做事” 搞清 Tool Calling / MCP / ReAct / D">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.607Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从 LLM 到 Agent（上）：原理、局限与演进脉络">
+<meta name="twitter:description" content="前言2025 年结束，Agent 这个概念在所有科技行业从业者中每天都会听到 10 次以上。那到底什么是 Agent，为什么有了 LLM 不够，还要做 Agent，我们是怎么从 LLM 演进到 Agent 的？ 本文尝试从下面两个方面解释清楚上面的问题：  理解 LLM/Chatbot 的结构性局限：为什么“会答”不等于“会做事” 搞清 Tool Calling / MCP / ReAct / D">
+<meta name="twitter:image" content="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Backend/">Backend</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-backend/from-llm-to-agent-part1" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        从 LLM 到 Agent（上）：原理、局限与演进脉络
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="article-date">
+    <time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI/">AI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Agent/">Agent</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DeepResearch/">DeepResearch</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LLM/">LLM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MCP/">MCP</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ReAct/">ReAct</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>2025 年结束，Agent 这个概念在所有科技行业从业者中每天都会听到 10 次以上。那到底什么是 Agent，为什么有了 LLM 不够，还要做 Agent，我们是怎么从 LLM 演进到 Agent 的？</p>
+<p>本文尝试从下面两个方面解释清楚上面的问题：</p>
+<ul>
+<li>理解 LLM/Chatbot 的结构性局限：为什么“会答”不等于“会做事”</li>
+<li>搞清 Tool Calling / MCP / ReAct / DeepResearch 的演化脉络：推理如何与证据、行动与产物形成闭环</li>
+</ul>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp" alt></p>
+<p>本文 @coauthor: ChatGPT DeepResearch, Codex, Manus, AnyGen, Nano Banana </p>
+<h2 id="0-背景简介"><a href="#0-背景简介" class="headerlink" title="0. 背景简介"></a>0. 背景简介</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_2.9ddgcfweku.webp" alt></p>
+<p>近两年，LLM 的“能对话”已被验证，但把它变成“能完成复杂任务的执行系统”仍是工程难题。本文试图从模型原理出发，解释 Chatbot 的结构性局限，并梳理从 Tool Calling、MCP 到 Agent 框架与运行时的演化脉络，最终落到工程实践的关键能力：状态、持久化、上下文工程、可观测与可控执行。</p>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_3.39lo9ztq6d.webp" alt></p>
+<h2 id="1-LLM-的工作原理：token-预测"><a href="#1-LLM-的工作原理：token-预测" class="headerlink" title="1. LLM 的工作原理：token 预测"></a>1. LLM 的工作原理：token 预测</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_4.5trimmtosk.webp" alt></p>
+<p>大语言模型的核心是 <strong>next-token prediction</strong>：给定上下文 token 序列，输出下一个 token 的概率分布，并以此自回归生成后续文本。该机制决定了两个关键事实：</p>
+<ol>
+<li>模型输出本质上是<strong>条件概率采样</strong>的结果；</li>
+<li>模型“理解/推理”能力在接口层面表现为对概率分布的调制，而非显式执行符号规则。</li>
+</ol>
+<p>推理阶段的关键组成：</p>
+<ul>
+<li><strong>Context window</strong>：模型可“看到”的输入长度上限；上下文越长并不必然越好，过长会导致注意力稀释、相关信息被淹没。</li>
+<li><strong>KV cache</strong>：自回归生成中复用注意力的 key/value，以降低重复计算成本并提升吞吐。</li>
+<li><strong>Prompt / System prompt</strong>：通过指令与约束塑造角色、风格与边界；系统提示词在对齐层面通常优先级更高。</li>
+<li><strong>Instruction tuning</strong>：在预训练之后进行监督微调（SFT）以提升指令遵循；再通过 <strong>RLHF / DPO</strong> 等方法进行偏好对齐（alignment），降低有害输出并改善可用性。</li>
+<li><strong>幻觉（hallucination）与不确定性</strong>：模型会生成“高似然但不保证真实”的内容；其不确定性来自数据覆盖、上下文缺失以及采样策略，概率分布并不等价于可校准的事实置信度。</li>
+</ul>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_5.4g4zilimrn.webp" alt></p>
+<h2 id="2-Chatbot-的局限性"><a href="#2-Chatbot-的局限性" class="headerlink" title="2. Chatbot 的局限性"></a>2. Chatbot 的局限性</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_6.45i5pg3ema.webp" alt></p>
+<p>仅靠一次或少数几次模型调用，Chatbot 在长流程任务上存在结构性瓶颈，典型体现在：</p>
+<ul>
+<li><strong>Hallucination / grounding</strong>：模型缺少对外部事实的强约束；没有检索与校验时，容易用“合理文本”填补空白。</li>
+<li><strong>Non-determinism</strong>：温度采样、并行计算与外部工具结果都会带来波动；对生产流程而言，这意味着输出不稳定与回归困难。</li>
+<li><strong>Context overflow / context saturation</strong>：上下文有限且“越长越贵”；当历史对话、文档与中间产物不断累积，模型会出现注意力分散、遗漏关键约束等问题。</li>
+<li><strong>Long-term memory 缺失</strong>：模型调用天然是“无持久记忆”的；跨天/跨会话任务需要外部记忆体（数据库、向量库、文件系统等）。</li>
+<li><strong>Long-horizon error accumulation</strong>：多步骤任务中，早期小错误会被后续步骤放大；纯文本链式推理缺少强校验机制。</li>
+<li><strong>Tool reliability 与 I/O 边界</strong>：真实世界 I/O 存在权限、网络、速率限制、格式变更与失败重试；模型本身无法保证这些边界条件被正确处理。</li>
+<li><strong>Statefulness vs stateless</strong>：模型单次调用是无状态的；而任务执行需要状态机（进度、依赖、产物、失败恢复）。</li>
+<li><strong>规划能力/执行能力割裂</strong>：模型可以写出漂亮计划，但在执行时容易忽略约束、误用工具或无法闭环验证。</li>
+<li><strong>观察-行动闭环（observe-act loop）缺失</strong>：没有“执行→观察结果→修正策略”的闭环时，模型难以稳定完成需要反馈迭代的任务。</li>
+</ul>
+<p>举个例子：在服务器上配置 Nginx 时，若依赖 Chatbot 协助，通常需要手动把现有配置复制粘贴到对话里，再让模型给出下一步命令；执行后把输出贴回，模型再继续判断。整个过程是“人手工搬运上下文 + 执行 + 反馈”的反复循环。</p>
+<p>Agent 的价值在于把上述瓶颈外置为工程可控的系统能力：</p>
+<ul>
+<li>用工具获得<strong>grounding</strong>（检索/数据库/计算/运行代码/读写文件）；</li>
+<li>用状态与循环控制长任务（step budget、检查点、恢复）；</li>
+<li>用人类审核兜底高风险动作（human-in-the-loop）；</li>
+<li>用日志与评测把不确定性纳入治理（可观测性与回归测试）。</li>
+</ul>
+<p>继续用 Nginx 的例子：若使用 Agent，它可以主动读取配置文件与服务状态，先给出修改计划并请求人工审批；随后按计划执行命令、落盘、测试与 reload。中间若报错（语法校验失败、端口冲突），它能基于真实输出定位问题并迭代修复。</p>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_7.3k8i358ybl.webp" alt></p>
+<h2 id="3-Tool-Calling"><a href="#3-Tool-Calling" class="headerlink" title="3. Tool Calling"></a>3. Tool Calling</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_8.3yexu0h96o.webp" alt></p>
+<p>我们回到 Chatbot。在 2022 年的 Chatbot 中，Chatbot 不知道当前时间，不知道现在的天气，也很难计算 123456 * 987654，也很难数清楚 “strawberry” 里有几个 r。<br>为了解决这个问题，业界就想出了 Tool Calling 的方案，这个方案初期是由 OpenAI 实现的 Function Calling，后续集成到各种 LLM 基础模型中，最后演变成现在的 MCP 方案。</p>
+<h3 id="3-1-Function-Call-模型感知能力"><a href="#3-1-Function-Call-模型感知能力" class="headerlink" title="3.1 Function Call: 模型感知能力"></a>3.1 Function Call: 模型感知能力</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_9.5c1gy1sb7j.webp" alt></p>
+<p>OpenAI 于 2023 年发布 Function Calling 能力：开发者以 JSON schema 描述函数签名，模型可输出可执行的参数结构，由系统调用真实工具（数据查询、业务 API、计算等），再将工具结果回填继续生成。([OpenAI][7])</p>
+<p><strong>Function Calling</strong> 把“动作”从文本里抽离出来，成为可校验、可执行的结构化输出：模型决定“是否调用、调用哪个工具、参数是什么”，系统负责执行与回填结果，再由模型整合为最终响应。([OpenAI Platform][1])</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">tools = [&#123;</span><br><span class="line">  <span class="string">"type"</span>: <span class="string">"function"</span>,</span><br><span class="line">  <span class="string">"function"</span>: &#123;</span><br><span class="line">    <span class="string">"name"</span>: <span class="string">"get_weather"</span>,</span><br><span class="line">    <span class="string">"description"</span>: <span class="string">"查询某城市天气（示例工具）"</span>,</span><br><span class="line">    <span class="string">"parameters"</span>: &#123;&#125;, <span class="comment"># ...</span></span><br><span class="line">  &#125;,</span><br><span class="line">&#125;]</span><br><span class="line"></span><br><span class="line">r = client.chat.completions.create(</span><br><span class="line">  model=<span class="string">"gpt-4.1-mini"</span>,</span><br><span class="line">  messages=[&#123;<span class="string">"role"</span>: <span class="string">"user"</span>, <span class="string">"content"</span>: <span class="string">"查一下新加坡天气。"</span>&#125;],</span><br><span class="line">  tools=tools,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">tc = r.choices[<span class="number">0</span>].message.tool_calls[<span class="number">0</span>]</span><br><span class="line">args = parse_json(tc.function.arguments)  <span class="comment"># =&gt; &#123;"city":"新加坡"&#125;</span></span><br><span class="line"></span><br><span class="line">tool_result = &#123;<span class="string">"city"</span>: args[<span class="string">"city"</span>], <span class="string">"temp_c"</span>: <span class="number">31</span>&#125;</span><br><span class="line"></span><br><span class="line">r2 = client.chat.completions.create(</span><br><span class="line">  model=<span class="string">"gpt-4.1-mini"</span>,</span><br><span class="line">  messages=[</span><br><span class="line">    &#123;<span class="string">"role"</span>: <span class="string">"user"</span>, <span class="string">"content"</span>: <span class="string">"查一下新加坡天气。"</span>&#125;,</span><br><span class="line">    &#123;<span class="string">"role"</span>: <span class="string">"tool"</span>, <span class="string">"tool_call_id"</span>: tc.id, <span class="string">"content"</span>: to_json(tool_result)&#125;,</span><br><span class="line">  ],</span><br><span class="line">)</span><br><span class="line">print(r2.choices[<span class="number">0</span>].message.content)</span><br></pre></td></tr></table></figure>
+<p>通过 Function Call，Chatbot 初步具备了跟外界交互的能力，此时只要 Prompt 写得还不错，上述的时间、天气等问题可以得到很好地解决。</p>
+<h3 id="3-2-MCP：把工具生态标准化"><a href="#3-2-MCP：把工具生态标准化" class="headerlink" title="3.2 MCP：把工具生态标准化"></a>3.2 MCP：把工具生态标准化</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_10.5c1gy1sb8e.webp" alt></p>
+<p>在 OpenAI 的 Function Call 取得初步成功后，各家 LLM 和 LLM 框架迅速跟进，支持了类似 Function Call 的能力。<br>在各家 LLM 基础模型中，Function Call 的实现思路一致，但接口各有差别。这就导致工具生态被“各家 SDK 语义”割裂：schema 表达、调用返回格式、流式事件、错误处理都不统一，开发者需要为不同厂商重复适配。</p>
+<p>2024 年 11 月，Anthropic 结合自己对 Function Call 的理解，设计并开源了 MCP 的方案。这个方案把“模型 ↔ 工具/资源”的交互抽象为统一协议，通过标准化的 server、工具定义与资源访问，降低多模型/多工具集成成本，并让工具生态具备可移植性。</p>
+<p>需要区分的是：MCP 是 Anthropic 提出的协议；OpenAI 等平台对 MCP 的支持，属于“在自身工具体系中接入/托管 MCP server”的实现方式（如 remote MCP servers / connectors）。([Anthropic][54]; [GitHub][55]; [OpenAI Developers][3])</p>
+<p><strong>MCP（Model Context Protocol）</strong>旨在标准化“模型如何连接外部工具与资源”。MCP server 对外暴露可调用工具（含 schema），并返回结构化结果；在 OpenAI 平台中，开发者可通过 <strong>remote MCP servers</strong> 或 OpenAI 维护的 <strong>connectors</strong> 赋予模型新的能力。([OpenAI Developers][3])<br>在工具治理上，MCP/connector 体系强调：工具调用可设置为自动允许或需要显式审批，以满足安全与合规要求。([OpenAI Platform][4])</p>
+<p>下面用“查询当地天气”的极简示例说明 MCP 的用法：MCP server 暴露 <code>get_weather</code> 工具，模型决定是否调用，运行时负责执行并把结果回填。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> mcp <span class="keyword">import</span> Client</span><br><span class="line"><span class="keyword">from</span> openai <span class="keyword">import</span> OpenAI</span><br><span class="line"></span><br><span class="line">mcp = Client(<span class="string">"http://localhost:8080"</span>)   <span class="comment"># 本地天气 MCP server</span></span><br><span class="line">tools = mcp.list_tools()                <span class="comment"># =&gt; [&#123;"name": "get_weather", ...&#125;]</span></span><br><span class="line">client = OpenAI()</span><br><span class="line"></span><br><span class="line">r = client.responses.create(</span><br><span class="line">  model=<span class="string">"gpt-4.1-mini"</span>,</span><br><span class="line">  input=<span class="string">"查一下我当地天气"</span>,</span><br><span class="line">  tools=tools,                           <span class="comment"># 让模型可用 MCP 工具</span></span><br><span class="line">)</span><br><span class="line">tc = r.output[<span class="number">0</span>]                         <span class="comment"># 运行时解析出 tool call</span></span><br><span class="line">weather = mcp.call_tool(tc.name, tc.arguments)  <span class="comment"># 实际调用 MCP server</span></span><br><span class="line">final = client.responses.create(</span><br><span class="line">  model=<span class="string">"gpt-4.1-mini"</span>,</span><br><span class="line">  input=[&#123;<span class="string">"role"</span>: <span class="string">"tool"</span>, <span class="string">"content"</span>: weather&#125;],</span><br><span class="line">)</span><br><span class="line">print(final.output_text)</span><br></pre></td></tr></table></figure>
+<h3 id="3-3-CoT-amp-Thinking-Model"><a href="#3-3-CoT-amp-Thinking-Model" class="headerlink" title="3.3 CoT &amp; Thinking Model"></a>3.3 CoT &amp; Thinking Model</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_11.4g4zilimsd.webp" alt></p>
+<p>在 LLM 的早期阶段，提升推理能力的常见做法是用 CoT（Chain-of-Thought）提示词“扶一把”：在问题前加一句 “Think step by step / 逐步思考”，或给出带推理过程的示例，让模型把中间步骤展开，从而显著提升数学、逻辑与多步问题的正确率。这个阶段的改进主要依赖提示工程与输出格式控制，效果可观但稳定性有限。</p>
+<p>后来 OpenAI 干脆把这个 CoT 的能力内置到 o1 模型中，然后把这个模型称为 Thinking Model 或者 Reasoning Model。</p>
+<p>Thinking Model 使得模型不只是“会答”，而是把更多计算预算花在推理过程上，通过更长的内部思考链与过程监督（process supervision）提升复杂任务的正确率与稳健性。由此衍生出“Thinking Model”的基本概念：在推理时显式分配思考预算，模型倾向于先规划再验证，必要时调用工具完成外部校验，但对外仅输出精炼结论与可审计的中间结果。</p>
+<p>这套思路很快被行业吸收并扩散。DeepSeek-R1 以“推理优先”的训练路径与蒸馏版本打开了开源推理模型的供给，随后各家厂商陆续发布带 “Reasoning/Think” 标签的模型族系，强调在数学、编程、规划与多步工具调用上的可靠性。整体趋势是：<strong>从参数规模扩展转向“推理时算力扩展”</strong>，以更高的推理预算换取更高的任务成功率；同时也带来延迟与成本的权衡，因此生产系统常会引入推理路由与预算控制。</p>
+<p>下面是当前 OpenAI API 的标准调用示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">r = client.responses.create(</span><br><span class="line">  model=<span class="string">"gpt-5.1"</span>,</span><br><span class="line">  input=<span class="string">"用 3 条 bullet 总结一下 OpenAI Responses API 的核心变化，并给出一个使用场景。"</span>,</span><br><span class="line">  reasoning=&#123;<span class="string">"effort"</span>: <span class="string">"medium"</span>&#125;,</span><br><span class="line">  tools=[&#123;<span class="string">"type"</span>: <span class="string">"web_search"</span>&#125;],  <span class="comment"># 需要时模型会自己决定是否调用</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>此时不难发现，Thinking Model 虽然最终输出结果还是跟 Chatbot 类似的文本，但其已经基本具备了 Agent 的基本形态和能力。</p>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_12.6f168xo53w.webp" alt></p>
+<h2 id="4-从-ReAct-到-DeepResearch：Agent-思维范式的演化"><a href="#4-从-ReAct-到-DeepResearch：Agent-思维范式的演化" class="headerlink" title="4. 从 ReAct 到 DeepResearch：Agent 思维范式的演化"></a>4. 从 ReAct 到 DeepResearch：Agent 思维范式的演化</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_13.3gow5ffvmj.webp" alt></p>
+<p>如果说 Thinking Model 让模型“更会思考”，那么 ReAct 让模型“会做事”，而 DeepResearch 则把这套能力扩展成“可交付的研究系统”。这条演化路径的核心，是让推理与证据、行动与产物形成闭环。</p>
+<h3 id="4-1-ReAct：把推理与行动打通的最小闭环"><a href="#4-1-ReAct：把推理与行动打通的最小闭环" class="headerlink" title="4.1 ReAct：把推理与行动打通的最小闭环"></a>4.1 ReAct：把推理与行动打通的最小闭环</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_14.5fl2vrldy2.webp" alt></p>
+<p>ReAct（Yao et al., 2022）将推理（Reasoning）与行动（Acting）交织：在每轮中显式组织 <strong>Thought / Action / Observation</strong>，用工具获得外部证据，再基于观察继续推进。它强调“先行动获取事实，再基于事实推理”，工程价值主要体现在：</p>
+<ul>
+<li>将“推理链”拆成可执行片段，天然适配工具调用与错误恢复；</li>
+<li>以 Observation 作为对抗 hallucination 的基本单元；</li>
+<li>以轨迹（trajectory）形式沉淀过程数据，便于评测与回放。</li>
+</ul>
+<p>ReAct 的短板也很明确：它仍是单体循环，容易被长上下文拖垮；当任务跨度变大、证据来源增多时，需要更强的编排与证据治理能力，这正是 DeepResearch 的切入点。</p>
+<h3 id="4-2-DeepResearch"><a href="#4-2-DeepResearch" class="headerlink" title="4.2 DeepResearch"></a>4.2 DeepResearch</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_15.3k8i358yc8.webp" alt></p>
+<p>与 Thinking Model / ReAct 相比，DeepResearch 更接近“分层研究系统”，而非单一对话。它不是模型能力的单点提升，而是一套面向研究交付的运行时方法论，典型流程包括：</p>
+<ul>
+<li><strong>问题分解与研究计划</strong>：明确范围、问题边界与验收标准，再拆成可并行的子问题。</li>
+<li><strong>分层编排与并行执行</strong>：用 orchestrator 下发任务，由 sub-agent 进行检索、实验或数据整理。</li>
+<li><strong>Context quarantine</strong>：对子代理上下文做隔离，避免噪声与错误传播；汇总阶段做证据对齐与一致性检查。</li>
+<li><strong>Source attribution</strong>：将“结论—证据—来源”绑定，形成可审计的引用链。</li>
+<li><strong>File-system as memory</strong>：用工作区承载中间产物与数据集，降低对单次上下文的依赖。</li>
+<li><strong>Report synthesis</strong>：以“报告 + 附件数据”为目标输出，而非聊天式回复。</li>
+</ul>
+<p>对比 Non-Thinking Model、Thinking Model、ReAct、DeepResearch：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Non-Thinking Model</th>
+<th>Thinking Model</th>
+<th>ReAct</th>
+<th>DeepResearch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标</td>
+<td>基础对话与文本生成</td>
+<td>更强的单体推理</td>
+<td>可靠执行与工具闭环</td>
+<td>研究级交付与证据体系</td>
+</tr>
+<tr>
+<td>结构</td>
+<td>单轮生成</td>
+<td>单模型思考</td>
+<td>思考-行动-观察循环</td>
+<td>分层编排 + 多子代理</td>
+</tr>
+<tr>
+<td>证据</td>
+<td>无显式证据</td>
+<td>可选调用工具</td>
+<td>Observation 驱动</td>
+<td>结论-证据-来源绑定</td>
+</tr>
+<tr>
+<td>上下文</td>
+<td>单上下文、短对话</td>
+<td>单上下文增长</td>
+<td>逐步追加</td>
+<td>隔离 + 汇总</td>
+</tr>
+<tr>
+<td>产物</td>
+<td>文本回答</td>
+<td>精炼答案</td>
+<td>过程结论 + 工具结果</td>
+<td>报告 + 附件数据</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>写作/FAQ</td>
+<td>复杂推理题</td>
+<td>多步执行任务</td>
+<td>长周期研究/情报汇总</td>
+</tr>
+</tbody>
+</table>
+<p>相关实现可参考 Agno 的 Deep Research Agent 示例。([docs.agno.com][31])</p>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_16.8ok6sf8vkn.webp" alt></p>
+<h2 id="5-混沌初期的试探：AutoGPT"><a href="#5-混沌初期的试探：AutoGPT" class="headerlink" title="5. 混沌初期的试探：AutoGPT"></a>5. 混沌初期的试探：AutoGPT</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_17.6bhkb7v2du.webp" alt></p>
+<p>从实现层面看，上面介绍的 DeepResearch 已具备工业级 Agent 的关键结构。但从用户体验看，它的交付形态偏单一（主要是一份报告）。日常工作往往需要“能动手”的系统，因此我们关注更狭义的通用 Agent：除了产出文字，还能改文件、跑命令、调用工具完成任务。</p>
+<p>为了简化表述，后文的“Agent”默认指通用 Agent。</p>
+<p>在 2023 年，随着 ChatGPT 引爆公众关注，社区很快冒出了一个『奇葩』项目 AutoGPT。它把 LLM 包装成一个“自驱执行体”：设定目标、生成计划、调用工具、写入记忆，再继续循环。示例里常见的能力包括搜索、写文、发 Twitter 等，给人的直观感受是“模型开始自己动手了”。</p>
+<p>但 AutoGPT 的本质不是算法突破，而是一种工程式拼装：Prompt 结构化 + 工具调用 + 简易记忆。它让人第一次看到“Agent Loop”的雏形，却也暴露了早期的混沌：计划质量不稳定、状态与记忆缺乏约束、任务容易发散并陷入错误循环，成本与结果不可预期。</p>
+<p>即便如此，AutoGPT 仍是重要的里程碑：它点燃了开源 Agent 的浪潮，让“自主循环”成为可讨论的工程形态，也让人们开始认真思考状态管理、预算控制、工具可靠性等后续必须解决的问题。</p>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_18.96a8h0a95d.webp" alt></p>
+<h2 id="6-Plan-and-Solve-Reflection：把“隐式思考”变成“显式控制”"><a href="#6-Plan-and-Solve-Reflection：把“隐式思考”变成“显式控制”" class="headerlink" title="6. Plan-and-Solve / Reflection：把“隐式思考”变成“显式控制”"></a>6. Plan-and-Solve / Reflection：把“隐式思考”变成“显式控制”</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_19.96a8h0a95c.webp" alt></p>
+<p>在 ReAct 架构之外，人们在 Agent 开发层面还有一些别的探索，我们以 Plan-and-Solve 和 Plan-and-Execute 举例。</p>
+<p>值得说明的是，Plan-and-Solve / Plan-and-Execute / ReAct 并不是互斥的关系，在业界实践中经常是互补的关系。工程师们经常会在 Agent Loop （后文中会提到）中混合使用这几种架构，以优化不同的任务的 Agent 效果。</p>
+<h3 id="6-1-Plan-and-Solve-Plan-and-Execute"><a href="#6-1-Plan-and-Solve-Plan-and-Execute" class="headerlink" title="6.1 Plan-and-Solve / Plan-and-Execute"></a>6.1 Plan-and-Solve / Plan-and-Execute</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_20.6bhkb7v2dp.webp" alt></p>
+<p>Plan-and-Solve 这类“先规划、后求解”的套路，最早以 prompting 形式被系统化提出，用来改善 zero-shot CoT 的稳定性与正确率。([arxiv.org][51]) 在 Agent 工程里，同样思路常被扩展为 Plan-and-Execute：计划不只描述推理步骤，还要显式包含工具、输入输出与验收方式，便于执行器逐步落地并回填观察；更结构化的分层实现可参考将“推理计划”与“工具观察”解耦的 ReWOO。([arxiv.org][52])<br>Plan-and-Solve 通过显式计划降低长任务漂移：</p>
+<ul>
+<li><strong>Decomposition</strong>：先分解为可验收的子目标与里程碑（milestone）；</li>
+<li><strong>Plan validation</strong>：对计划做约束检查（权限、依赖、成本预算、可执行性）；</li>
+<li><strong>Executor loop</strong>：按步骤执行，必要时查询工具、写入工作区；</li>
+<li><strong>Step budget / iteration limit</strong>：限制最大步数与成本，避免失控；</li>
+<li><strong>Backtracking</strong>：在关键失败点回溯到上一个可用 checkpoint，重规划或切换策略；</li>
+<li><strong>Tool plan</strong>：将“用哪些工具、输入输出、预期失败模式”写入计划，使执行器具备可操作性。</li>
+</ul>
+<h3 id="6-2-Reflection-Reflexion（自我纠错与记忆）"><a href="#6-2-Reflection-Reflexion（自我纠错与记忆）" class="headerlink" title="6.2 Reflection / Reflexion（自我纠错与记忆）"></a>6.2 Reflection / Reflexion（自我纠错与记忆）</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_21.2ksepz6764.webp" alt></p>
+<p>Reflection（反思）是一类通用的自我纠错策略；而 Reflexion 则更强调把“失败—归因—改进”写入可检索记忆，在下一轮尝试中显式触发策略更新与重试。该思路在 Reflexion 论文中被系统化提出。([arxiv.org][53])<br>Reflection 强调把失败经验转为可复用策略：</p>
+<ul>
+<li><strong>Self-critique</strong>：对结果与过程做自检（是否满足需求、是否引用充分、是否越权/越界）；</li>
+<li><strong>Retry with feedback</strong>：将错误信息与失败原因反馈给模型，触发有条件重试；</li>
+<li><strong>Critic model</strong>：用独立评审模型或规则系统做质量门禁；</li>
+<li><strong>Post-mortem &amp; episodic memory</strong>：将失败案例沉淀为可检索的“情景—原因—修复”记录，形成面向任务域的策略记忆。</li>
+</ul>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_22.3d5a7pmswb.webp" alt></p>
+<h2 id="7-Agent-的核心概念：Agent-Loop"><a href="#7-Agent-的核心概念：Agent-Loop" class="headerlink" title="7. Agent 的核心概念：Agent Loop"></a>7. Agent 的核心概念：Agent Loop</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_23.3ns40v211m.webp" alt></p>
+<p>截至目前（2026 年初），Agent 的开发已经变得非常成熟，衍生出很多很多成熟的框架和落地实践。</p>
+<p>在业界经验中，一个可运行的 Agent 至少包含：<strong>状态（State）</strong>、<strong>环境（Environment）</strong>、<strong>策略（Policy）</strong>与<strong>停止条件（Stop condition）</strong>，并在预算约束下循环迭代。</p>
+<p>最小闭环可表述为：</p>
+<ul>
+<li><strong>Observation</strong>：读取环境与工作区（用户输入、文件、工具结果、事件日志）。</li>
+<li><strong>Decision</strong>：选择下一步动作（直接回答 / 调工具 / 更新计划 / 请求人工确认）。</li>
+<li><strong>Action</strong>：执行工具调用或写入产物。</li>
+<li><strong>State update</strong>：更新进度、上下文工作集与记忆摘要。</li>
+<li><strong>Stop</strong>：达成目标、超出预算、遇到不可恢复错误或需要人工介入时停止。</li>
+</ul>
+<p>以 Claude Code 举例，工程落地时常见的最小组件集通常是：</p>
+<ul>
+<li><strong>Tool registry</strong>：工具清单、schema、权限与路由规则；</li>
+<li><strong>Scratchpad / workspace</strong>：中间推理结构与产物存放区（含可审计日志）；</li>
+<li><strong>Iteration limit / budget</strong>：token、工具调用次数、时间、成本上限；</li>
+<li><strong>Checkpoint / resume</strong>：关键状态可持久化，支持中断恢复与回放。</li>
+</ul>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_24.4g4zilimrs.webp" alt></p>
+<h2 id="8-Agent-工程核心：状态、持久化、上下文工程"><a href="#8-Agent-工程核心：状态、持久化、上下文工程" class="headerlink" title="8. Agent 工程核心：状态、持久化、上下文工程"></a>8. Agent 工程核心：状态、持久化、上下文工程</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_25.54y92m65s7.webp" alt></p>
+<p>上一节把 Agent loop 拆成了“观察-决策-行动-更新-停止”。要把这个循环变成可交付的工程系统，核心不在模型有多聪明，而在运行时是否<strong>可恢复、可审计、可控成本</strong>。这背后有三块最关键的工程骨架：</p>
+<ul>
+<li><strong>状态</strong>：明确“当前任务到哪一步了”，避免隐式对话漂移；</li>
+<li><strong>持久化</strong>：让执行过程可回放、可恢复，防止一次失败就全盘重来；</li>
+<li><strong>上下文工程</strong>：保证有限 token 内放对的信息，其余外置。</li>
+</ul>
+<h3 id="8-1-状态模型：把“隐式对话”变成“显式运行时”"><a href="#8-1-状态模型：把“隐式对话”变成“显式运行时”" class="headerlink" title="8.1 状态模型：把“隐式对话”变成“显式运行时”"></a>8.1 状态模型：把“隐式对话”变成“显式运行时”</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_26.et047ejeu.webp" alt></p>
+<p>Agent 工程的首要问题不是“能否回答”，而是“能否稳定执行”。可操作的抽象需要把系统状态显式化，并保证可验证的更新路径。常见的状态划分：</p>
+<ul>
+<li><strong>对话状态（Conversation state）</strong>：用户目标、约束、历史交互与已确认的决策。</li>
+<li><strong>任务状态（Task state）</strong>：计划/里程碑、待办、已完成步骤、失败原因与重试记录。</li>
+<li><strong>环境状态（Environment state）</strong>：工作目录、文件变更、外部系统（API/DB）副作用、权限与工具可用性。</li>
+</ul>
+<p>把状态落实到 schema / state machine 能带来三类收益：</p>
+<ol>
+<li><strong>可恢复</strong>：长任务中断后可从确定的节点继续；</li>
+<li><strong>可审计</strong>：工具调用与变更路径可追溯；</li>
+<li><strong>可控</strong>：每一步的输入、输出、预算与停止条件可被约束。</li>
+</ol>
+<p>实践中还需要两条额外约束：</p>
+<ul>
+<li><strong>状态变更要可验证</strong>：状态更新尽量通过结构化 action 完成，而不是自由文本；必要时加校验规则（如“未完成的步骤不能被标记完成”）。</li>
+<li><strong>状态版本化</strong>：长周期任务会演进，schema 需要可迁移，避免“旧状态无法恢复”。</li>
+</ul>
+<p>状态 schema 示例（JSON 结构）：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"version"</span>: <span class="string">"1.0"</span>,</span><br><span class="line">  <span class="attr">"conversation"</span>: &#123;</span><br><span class="line">    <span class="attr">"goal"</span>: <span class="string">"更新 Nginx 配置并 reload"</span>,</span><br><span class="line">    <span class="attr">"constraints"</span>: [<span class="string">"不改动 upstream"</span>, <span class="string">"需要审批 reload"</span>],</span><br><span class="line">    <span class="attr">"decisions"</span>: [<span class="string">"已确认使用 /etc/nginx/nginx.conf"</span>]</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"task"</span>: &#123;</span><br><span class="line">    <span class="attr">"plan"</span>: [<span class="string">"读取配置"</span>, <span class="string">"生成补丁"</span>, <span class="string">"语法校验"</span>, <span class="string">"reload"</span>],</span><br><span class="line">    <span class="attr">"current_step"</span>: <span class="number">2</span>,</span><br><span class="line">    <span class="attr">"status"</span>: <span class="string">"running"</span>,</span><br><span class="line">    <span class="attr">"errors"</span>: []</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"environment"</span>: &#123;</span><br><span class="line">    <span class="attr">"cwd"</span>: <span class="string">"/etc/nginx"</span>,</span><br><span class="line">    <span class="attr">"dirty_files"</span>: [<span class="string">"nginx.conf"</span>],</span><br><span class="line">    <span class="attr">"tool_permissions"</span>: [<span class="string">"read_file"</span>, <span class="string">"write_file"</span>, <span class="string">"shell"</span>]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="8-2-Durable-execution：Checkpoint、Resume-与事件日志"><a href="#8-2-Durable-execution：Checkpoint、Resume-与事件日志" class="headerlink" title="8.2 Durable execution：Checkpoint、Resume 与事件日志"></a>8.2 Durable execution：Checkpoint、Resume 与事件日志</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_27.1e93hdhake.webp" alt></p>
+<p>长任务的失败往往来自“累积误差 + 外部 I/O 不确定性”。工程上需要把执行过程当作<strong>可持久化的事务</strong>：</p>
+<ul>
+<li><strong>Checkpointing</strong>：在关键步骤保存状态快照（输入、工具参数、工具结果、下一步节点）。</li>
+<li><strong>Resume / Replay</strong>：支持从某个 checkpoint 继续，或回放历史步骤复现问题（time-travel debugging）。</li>
+<li><strong>Event log（事件溯源）</strong>：以“事件”记录状态变更，便于回放与审计；必要时可做幂等键（idempotency key）避免重复副作用。</li>
+</ul>
+<p>在图/状态机式运行时里，checkpoint 往往以“每个 super-step 生成快照”的方式实现，从而天然支持人类介入、回放与容错。进一步提升稳定性还需要：</p>
+<ul>
+<li><strong>副作用分类</strong>：把工具调用分成只读/可重复/不可逆三类，对不可逆动作强制审批或双写审计。</li>
+<li><strong>结果重放优先</strong>：恢复时优先使用历史工具结果，避免因外部环境变化导致“同一步不同结果”。</li>
+<li><strong>补偿动作</strong>：对可逆的副作用设计补偿路径（例如撤销改动、回滚配置），让失败不必从头来。</li>
+</ul>
+<p>checkpoint 记录示例（事件 + 快照）：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"checkpoint_id"</span>: <span class="string">"ckpt_2025-01-12T10:14:03Z"</span>,</span><br><span class="line">  <span class="attr">"step"</span>: <span class="string">"syntax_check"</span>,</span><br><span class="line">  <span class="attr">"state_ref"</span>: <span class="string">"state_v1.0"</span>,</span><br><span class="line">  <span class="attr">"input"</span>: &#123;<span class="attr">"file"</span>: <span class="string">"/etc/nginx/nginx.conf"</span>&#125;,</span><br><span class="line">  <span class="attr">"tool_call"</span>: &#123;<span class="attr">"name"</span>: <span class="string">"shell"</span>, <span class="attr">"args"</span>: [<span class="string">"nginx"</span>, <span class="string">"-t"</span>]&#125;,</span><br><span class="line">  <span class="attr">"output"</span>: &#123;<span class="attr">"ok"</span>: <span class="literal">true</span>, <span class="attr">"stdout"</span>: <span class="string">"syntax is ok"</span>&#125;,</span><br><span class="line">  <span class="attr">"next_step"</span>: <span class="string">"reload"</span>,</span><br><span class="line">  <span class="attr">"timestamp"</span>: <span class="string">"2025-01-12T10:14:03Z"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="8-3-上下文工程：Working-set-管理比“塞满上下文”更重要"><a href="#8-3-上下文工程：Working-set-管理比“塞满上下文”更重要" class="headerlink" title="8.3 上下文工程：Working set 管理比“塞满上下文”更重要"></a>8.3 上下文工程：Working set 管理比“塞满上下文”更重要</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_28.77e1qo4qt8.webp" alt></p>
+<p>上下文工程的目标是：在固定 token 预算内，维持正确性与任务连续性。有效方法不是“塞满上下文”，而是<strong>分层与取舍</strong>。常见策略：</p>
+<ul>
+<li><strong>Working set</strong>：把当前决策必要信息维持在短上下文；其余内容外置。</li>
+<li><strong>Summarization / compression</strong>：对历史对话、检索结果、日志做结构化压缩；明确“保留事实/结论/待办/风险”。</li>
+<li><strong>文件系统作为记忆</strong>：将长文本、代码片段、表格与中间产物写入 workspace，再按需读回（避免 context overflow）。</li>
+<li><strong>Context quarantine</strong>：对子任务使用隔离上下文（子代理/子图），主代理只接收“可交付摘要 + 引用路径”。</li>
+</ul>
+<p>更工程化的做法通常会显式设定“上下文预算”：</p>
+<ul>
+<li><strong>固定槽位</strong>：系统规则、任务目标、当前计划、关键证据四类信息优先保留。</li>
+<li><strong>引用而非复制</strong>：长文档只保留摘要与路径/行号引用，模型需要时再读回。</li>
+<li><strong>准入门槛</strong>：只有通过“相关性 + 可靠性”校验的信息才进入工作集，避免垃圾上下文污染决策。</li>
+</ul>
+<h3 id="8-4-Memory、缓存与成本控制"><a href="#8-4-Memory、缓存与成本控制" class="headerlink" title="8.4 Memory、缓存与成本控制"></a>8.4 Memory、缓存与成本控制</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_29.7ps8rsdyz.webp" alt></p>
+<ul>
+<li><strong>短期记忆</strong>：最近 N 轮消息、当前待办与里程碑。</li>
+<li><strong>长期记忆</strong>：向量库/语义检索、跨会话偏好与项目知识；需要“写入门槛”（避免把噪声固化）。</li>
+<li><strong>缓存</strong>：对稳定工具结果（如依赖解析、目录树）做缓存；对不可缓存工具（实时数据）标记 TTL。</li>
+<li><strong>成本预算</strong>：同时约束 token 与 tool call 次数；在并发场景下要设置 max_concurrency，防止工具风暴与费用失控。</li>
+</ul>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_30.et047ejei.webp" alt></p>
+<hr>
+<h2 id="9-Agent-扩展迭代：效果评估、可观测性"><a href="#9-Agent-扩展迭代：效果评估、可观测性" class="headerlink" title="9. Agent 扩展迭代：效果评估、可观测性"></a>9. Agent 扩展迭代：效果评估、可观测性</h2><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_31.mkdc68jd.webp" alt></p>
+<p>前面几章讨论了 Agent 的运行时骨架：工具、循环、状态、持久化与上下文。把这些能力拼起来，确实能“跑起来”；但在真实生产里更难的是第二步：<strong>如何证明它变好了、出了问题如何复现、上线后如何监控与止血</strong>。这就落到两个问题：</p>
+<ul>
+<li><strong>效果评估（Evaluation）</strong>：把“好不好”变成可重复的指标与回归门禁；</li>
+<li><strong>可观测性（Observability）</strong>：把一次 run 变成可追踪、可回放、可定位的轨迹数据。</li>
+</ul>
+<h3 id="9-1-“效果”到底是什么：结果、过程与边界"><a href="#9-1-“效果”到底是什么：结果、过程与边界" class="headerlink" title="9.1 “效果”到底是什么：结果、过程与边界"></a>9.1 “效果”到底是什么：结果、过程与边界</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_32.8l0kupfstz.webp" alt></p>
+<p>Agent 的“效果”不是单轮回答质量，而是一个端到端执行系统的综合表现。更可操作的定义通常包含三层：</p>
+<ul>
+<li><strong>结果层（Outcome）</strong>：最终交付物是否满足验收标准（正确性、完整性、格式、业务约束）。</li>
+<li><strong>过程层（Process）</strong>：是否走了合理路径（工具是否用对、是否出现无效循环、是否能自我纠错与恢复）。</li>
+<li><strong>边界层（Safety/Policy）</strong>：是否遵守权限与合规边界（敏感操作是否审批、敏感信息是否泄露、不可逆副作用是否可控）。</li>
+</ul>
+<p>工程上建议在需求阶段就写清“验收条件”，否则评估只能停留在主观印象。对可自动验证的任务，优先把验收条件写成测试/校验器；对开放式任务，再考虑 rubric 或人工抽检。</p>
+<h3 id="9-2-指标体系：从“成功率”到“可运营”"><a href="#9-2-指标体系：从“成功率”到“可运营”" class="headerlink" title="9.2 指标体系：从“成功率”到“可运营”"></a>9.2 指标体系：从“成功率”到“可运营”</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_33.232d1e4tkj.webp" alt></p>
+<p>一套能落地的指标通常会同时覆盖质量、效率与风险，并能分解到 task/step/tool 三个层级：</p>
+<ul>
+<li><strong>任务级（Task-level）</strong><ul>
+<li><strong>成功率</strong>：按验收条件通过的比例（success rate），最好区分 hard fail / soft fail。</li>
+<li><strong>质量分</strong>：rubric 打分或自动评分（例如信息覆盖、格式一致性、引用完整性）。</li>
+<li><strong>交付时间</strong>：端到端 wall time、以及用户等待时间（含人类审批等待）。</li>
+<li><strong>成本</strong>：tokens、tool call 次数、外部 API 费用、以及峰值并发。</li>
+<li><strong>人工介入率</strong>：需要人工修正/补充上下文/重复审批的比例。</li>
+</ul>
+</li>
+<li><strong>步骤/工具级（Step/Tool-level）</strong><ul>
+<li><strong>工具成功率</strong>：按工具类型统计错误率、超时率、重试次数与平均延迟。</li>
+<li><strong>恢复能力</strong>：失败后能否通过重试/回溯/checkpoint 恢复（recovery rate）。</li>
+<li><strong>无效循环</strong>：重复读同一文件、反复调用同一工具、计划不推进等（loop rate）。</li>
+</ul>
+</li>
+<li><strong>安全与合规（Safety/Policy）</strong><ul>
+<li><strong>高风险动作占比</strong>：不可逆工具调用、写生产配置、删库等（需结合权限模型）。</li>
+<li><strong>越权/越界事件</strong>：被拦截的调用、敏感信息命中、policy violation 次数。</li>
+</ul>
+</li>
+</ul>
+<p>这些指标的价值在于：一旦能够稳定采集，就能做趋势、对比、回归与告警，把“模型不确定性”纳入工程治理。</p>
+<h3 id="9-3-离线评测：Golden-tasks、回放与回归门禁"><a href="#9-3-离线评测：Golden-tasks、回放与回归门禁" class="headerlink" title="9.3 离线评测：Golden tasks、回放与回归门禁"></a>9.3 离线评测：Golden tasks、回放与回归门禁</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_34.1vz55yio4r.webp" alt></p>
+<p>Agent 的离线评测最好像软件测试一样分层组织，而不是只跑几条 demo：</p>
+<ul>
+<li><strong>Golden task suite（固定任务集）</strong>：把真实任务抽象成可复现样本（输入、初始文件/数据、工具集合、验收标准）。</li>
+<li><strong>Record/Replay（录制/回放）</strong>：将外部 I/O（搜索/API/DB）结果录制为 fixture，回放时优先使用历史结果，避免评测被外部变化污染。</li>
+<li><strong>多次运行看分布</strong>：同一任务建议跑多次（不同 seed/温度/并发），关注成功率与方差，而不是单次结果。</li>
+<li><strong>自动验收优先</strong>：能用测试、lint、schema 校验、diff 校验解决的，不要用主观评审；开放题再用 rubric 或 LLM-as-judge（并保留抽检）。</li>
+<li><strong>回归门禁（gating）</strong>：把关键指标阈值写进 CI（成功率不降、成本不升、风险事件不增），让“改 prompt/改工具/改策略”都可回归。</li>
+</ul>
+<p>评测的终点不是“跑出一个分数”，而是形成稳定的反馈闭环：每一次线上事故与失败 case，都能沉淀进 task suite，变成下一次的回归用例。</p>
+<h3 id="9-4-可观测性：把一次-run-变成可调试的系统"><a href="#9-4-可观测性：把一次-run-变成可调试的系统" class="headerlink" title="9.4 可观测性：把一次 run 变成可调试的系统"></a>9.4 可观测性：把一次 run 变成可调试的系统</h3><p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_35.64ecfs8wx6.webp" alt></p>
+<p>可观测性的目标是：<strong>任何失败都能被复现与定位</strong>。对 Agent 而言，日志不只记录错误栈，更要记录“决策轨迹”：</p>
+<ul>
+<li><strong>Trace（链路追踪）</strong>：用 <code>run_id/thread_id/step_id/tool_call_id</code> 串起一次执行中的模型调用、工具调用、状态更新与 checkpoint。</li>
+<li><strong>事件日志 + 快照</strong>：记录关键事件（Observation/Decision/Action/ToolResult/StateUpdate）以及必要的状态快照，支持 time-travel debugging。</li>
+<li><strong>输入输出治理</strong>：对 prompt、工具参数、工具结果做脱敏/截断/哈希（既能排障，又不泄露敏感信息）。</li>
+<li><strong>指标面板与告警</strong>：把 9.2 的指标落到 dashboard（成功率、成本、延迟、工具错误、循环率），并为突发退化设置告警与自动降级策略。</li>
+</ul>
+<p>实践中一个常见的经验是：<strong>把“可回放”当作第一原则</strong>。只要 run 能 replay，很多“偶发问题”就会变成可定位的确定性问题；而这依赖运行时记录足够多的结构化轨迹数据。</p>
+<p><img src="https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_36.232d1e4tk8.webp" alt></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>读到这里，你大概已经意识到：从 LLM 到 Agent，并不是“把 Chatbot 接上几个工具”这么简单。真正的分水岭在于：我们是否把推理放进一个<strong>可执行、可验证、可回放</strong>的闭环里——让模型从“会答”，走向“能交付”。</p>
+<p>如果你准备把 Agent 落到真实业务里，不妨先把问题问得更工程一点：</p>
+<ul>
+<li>这个任务的<strong>验收标准</strong>是什么？哪些可以自动校验，哪些必须人工把关？</li>
+<li>失败是常态：需要怎样的<strong>重试/回滚/checkpoint</strong>，才能让长流程不崩盘？</li>
+<li>上线以后怎么运营：<strong>指标、日志、告警、权限边界</strong>是否足够清晰？</li>
+</ul>
+<p>当这三件事有了答案，Tool Calling / MCP / ReAct / DeepResearch 才会从“概念名词”变成“系统能力”；否则，Agent 只是在更大的上下文里，讲出更像样的故事。</p>
+<p>回到文章开头的疑问：为什么有了 LLM 还要做 Agent？因为“会答”解决的是信息表达，“会做事”解决的是任务交付。而 Agent 的本质，就是把交付做成系统：每一步都能执行、能验证、能复盘。</p>
+<h2 id="Refs"><a href="#Refs" class="headerlink" title="Refs"></a>Refs</h2><ul>
+<li>[1] <a href="https://platform.openai.com/docs/guides/function-calling" target="_blank" rel="noopener">Function calling | OpenAI API</a></li>
+<li>[2] <a href="https://platform.openai.com/docs/guides/structured-outputs/key-ordering?api-mode=chat" target="_blank" rel="noopener">Structured model outputs | OpenAI API</a></li>
+<li>[3] <a href="https://developers.openai.com/apps-sdk/concepts/mcp-server" target="_blank" rel="noopener">Model Context Protocol (MCP) | OpenAI Developers</a></li>
+<li>[4] <a href="https://platform.openai.com/docs/guides/tools-connectors-mcp" target="_blank" rel="noopener">Connectors and MCP servers | OpenAI API</a></li>
+<li>[5] <a href="https://platform.openai.com/docs/api-reference/completions" target="_blank" rel="noopener">Completions | OpenAI API Reference</a></li>
+<li>[6] <a href="https://platform.openai.com/docs/api-reference/chat?locale=en" target="_blank" rel="noopener">Chat Completions | OpenAI API Reference</a></li>
+<li>[7] <a href="https://openai.com/index/function-calling-and-other-api-updates/" target="_blank" rel="noopener">Function calling and other API updates - OpenAI</a></li>
+<li>[8] <a href="https://platform.openai.com/docs/assistants/migration" target="_blank" rel="noopener">Assistants migration guide | OpenAI API</a></li>
+<li>[9] <a href="https://platform.openai.com/docs/deprecations" target="_blank" rel="noopener">Deprecations | OpenAI API</a></li>
+<li>[10] <a href="https://developers.openai.com/blog/responses-api" target="_blank" rel="noopener">Why we built the Responses API</a></li>
+<li>[11] <a href="https://platform.openai.com/docs/guides/migrate-to-responses" target="_blank" rel="noopener">Migrate to the Responses API | OpenAI API</a></li>
+<li>[12] <a href="https://platform.openai.com/docs/guides/reasoning" target="_blank" rel="noopener">Reasoning models | OpenAI API</a></li>
+<li>[13] <a href="https://platform.openai.com/docs/guides/conversation-state" target="_blank" rel="noopener">Conversation state | OpenAI API</a></li>
+<li>[14] <a href="https://github.com/openai/completions-responses-migration-pack" target="_blank" rel="noopener">completions-responses-migration-pack | GitHub</a></li>
+<li>[15] <a href="https://www.datacamp.com/tutorial/openai-responses-api" target="_blank" rel="noopener">OpenAI Responses API: The Ultimate Developer Guide | DataCamp</a></li>
+<li>[16] <a href="https://open.manus.im/docs/integrations/manus-api" target="_blank" rel="noopener">Manus API - Manus Documentation</a></li>
+<li>[17] <a href="https://open.manus.im/docs/api-reference" target="_blank" rel="noopener">Overview - Manus API</a></li>
+<li>[18] <a href="https://open.manus.im/docs/features/browser-operator" target="_blank" rel="noopener">Browser Operator - Manus Documentation</a></li>
+<li>[19] <a href="https://www.gadgets360.com/ai/news/meta-acquisition-manus-ai-agent-developer-fifth-deal-2025-10129781" target="_blank" rel="noopener">Meta Acquires Autonomous Agent Developer Manus AI, Marks Its Fifth Deal in 2025 | Gadgets 360</a></li>
+<li>[20] <a href="https://aimagazine.com/news/how-manus-puts-meta-ahead-in-the-agentic-ai-economy" target="_blank" rel="noopener">Inside Meta’s Groundbreaking Acquisition of Manus | AI Magazine</a></li>
+<li>[21] <a href="https://www.techradar.com/pro/meta-buys-manus-for-usd2-billion-to-power-high-stakes-ai-agent-race" target="_blank" rel="noopener">Meta buys Manus for $2 billion to power high-stakes AI agent race | TechRadar</a></li>
+<li>[22] <a href="https://www.allaboutai.com/ai-news/what-meta-acquisition-of-manus-means-for-the-future-of-ai-agents" target="_blank" rel="noopener">What Meta’s Acquisition of Manus Means for the Future of AI Agents | All About AI</a></li>
+<li>[23] <a href="https://en.wikipedia.org/wiki/Manus_%28AI_agent%29" target="_blank" rel="noopener">Manus (AI agent) | Wikipedia</a></li>
+<li>[24] <a href="https://github.com/langchain-ai/deepagents" target="_blank" rel="noopener">GitHub - langchain-ai/deepagents</a></li>
+<li>[25] <a href="https://docs.langchain.com/oss/python/deepagents/cli" target="_blank" rel="noopener">Deep Agents CLI | LangChain Docs</a></li>
+<li>[26] <a href="https://docs.langchain.com/oss/python/deepagents/overview" target="_blank" rel="noopener">Deep Agents overview | LangChain Docs</a></li>
+<li>[27] <a href="https://github.com/langchain-ai/deepagents-quickstarts" target="_blank" rel="noopener">GitHub - langchain-ai/deepagents-quickstarts</a></li>
+<li>[28] <a href="https://github.com/agno-agi/agno" target="_blank" rel="noopener">GitHub - agno-agi/agno</a></li>
+<li>[29] <a href="https://deepwiki.com/agno-agi/agno-docs" target="_blank" rel="noopener">agno-agi/agno-docs | DeepWiki</a></li>
+<li>[30] <a href="https://deepwiki.com/agno-agi/agno-docs/5-examples-and-applications" target="_blank" rel="noopener">Examples and Applications | agno-agi/agno-docs | DeepWiki</a></li>
+<li>[31] <a href="https://docs.agno.com/examples/use-cases/agents/deep_research_agent_exa" target="_blank" rel="noopener">Deep Research Agent - Agno</a></li>
+<li>[32] <a href="https://github.com/shareAI-lab/learn-claude-code" target="_blank" rel="noopener">GitHub - shareAI-lab/learn-claude-code</a></li>
+<li>[33] <a href="https://www.baytechconsulting.com/blog/manus-ai-an-analytical-guide-to-the-autonomous-ai-agent-2025" target="_blank" rel="noopener">Manus AI: An Analytical Guide to the Autonomous AI Agent 2025</a></li>
+<li>[34] <a href="https://manus.im/tools" target="_blank" rel="noopener">Manus AI Agent Toolkit for Delivering Work</a></li>
+<li>[35] <a href="https://manus.im/zh-cn/tools" target="_blank" rel="noopener">用于交付工作的 Manus AI Agent 工具包</a></li>
+</ul>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2026/02/backend/from-llm-to-agent-part1/" data-id="cmm1p24lh004sud3zrn4dgqva" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2026/02/backend/from-llm-to-agent-part2/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            从 LLM 到 Agent（下）：工程、框架与交付实践
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2024/04/backend/http-graceful-cancelation-zh/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">HTTP 请求的优雅取消（Graceful Cancellation）</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

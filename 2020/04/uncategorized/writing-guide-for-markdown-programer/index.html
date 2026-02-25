@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>给 Markdown 程序员的写作能力提升指南 | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content>
+    
+    <meta name="description" content="前言最近完成了一次反复打磨的技术分享。在准备和进行分享的过程中，我遇到了不少问题，而这些问题的根源在于自己日渐下降的写作水平和表达能力。 在本文中，我会先从自己的角度分析写作能力对程序员的作用；再结合自己的参考和实践，总结一套相对标准的写作套路；最后分享一些常用的写作辅助软件，并分析这些软件的特点。 写作能力真的有用吗不少工科学生认为写作能力对个人水平的提升没什么实际作用，甚至会调侃：“代码写得好">
+<meta property="og:type" content="article">
+<meta property="og:title" content="给 Markdown 程序员的写作能力提升指南">
+<meta property="og:url" content="https://xhinliang.github.io/2020/04/uncategorized/writing-guide-for-markdown-programer/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="前言最近完成了一次反复打磨的技术分享。在准备和进行分享的过程中，我遇到了不少问题，而这些问题的根源在于自己日渐下降的写作水平和表达能力。 在本文中，我会先从自己的角度分析写作能力对程序员的作用；再结合自己的参考和实践，总结一套相对标准的写作套路；最后分享一些常用的写作辅助软件，并分析这些软件的特点。 写作能力真的有用吗不少工科学生认为写作能力对个人水平的提升没什么实际作用，甚至会调侃：“代码写得好">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://xhinliang.github.io/uploads/persister-writing-guide-for-markdown-programer-MPE-28227953-eb6eefa4-68a1-11e7-8769-96ea83facf3b.png">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.609Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="给 Markdown 程序员的写作能力提升指南">
+<meta name="twitter:description" content="前言最近完成了一次反复打磨的技术分享。在准备和进行分享的过程中，我遇到了不少问题，而这些问题的根源在于自己日渐下降的写作水平和表达能力。 在本文中，我会先从自己的角度分析写作能力对程序员的作用；再结合自己的参考和实践，总结一套相对标准的写作套路；最后分享一些常用的写作辅助软件，并分析这些软件的特点。 写作能力真的有用吗不少工科学生认为写作能力对个人水平的提升没什么实际作用，甚至会调侃：“代码写得好">
+<meta name="twitter:image" content="https://xhinliang.github.io/uploads/persister-writing-guide-for-markdown-programer-MPE-28227953-eb6eefa4-68a1-11e7-8769-96ea83facf3b.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Uncategorized/">Uncategorized</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-uncategorized/writing-guide-for-markdown-programer" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        给 Markdown 程序员的写作能力提升指南
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2020/04/uncategorized/writing-guide-for-markdown-programer/" class="article-date">
+    <time datetime="2020-04-09T00:00:00.000Z" itemprop="datePublished">2020-04-09</time>
+</a>
+            
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近完成了一次反复打磨的技术分享。在准备和进行分享的过程中，我遇到了不少问题，而这些问题的根源在于自己日渐下降的写作水平和表达能力。</p>
+<p>在本文中，我会先从自己的角度分析写作能力对程序员的作用；再结合自己的参考和实践，总结一套相对标准的写作套路；最后分享一些常用的写作辅助软件，并分析这些软件的特点。</p>
+<h2 id="写作能力真的有用吗"><a href="#写作能力真的有用吗" class="headerlink" title="写作能力真的有用吗"></a>写作能力真的有用吗</h2><p>不少工科学生认为写作能力对个人水平的提升没什么实际作用，甚至会调侃：“代码写得好的，不如 PPT 讲得好的”。在这几年的工作中，我越来越不赞同这种看法。</p>
+<p>首先，提升写作能力有助于增强结构化思考能力。<br>写作主要是写给人看，写代码则同时写给人和机器看。一份好的代码首先要可读；如果可读性很差，甚至已经无法维护，那么这份代码的价值就会大打折扣。<br>一篇好文章应该层级清晰、文笔顺畅；同样，一份好代码也应该命名统一、流程明确。如果文章层级不清、章节衔接生硬，读者阅读时就很容易一头雾水。<br>如果程序员对某段逻辑已经想得很清楚，写出来的代码往往也会更顺畅。类比到写作：当你对要表达的内容了然于胸，写出来的文章自然不会晦涩难懂。</p>
+<p>其次，提升写作能力也有助于提升言语表达能力。<br>我经常会提笔忘字，也常常在和别人讨论问题时语无伦次。这时我可能会说：等我在聊天工具上把语言组织好，再用文字发给你。<br>当我在聊天工具上组织语言时，我会发现：经过几轮修改和校正，我终于能把自己要表达的意思完整、准确地表达出来。<br>当然，言语表达不清楚时，用文字也未必就能表达清楚。但由于文字表达对即时性的要求通常低于言语表达，我们可以先通过锻炼文字表达能力，间接提升自己的言语表达能力。</p>
+<p>最后，提升写作能力有助于程序员把学到的知识真正落地。<br>不少优秀的程序员都有写博客的习惯。写博客能加深对知识的理解，并让知识更好地沉淀。俗话说“好记性不如烂笔头”，而博客往往就是程序员最好的“烂笔头”。<br>但也有不少程序员没有写博客的习惯，或者坚持不下去。我认为最主要的原因是：不想让别人读到这么“烂”的文章，从而影响自己在别人心中的形象。<br>如果因为害怕曝光而不写作，写作能力就会在恶性循环中不断下降。反过来，如果能逐步提升写作能力，写出来的博客质量自然会慢慢提高，写博客的习惯也更容易建立起来。</p>
+<h2 id="程序员写作的套路"><a href="#程序员写作的套路" class="headerlink" title="程序员写作的套路"></a>程序员写作的套路</h2><p>如今 Markdown 在程序员群体里已经非常普及，很多人的文档和笔记都用 Markdown 来写。我自然也是 Markdown 的重度使用者。多年写作下来，我也总结了一些经验和教训。</p>
+<p>第一，创作时别太在意排版。<br>当灵感涌现时，最好先把文字尽量输出；排版这些琐碎的小事，可以等草稿完成后再处理。创作阶段如果把太多时间花在排版上，很容易打断思路。</p>
+<p>第二，别滥用太多 Markdown 语法。<br>我以前特别喜欢各种语法，例如 <code>code</code> <em>斜体</em>  <strong>强调</strong>，还有各种大大小小的标题。后来回过头阅读自己写过的 Markdown 文章时，我发现：标题层级越复杂，行文往往越不流畅。标题的插入在某种程度上会让文章的上下文衔接变得不自然。</p>
+<p>第三，写作要多练。<br>对于很多高中毕业已经五六年的人来说，重拾写作这件事本来难度就不低。如果让我把写出来的所有文字、所有笔记都分享出来，估计会有人笑掉大牙。但因为害怕曝光就不写作是不对的：越是惧怕写作，写作能力下降得越快。我现在会每周强迫自己写至少 2000 字，这些文字大多只保存在自己的网盘里；如果有特别值得分享的，或者写得特别好的，我才会分享出来。</p>
+<h2 id="工具分享"><a href="#工具分享" class="headerlink" title="工具分享"></a>工具分享</h2><p>Markdown 写作工具层出不穷，选择也很多。每个人可能都有自己偏好的工具。在这里，我结合自己的使用经验以及他人的推荐，分享一些常用的软件和工具。</p>
+<h3 id="VS-Code-Markdown-Preview-Enhanced"><a href="#VS-Code-Markdown-Preview-Enhanced" class="headerlink" title="VS Code + Markdown Preview Enhanced"></a>VS Code + Markdown Preview Enhanced</h3><p>VS Code 大概不用介绍了，它是一个文本编辑器，同时也是一个轻量级的 IDE。平常我会用它进行 Markdown 文本创作。写作时我不会使用太多插件，一般就把它当作纯文本编辑器使用。在检索资料时，我也经常使用 VS Code 的文本搜索功能，很方便。</p>
+<p>Markdown Preview Enhanced 是一个很常用的 Markdown 插件，我会用它在 VS Code 中渲染 Markdown，以便预览效果。当然，它也支持很多原生 Markdown 不支持的功能，例如 puml 渲染、甘特图渲染等。不过我最近没有在使用这些功能了，因为觉得使用文本画图的效率不高。</p>
+<p><img src="/uploads/persister-writing-guide-for-markdown-programer-MPE-28227953-eb6eefa4-68a1-11e7-8769-96ea83facf3b.png" alt="MPE"></p>
+<h3 id="坚果云"><a href="#坚果云" class="headerlink" title="坚果云"></a>坚果云</h3><p>坚果云为我提供了个人的云盘服务。Markdown 文件很小，免费版坚果云的流量限额完全够用。我自己有多台设备，会在各个设备上安装坚果云并开启同步，基本能达到无缝切换的效果。如果我需要在手机上阅读和查找，坚果云手机客户端也完全能满足我的需求。</p>
+<p><img src="/uploads/persister-writing-guide-for-markdown-programer-nutcloud-normal.jpg" alt="nutcloud"></p>
+<h3 id="iPic-persister"><a href="#iPic-persister" class="headerlink" title="iPic + persister"></a>iPic + persister</h3><p>iPic 是一个图床管理器，支持将截图上传到图床，并直接生成 Markdown 的图片链接。免费版的 iPic 只支持微博图床，而微博图床经常出现 403，所以我自己写了一个程序，用于将 Markdown 文件里的图片下载到本地，然后替换 Markdown 的图片链接，具体可以参考 <a href="https://github.com/XhinLiang/persister" target="_blank" rel="noopener">persister</a>。</p>
+<h3 id="Draw-io"><a href="#Draw-io" class="headerlink" title="Draw.io"></a>Draw.io</h3><p>Draw.io 是一个开源的画图工具，基本功能跟 processon 类似，但它免费且支持多种存储。我习惯使用它的桌面版客户端，并使用坚果云提供的本地存储。画图结束后，我习惯输出 svg 格式的图片，然后在 Markdown 中引用。</p>
+<p><img src="/uploads/persister-writing-guide-for-markdown-programer-drawio-v2-45382597c219dca9114d65900d5c868a_1200x500.jpg" alt="drawio"></p>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>本篇文章算是我这个月给自己设定的目标之一。<br>写完这篇文章，希望能让自己养成坚持写作的好习惯，顺带提升自己的表达能力和结构化思考能力。<br>前路漫漫，未来可期。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a href="https://thewriter.dev/perface/" target="_blank" rel="noopener">给程序员的写作课</a></li>
+<li><a href="https://studyidea.cn/write_tools" target="_blank" rel="noopener">坚持写作快两年了，有些私藏工具跟你们分享</a></li>
+<li><a href="http://zhangtielei.com/posts/blog-kungfu-flow-well-being.html" target="_blank" rel="noopener">心流：写作、编程和修炼武功的共同法门</a></li>
+</ul>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2020/04/uncategorized/writing-guide-for-markdown-programer/" data-id="cmm1p24k7000uud3zrec7kbax" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2021/09/backend/innodb-locks/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            MySQL InnoDB Locks
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/03/uncategorized/self-time-managment/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">自我时间管理</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

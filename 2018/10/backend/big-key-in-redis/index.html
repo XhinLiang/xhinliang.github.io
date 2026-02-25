@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>为什么不建议在 Redis 使用大 Key | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Backend,Cache,Redis,Lua,DevOps">
+    
+    <meta name="description" content="Preview 公司里某位工程师小斌发现在一个 Redis 集群中的 some_big_list 经常出现慢查询，而且 QPS 特别高。初步定位是出现了一个热点的 Key。12newexplore&amp;gt; llen some_big_list500000 上面的命令发现，这个 some_big_list 是一个大 Key，导致 Redis Server 的服务器 CPU idle 很低，结果出现了">
+<meta name="keywords" content="Backend,Cache,Redis,Lua,DevOps">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为什么不建议在 Redis 使用大 Key">
+<meta property="og:url" content="https://xhinliang.github.io/2018/10/backend/big-key-in-redis/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="Preview 公司里某位工程师小斌发现在一个 Redis 集群中的 some_big_list 经常出现慢查询，而且 QPS 特别高。初步定位是出现了一个热点的 Key。12newexplore&amp;gt; llen some_big_list500000 上面的命令发现，这个 some_big_list 是一个大 Key，导致 Redis Server 的服务器 CPU idle 很低，结果出现了">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://xhinliang.github.io/uploads/persister-big-key-in-redis-overview-Redis.png">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.607Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为什么不建议在 Redis 使用大 Key">
+<meta name="twitter:description" content="Preview 公司里某位工程师小斌发现在一个 Redis 集群中的 some_big_list 经常出现慢查询，而且 QPS 特别高。初步定位是出现了一个热点的 Key。12newexplore&amp;gt; llen some_big_list500000 上面的命令发现，这个 some_big_list 是一个大 Key，导致 Redis Server 的服务器 CPU idle 很低，结果出现了">
+<meta name="twitter:image" content="https://xhinliang.github.io/uploads/persister-big-key-in-redis-overview-Redis.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Backend/">Backend</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-backend/big-key-in-redis" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        为什么不建议在 Redis 使用大 Key
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2018/10/backend/big-key-in-redis/" class="article-date">
+    <time datetime="2018-10-30T00:00:00.000Z" itemprop="datePublished">2018-10-30</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Backend/">Backend</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Cache/">Cache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DevOps/">DevOps</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lua/">Lua</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis/">Redis</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="Preview"><a href="#Preview" class="headerlink" title="Preview"></a>Preview</h2><p><img src="/uploads/persister-big-key-in-redis-overview-Redis.png" alt="overview"></p>
+<p>公司里某位工程师小斌发现在一个 Redis 集群中的 some_big_list 经常出现慢查询，而且 QPS 特别高。初步定位是出现了一个热点的 Key。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">newexplore&gt; llen some_big_list</span><br><span class="line">500000</span><br></pre></td></tr></table></figure></p>
+<p>上面的命令发现，这个 some_big_list 是一个大 Key，导致 Redis Server 的服务器 CPU idle 很低，结果出现了慢查询。</p>
+<p>当公司里富有经验的工程师磊哥介入调查的时候，发现这个 Redis Server 的所有响应在某一个时刻出现了 block。<br>磊哥是很牛逼的，怀疑是不是小斌在线上直接执行了 <code>del some_big_list</code> 操作。</p>
+<p>结果当然是啦！</p>
+<p>小斌 <code>del some_big_list</code> 的时候， Redis 的单线程模型只顾着删数据了（<code>del</code> 的时间复杂度是 O(N)），没有时间响应请求，直接导致出现一大堆请求超时。<br>而线上的 Redis 请求超时，又会让 Redis 的线程池打满，从而线上的 API Server 的 CPU 也会直接飙升。</p>
+<p>不过还好，这个不是太大的 Key，这个业务也不是很核心的业务，所以没有造成什么影响。</p>
+<h2 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h2><p>上面的例子告诉我们，Redis 大 Key 是一件很容易造成线上事故的事情，我们在业务上要尽量避免大 Key 的产生。<br>当不小心产生大 Key 的时候，我们也不能直接把整个 key 直接 del 掉，会影响其他的业务（不读取这个 key 的业务也会收到影响）。</p>
+<p>那么，我们在出现 Redis 大 Key 的时候，应该怎么处理呢？</p>
+<ul>
+<li>业务层面，可以使用更小粒度的单位（时间单位或者地点单位，what ever），先换一个 keyPrefix。</li>
+<li>换了 keyPrefix 之后，需要对老的 keyPrefix 作清理<ul>
+<li>如果是 Redis 4.0 以后的版本，可以把 <code>del</code> 命令换成 <code>unlink</code> 命令，使用这个命令的时候，Redis 会另起一个线程进行删除，不会影响别的业务请求。其实也很好理解，既然把这个 key 删除了，那么也很容易搞定多线程不一致的问题了。</li>
+<li>如果是更老的版本，可以设立一个准则：慢慢删…<ul>
+<li>如果是 <code>list</code>，可以使用 <code>ltrim</code> 慢慢删</li>
+<li>如果是 <code>zset</code>, 可以使用 <code>zremrangebyscore</code> 之类的命令慢慢删…</li>
+<li>如果是 <code>hash</code> 或者 <code>set</code>，比较麻烦，请自己慢慢找合适的命令吧。。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="Test"><a href="#Test" class="headerlink" title="Test"></a>Test</h2><p>好了，说了基础知识，我们来实地演练一下。</p>
+<h3 id="Concept"><a href="#Concept" class="headerlink" title="Concept"></a>Concept</h3><p>首先说下我对分布式系统的 “响应时间” 的认知：</p>
+<ul>
+<li><code>t&lt;0.1ms</code>，非常快，没有优化的必要</li>
+<li><code>0.1ms&lt;t&lt;1ms</code>，挺快的，基本不会对系统造成瓶颈</li>
+<li><code>1ms&lt;t&lt;10ms</code>，凑活用，如果不是核心链路，基本 OK</li>
+<li><code>10ms&lt;t&lt;100ms</code>，有点慢了，需要找时间优化</li>
+<li><code>100ms&lt;t&lt;1000ms</code>，太慢了，赶紧查下原因吧！</li>
+<li><code>t&gt;1000ms</code>，这他妈怎么用啊，下线算了</li>
+</ul>
+<p>注意这个是分布式系统的响应时间，而 Redis 作为一个最基础的缓存中间件，我认为对他的要求要更高一些（上述的响应时间 / 10 吧）</p>
+<h3 id="Platform"><a href="#Platform" class="headerlink" title="Platform"></a>Platform</h3><p>这场测试在我自己的电脑上做，先来了解下我的爱机：</p>
+<p>CPU：<a href="mailto:i5-3380m@3.6Ghz" target="_blank" rel="noopener">i5-3380m@3.6Ghz</a>，双核四线程<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">$ cat /proc/cpuinfo</span><br><span class="line">processor	: 0</span><br><span class="line">vendor_id	: GenuineIntel</span><br><span class="line">cpu family	: 6</span><br><span class="line">model		: 58</span><br><span class="line">model name	: Intel(R) Core(TM) i5-3380M CPU @ 2.90GHz</span><br><span class="line">stepping	: 9</span><br><span class="line">microcode	: 0x20</span><br><span class="line">cpu MHz		: 1272.714</span><br><span class="line">cache size	: 3072 KB</span><br><span class="line">physical id	: 0</span><br><span class="line">siblings	: 4</span><br><span class="line">core id		: 0</span><br><span class="line">cpu cores	: 2</span><br><span class="line">apicid		: 0</span><br><span class="line">initial apicid	: 0</span><br><span class="line">fpu		: yes</span><br><span class="line">fpu_exception	: yes</span><br><span class="line">cpuid level	: 13</span><br><span class="line">wp		: yes</span><br><span class="line">flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm epb ssbd ibrs ibpb stibp kaiser tpr_shadow vnmi flexpriority ept vpid fsgsbase smep erms xsaveopt dtherm ida arat pln pts flush_l1d</span><br><span class="line">bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf</span><br><span class="line">bogomips	: 5780.76</span><br><span class="line">clflush size	: 64</span><br><span class="line">cache_alignment	: 64</span><br><span class="line">address sizes	: 36 bits physical, 48 bits virtual</span><br><span class="line">power management:</span><br></pre></td></tr></table></figure></p>
+<p>内存： 2×8G DDR3L 1600Mhz<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ free -m</span><br><span class="line">             total       used       free     shared    buffers     cached</span><br><span class="line">Mem:         15951      13847       2103        445       2331       6722</span><br><span class="line">-/+ buffers/cache:       4794      11156</span><br><span class="line">Swap:        15624          0      15624</span><br></pre></td></tr></table></figure></p>
+<p>系统版本：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ cat /etc/os-release</span><br><span class="line">NAME=<span class="string">"Ubuntu"</span></span><br><span class="line">VERSION=<span class="string">"14.04.5 LTS, Trusty Tahr"</span></span><br><span class="line">ID=ubuntu</span><br><span class="line">ID_LIKE=debian</span><br><span class="line">PRETTY_NAME=<span class="string">"Ubuntu 14.04.5 LTS"</span></span><br><span class="line">VERSION_ID=<span class="string">"14.04"</span></span><br><span class="line">HOME_URL=<span class="string">"http://www.ubuntu.com/"</span></span><br><span class="line">SUPPORT_URL=<span class="string">"http://help.ubuntu.com/"</span></span><br><span class="line">BUG_REPORT_URL=<span class="string">"http://bugs.launchpad.net/ubuntu/"</span></span><br></pre></td></tr></table></figure></p>
+<p>系统限制<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">ulimit</span> -a</span><br><span class="line">-t: cpu time (seconds)              unlimited</span><br><span class="line">-f: file size (blocks)              unlimited</span><br><span class="line">-d: data seg size (kbytes)          unlimited</span><br><span class="line">-s: stack size (kbytes)             8192</span><br><span class="line">-c: core file size (blocks)         0</span><br><span class="line">-m: resident <span class="built_in">set</span> size (kbytes)      unlimited</span><br><span class="line">-u: processes                       63332</span><br><span class="line">-n: file descriptors                65535</span><br><span class="line">-l: locked-in-memory size (kbytes)  64</span><br><span class="line">-v: address space (kbytes)          unlimited</span><br><span class="line">-x: file locks                      unlimited</span><br><span class="line">-i: pending signals                 63332</span><br><span class="line">-q: bytes <span class="keyword">in</span> POSIX msg queues       819200</span><br><span class="line">-e: max nice                        0</span><br><span class="line">-r: max rt priority                 0</span><br><span class="line">-N 15:                              unlimited</span><br></pre></td></tr></table></figure></p>
+<p>硬盘：美光 M500,480G<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ dd <span class="keyword">if</span>=/dev/zero of=<span class="built_in">test</span> bs=64k count=512 oflag=dsync</span><br><span class="line">记录了512+0 的读入</span><br><span class="line">记录了512+0 的写出</span><br><span class="line">33554432字节(34 MB)已复制，5.16719 秒，6.5 MB/秒</span><br></pre></td></tr></table></figure></p>
+<p>Redis版本：2.8，很老的版本了，连 Redis-Cluster 都不支持的版本<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ redis-server -v</span><br><span class="line">Redis server v=2.8.4 sha=00000000:0 malloc=jemalloc-3.4.1 bits=64 build=a44a05d76f06a5d9</span><br></pre></td></tr></table></figure></p>
+<h3 id="Upgrade-Redis"><a href="#Upgrade-Redis" class="headerlink" title="Upgrade Redis"></a>Upgrade Redis</h3><p>非常尴尬，我的机器上的 Redis 居然是 2.8 这个上古世纪的版本，既然这样我就把它先删了吧（笑）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get remove redis-server</span><br></pre></td></tr></table></figure>
+<p>一顿操作猛如虎，编译源代码走起！<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ wget http://download.redis.io/releases/redis-5.0.0.tar.gz</span><br><span class="line">$ tar xzf redis-5.0.0.tar.gz</span><br><span class="line">$ <span class="built_in">cd</span> redis-5.0.0</span><br><span class="line">$ make <span class="comment"># 编译走起</span></span><br><span class="line">$ make <span class="built_in">test</span> <span class="comment"># 编译完了跑个测试吧</span></span><br></pre></td></tr></table></figure></p>
+<p>Redis 是很轻量的，按理说编译不会有什么坑，果然顺滑无比，编译加测试总共只花了三分钟。</p>
+<p>那么现在来试下新版本的 Redis 吧！<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">$ src/redis-server -v</span><br><span class="line">Redis server v=5.0.0 sha=00000000:0 malloc=jemalloc-5.1.0 bits=64 build=792f3c7998732f3c</span><br><span class="line"></span><br><span class="line">$ src/redis-server</span><br><span class="line">21176:C 29 Oct 2018 00:24:32.717 <span class="comment"># oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo</span></span><br><span class="line">21176:C 29 Oct 2018 00:24:32.717 <span class="comment"># Redis version=5.0.0, bits=64, commit=00000000, modified=0, pid=21176, just started</span></span><br><span class="line">21176:C 29 Oct 2018 00:24:32.717 <span class="comment"># Warning: no config file specified, using the default config. In order to specify a config file use src/redis-server /path/to/redis.conf</span></span><br><span class="line">                _._                                                  </span><br><span class="line">           _.-``__ <span class="string">''</span>-._                                             </span><br><span class="line">      _.-``    `.  `_.  <span class="string">''</span>-._           Redis 5.0.0 (00000000/0) 64 bit</span><br><span class="line">  .-`` .-```.  ```\/    _.,_ <span class="string">''</span>-._                                   </span><br><span class="line"> (    <span class="string">'      ,       .-`  | `,    )     Running in standalone mode</span></span><br><span class="line"><span class="string"> |`-._`-...-` __...-.``-._|'</span>` _.-<span class="string">'|     Port: 6379</span></span><br><span class="line"><span class="string"> |    `-._   `._    /     _.-'</span>    |     PID: 21176</span><br><span class="line">  `-._    `-._  `-./  _.-<span class="string">'    _.-'</span>                                   </span><br><span class="line"> |`-._`-._    `-.__.-<span class="string">'    _.-'</span>_.-<span class="string">'|                                  </span></span><br><span class="line"><span class="string"> |    `-._`-._        _.-'</span>_.-<span class="string">'    |           http://redis.io        </span></span><br><span class="line"><span class="string">  `-._    `-._`-.__.-'</span>_.-<span class="string">'    _.-'</span>                                   </span><br><span class="line"> |`-._`-._    `-.__.-<span class="string">'    _.-'</span>_.-<span class="string">'|                                  </span></span><br><span class="line"><span class="string"> |    `-._`-._        _.-'</span>_.-<span class="string">'    |                                  </span></span><br><span class="line"><span class="string">  `-._    `-._`-.__.-'</span>_.-<span class="string">'    _.-'</span>                                   </span><br><span class="line">      `-._    `-.__.-<span class="string">'    _.-'</span>                                       </span><br><span class="line">          `-._        _.-<span class="string">'                                           </span></span><br><span class="line"><span class="string">              `-.__.-'</span>                                               </span><br><span class="line"></span><br><span class="line">21176:M 29 Oct 2018 00:24:32.720 <span class="comment"># WARNING: The TCP backlog setting of 511 cannot be enforced because /proc/sys/net/core/somaxconn is set to the lower value of 128.</span></span><br><span class="line">21176:M 29 Oct 2018 00:24:32.720 <span class="comment"># Server initialized</span></span><br><span class="line">21176:M 29 Oct 2018 00:24:32.720 <span class="comment"># WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.</span></span><br><span class="line">21176:M 29 Oct 2018 00:24:32.720 <span class="comment"># WARNING you have Transparent Huge Pages (THP) support enabled in your kernel. This will create latency and memory usage issues with Redis. To fix this issue run the command 'echo never &gt; /sys/kernel/mm/transparent_hugepage/enabled' as root, and add it to your /etc/rc.local in order to retain the setting after a reboot. Redis must be restarted after THP is disabled.</span></span><br><span class="line">21176:M 29 Oct 2018 00:24:32.720 * DB loaded from disk: 0.000 seconds</span><br><span class="line">21176:M 29 Oct 2018 00:24:32.720 * Ready to accept connections</span><br></pre></td></tr></table></figure></p>
+<p>Server 成功跑起来了，我们来开启另一个 Shell 窗口来启动 Client：<br><figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ src/redis-cli</span><br><span class="line"><span class="number">127.0.0.1:6379</span>&gt;</span><br></pre></td></tr></table></figure></p>
+<p>So Easy～<br>先看看现在 Redis 占用了多少内存吧<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ps aef -o <span class="built_in">command</span>,vsize,rss,%mem,size | grep redis-server </span><br><span class="line">src/redis-server *:6379  63004  5532  0.0 40964</span><br></pre></td></tr></table></figure></p>
+<p>好吧，0%，先忽略。。</p>
+<p>准备一个 lua 脚本，我们保存为 add-test-big-key.lua<br><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> bulk = <span class="number">1000</span></span><br><span class="line"><span class="keyword">local</span> fvs = &#123;&#125;</span><br><span class="line"><span class="keyword">local</span> j</span><br><span class="line"><span class="keyword">for</span> i = <span class="number">1</span>, ARGV[<span class="number">1</span>] <span class="keyword">do</span></span><br><span class="line">  j = i % bulk</span><br><span class="line">  <span class="keyword">if</span> j == <span class="number">0</span> <span class="keyword">then</span></span><br><span class="line">    fvs[<span class="number">2</span> * bulk - <span class="number">1</span>] = <span class="string">"field"</span> .. i</span><br><span class="line">    fvs[<span class="number">2</span> * bulk] = <span class="string">"value"</span> .. i</span><br><span class="line">    redis.call(<span class="string">"HMSET"</span>, KEYS[<span class="number">1</span>], <span class="built_in">unpack</span>(fvs))</span><br><span class="line">    fvs = &#123;&#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    fvs[<span class="number">2</span> * j - <span class="number">1</span>] = <span class="string">"field"</span> .. i</span><br><span class="line">    fvs[<span class="number">2</span> * j] = <span class="string">"value"</span> .. i</span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">if</span> #fvs &gt; <span class="number">0</span> <span class="keyword">then</span></span><br><span class="line">  redis.call(<span class="string">"HMSET"</span>, KEYS[<span class="number">1</span>], <span class="built_in">unpack</span>(fvs))</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">return</span> <span class="string">"OK"</span></span><br></pre></td></tr></table></figure></p>
+<p>此脚本参考 <a href="https://groups.google.com/d/msg/redis-db/0UzLhSkAziQ/H-35GJfqtisJ" target="_blank" rel="noopener">how to load lua script from file for redis</a></p>
+<p>灌数据，然后看下内存占用<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ src/redis-cli --<span class="built_in">eval</span> add-test-big-key.lua big_hash1 , 1000000</span><br><span class="line"><span class="string">"OK"</span></span><br><span class="line">$ ps aef -o <span class="built_in">command</span>,vsize,rss,%mem,size | grep redis-server</span><br><span class="line">src/redis-server *:6379 134660 74044  0.4 112620</span><br></pre></td></tr></table></figure></p>
+<p>可以看到虽然这个大Key里有100w条数据，但内存占用依然很低。<br>我们现在尝试把这个 key 删除，并查看 SLOWLOG。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; del big_hash1</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; SLOWLOG GET 2</span><br><span class="line">1) 1) (<span class="built_in">integer</span>) 2009</span><br><span class="line">   2) (<span class="built_in">integer</span>) 1540777173</span><br><span class="line">   3) (<span class="built_in">integer</span>) 373285</span><br><span class="line">   4) 1) <span class="string">"del"</span></span><br><span class="line">      2) <span class="string">"big_hash1"</span></span><br><span class="line">   5) <span class="string">"127.0.0.1:57110"</span></span><br><span class="line">   6) <span class="string">""</span></span><br><span class="line">2) 1) (<span class="built_in">integer</span>) 2008</span><br><span class="line">   2) (<span class="built_in">integer</span>) 1540777157</span><br><span class="line">   3) (<span class="built_in">integer</span>) 2325250</span><br><span class="line">   4) 1) <span class="string">"EVAL"</span></span><br><span class="line">      2) <span class="string">"local bulk = 1000\nlocal fvs = &#123;&#125;\nlocal j\nfor i = 1, ARGV[1] do\n  j = i % bulk\n  if j == 0 then\n    fvs[2 * bulk - 1] = \"field\" .... (254 more bytes)"</span></span><br><span class="line">      3) <span class="string">"1"</span></span><br><span class="line">      4) <span class="string">"big_hash1"</span></span><br><span class="line">      5) <span class="string">"1000000"</span></span><br><span class="line">   5) <span class="string">"127.0.0.1:57234"</span></span><br><span class="line">   6) <span class="string">""</span></span><br></pre></td></tr></table></figure>
+<p>可以看到 del 操作持续了 373ms，在线上环境中，这个影响应该不算大。</p>
+<p>我们把数据量增大 100 倍看下吧，预期 redis-server 会占用 40% 左右的内存（redis好像没有这方面的优化。。）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ src/redis-cli --<span class="built_in">eval</span> add-test-big-key.lua big_hash1 , 100000000 </span><br><span class="line"><span class="string">"OK"</span></span><br><span class="line">$ ps aef -o <span class="built_in">command</span>,vsize,rss,%mem,size | grep redis-server    </span><br><span class="line">src/redis-server *:6379 7804420 6656092 40.7 7782380</span><br></pre></td></tr></table></figure>
+<p>果不其然。。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; del big_hash1</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">(62.95s)</span><br><span class="line">127.0.0.1:6379&gt; SLOWLOG GET 2</span><br><span class="line">1) 1) (<span class="built_in">integer</span>) 102012</span><br><span class="line">   2) (<span class="built_in">integer</span>) 1540777822</span><br><span class="line">   3) (<span class="built_in">integer</span>) 62952411</span><br><span class="line">   4) 1) <span class="string">"del"</span></span><br><span class="line">      2) <span class="string">"big_hash1"</span></span><br><span class="line">   5) <span class="string">"127.0.0.1:57110"</span></span><br><span class="line">   6) <span class="string">""</span></span><br><span class="line">2) 1) (<span class="built_in">integer</span>) 102011</span><br><span class="line">   2) (<span class="built_in">integer</span>) 1540777634</span><br><span class="line">   3) (<span class="built_in">integer</span>) 279820829</span><br><span class="line">   4) 1) <span class="string">"EVAL"</span></span><br><span class="line">      2) <span class="string">"local bulk = 1000\nlocal fvs = &#123;&#125;\nlocal j\nfor i = 1, ARGV[1] do\n  j = i % bulk\n  if j == 0 then\n    fvs[2 * bulk - 1] = \"field\" .... (254 more bytes)"</span></span><br><span class="line">      3) <span class="string">"1"</span></span><br><span class="line">      4) <span class="string">"big_hash1"</span></span><br><span class="line">      5) <span class="string">"100000000"</span></span><br><span class="line">   5) <span class="string">"127.0.0.1:57324"</span></span><br><span class="line">   6) <span class="string">""</span></span><br></pre></td></tr></table></figure>
+<p>牛逼了，删这个 key 花了一分钟，在线上肯定爆炸了。。（其实灌数据的脚本花了更久，这个忽略吧。。）<br>这个数据量是 100m 条数据（简单数据），对于线上还是有参考意义的。</p>
+<p>接下来我们是下 <code>unlink</code> 的性能</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ src/redis-cli --<span class="built_in">eval</span> add-test-big-key.lua big_hash3 , 100000000 &amp;</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; unlink big_hash2</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line"></span><br><span class="line">$ top</span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                                                         </span><br><span class="line"> 3512 xhinlia+  20   0 7806468 6.349g   3720 S 102.9 40.8  11:24.49 redis-server</span><br></pre></td></tr></table></figure>
+<p>可以看到， <code>unlink</code> 立刻就返回了，但是 redis-server 还是会消耗很多 CPU。</p>
+<p>接下来我们看一下大 key 自然过期的时候会发生什么事情：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ src/redis-cli --<span class="built_in">eval</span> add-test-big-key.lua big_hash3 , 100000000 </span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; expire big_hash3 5</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line"></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> abc xxx EX 10</span><br><span class="line">（卡住了。。。）</span><br></pre></td></tr></table></figure></p>
+<p>可以看到，自然过期的大 key 也出现了阻塞。</p>
+<h2 id="Conclution"><a href="#Conclution" class="headerlink" title="Conclution"></a>Conclution</h2><p>总结一下：</p>
+<ul>
+<li>尽量从业务上避免 Redis 大 Key，无论从性能角度（hash成本）还是过期删除成本角度，都会比较高</li>
+<li>尽量使用 <code>unlink</code> 代替 <code>del</code> 删除大 key</li>
+<li>key 的自然过期和手动删除，都会阻塞 Redis</li>
+</ul>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2018/10/backend/big-key-in-redis/" data-id="cmm1p24km002rud3ztw0hrm4i" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2018/10/backend/multi-level-cache/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            多级缓存的设计与实现
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/03/algorithm/find-peak-in-array/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">求一个数组的波峰</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>

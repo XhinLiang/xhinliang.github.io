@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html>
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8a93c20d917ce67e8fba94a160940c4f";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    
+    <title>安装 Ubuntu Workstation 之后要做的事儿 | XhinLiang</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+        <meta name="keywords" content="Ubuntu,Linux">
+    
+    <meta name="description" content="最近自己心爱的 Dell Latitude E6430s 频繁死机，以为是硬盘问题，格式化硬盘重装系统问题依旧。硬件检查才发现是一根内存有了问题，取出问题的内存后一切正常。 但删掉的系统是需要重装的，经过一些实践后，我选择了 Ubuntu 16.04 LTS 作为我新的操作系统。 都 2019 年了，为什么还要选择老旧的 Ubuntu 16.04 呢？其实我之前试过了几个 Linux 发行版，都">
+<meta name="keywords" content="Ubuntu,Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安装 Ubuntu Workstation 之后要做的事儿">
+<meta property="og:url" content="https://xhinliang.github.io/2019/01/computer/code-tools/init-ubuntu/index.html">
+<meta property="og:site_name" content="XhinLiang">
+<meta property="og:description" content="最近自己心爱的 Dell Latitude E6430s 频繁死机，以为是硬盘问题，格式化硬盘重装系统问题依旧。硬件检查才发现是一根内存有了问题，取出问题的内存后一切正常。 但删掉的系统是需要重装的，经过一些实践后，我选择了 Ubuntu 16.04 LTS 作为我新的操作系统。 都 2019 年了，为什么还要选择老旧的 Ubuntu 16.04 呢？其实我之前试过了几个 Linux 发行版，都">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https://xhinliang.github.io/uploads/new--2000px-Former_Ubuntu_logo.png">
+<meta property="og:updated_time" content="2026-02-25T07:09:26.608Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="安装 Ubuntu Workstation 之后要做的事儿">
+<meta name="twitter:description" content="最近自己心爱的 Dell Latitude E6430s 频繁死机，以为是硬盘问题，格式化硬盘重装系统问题依旧。硬件检查才发现是一根内存有了问题，取出问题的内存后一切正常。 但删掉的系统是需要重装的，经过一些实践后，我选择了 Ubuntu 16.04 LTS 作为我新的操作系统。 都 2019 年了，为什么还要选择老旧的 Ubuntu 16.04 呢？其实我之前试过了几个 Linux 发行版，都">
+<meta name="twitter:image" content="https://xhinliang.github.io/uploads/new--2000px-Former_Ubuntu_logo.png">
+    
+
+    
+
+    
+        <link rel="icon" href="/uploads/avatar.png">
+    
+
+    <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/vendor/titillium-web/styles.css">
+    <link rel="stylesheet" href="/vendor/source-code-pro/styles.css">
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script src="/vendor/jquery/2.0.3/jquery.min.js"></script>
+    
+    
+        <link rel="stylesheet" href="/vendor/fancybox/jquery.fancybox.css">
+    
+    
+        <link rel="stylesheet" href="/vendor/scrollLoading/style.css">
+    
+    
+    
+
+</head>
+</html>
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                        <h2 class="subtitle-wrap">
+                            <p class="subtitle">A place to talk trash</p>
+                        </h2>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">Home</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Algorithm/">Algorithm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Backend/">Backend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Computer/">Computer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Frontend/">Frontend</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/Uncategorized/">Uncategorized</a></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">About</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <div class="search-form">
+        <input type="text" class="st-default-search-input search-form-input" placeholder="Search" />
+    </div>
+    <script type="text/javascript">
+(function(w,d,t,u,n,s,e) {w['SwiftypeObject']=n;w[n]=w[n]||function() {
+(w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+})(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+_st('install','3MHy44anUbqi-KpQvFB8','2.0.0');
+</script>
+<style>
+    .st-ui-injected-overlay-container,
+    .st-ui-injected-overlay-container *:not(select) {
+        font-family: inherit !important;
+    }
+    section.st-ui-content.st-search-results a.st-ui-result .st-ui-type-heading {
+        color: #3b8dbd !important;
+    }
+    .st-ui-injected-overlay-container .st-ui-header input[type="text"]:focus {
+        border-bottom: 2px solid #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link {
+        color: #3b8dbd;
+    }
+    .st-ui-injected-overlay-container .st-ui-footer a.st-ui-pagination-link span.st-ui-arrow {
+        border-color: #3b8dbd;
+    }
+</style>
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/Computer/">Computer</a>
+    </h1>
+</div>
+                        <div class="main-body-content">
+                            <article id="post-computer/code-tools/init-ubuntu" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        安装 Ubuntu Workstation 之后要做的事儿
+        </h1>
+    
+
+            </header>
+        
+        <div class="article-subtitle">
+            <a href="/2019/01/computer/code-tools/init-ubuntu/" class="article-date">
+    <time datetime="2019-01-11T00:00:00.000Z" itemprop="datePublished">2019-01-11</time>
+</a>
+            
+    <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Ubuntu/">Ubuntu</a></li></ul>
+
+        </div>
+        <div class="article-entry" itemprop="articleBody">
+            <p><img src="/uploads/new--2000px-Former_Ubuntu_logo.png" alt="logo"></p>
+<p>最近自己心爱的 Dell Latitude E6430s 频繁死机，以为是硬盘问题，格式化硬盘重装系统问题依旧。<br>硬件检查才发现是一根内存有了问题，取出问题的内存后一切正常。</p>
+<p>但删掉的系统是需要重装的，经过一些实践后，我选择了 Ubuntu 16.04 LTS 作为我新的操作系统。</p>
+<p>都 2019 年了，为什么还要选择老旧的 Ubuntu 16.04 呢？<br>其实我之前试过了几个 Linux 发行版，都有一些问题：</p>
+<ul>
+<li>Ubuntu 14.04 LTS，这也是我之前一直使用的发行版，稳定性尚可，但很快就结束维护了。</li>
+<li>Manjaro Xfce/i3wm，可能我的电脑硬件太老旧了，pacman -SYy 之后基本就滚挂了，试了几遍都这样，无奈放弃。</li>
+<li>Fedora，官方貌似只维护 Gnome 版本，不太喜欢，放弃。</li>
+<li>Ubuntu 18.04 LTS，桌面也换成了 Gnome，非常别扭别扭，放弃。</li>
+</ul>
+<p>最后试了下 Ubuntu 16.04 LTS，安装非常顺利，基本配置以后也非常顺手，所以就硬定他了。</p>
+<h2 id="双系统安装"><a href="#双系统安装" class="headerlink" title="双系统安装"></a>双系统安装</h2><p>本次安装还是 Windows 10 + Ubuntu 16.04 双系统。<br>我的主硬盘是一块 480G 的固态硬盘，所以我还是依照原来的方案，把两个系统都装在这个硬盘。</p>
+<h3 id="Step-0"><a href="#Step-0" class="headerlink" title="Step 0"></a>Step 0</h3><p>Windows 10 安装，先格式化整个硬盘，并将分区表修改为 GPT 格式<br>使用配置好的 UEFI U盘启动后，在第一个界面 Shift + F10 进入命令行环境：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">diskpart</span><br><span class="line">clean</span><br><span class="line">convert gpt</span><br></pre></td></tr></table></figure></p>
+<p>然后分出 200G 给 Windows 10，Windows 安装程序会自动再分出三个小分区，我们只需要关注其中 100M 的那个 EFI 分区，此分区的文件系统是 FAT32，应该非常好辨认。</p>
+<h3 id="Step-1"><a href="#Step-1" class="headerlink" title="Step 1"></a>Step 1</h3><p>Windows 10 顺利安装完成，用 UltraISO（还可以使用别的工具，随意了） 把 Ubuntu 的 ISO 文件写入U盘。<br>然后重启进入 Ubuntu Live 系统。</p>
+<p>选择安装。<br>手动分区。<br>分出一个 EXT4 文件系统的分区，大小是 12G，分区类型是 <code>SWAP</code>（事实上就是虚拟内存）。<br>剩下的 250G 再分出一个 EXT4 的分区，没有分区类型，此分区直接挂载到 <code>/</code>（根目录）。<br>然后最下方的启动磁盘直接选择整个固态硬盘（我这边好像是 SDA ）</p>
+<p>确认安装，应该没问题了。</p>
+<h2 id="初始化系统"><a href="#初始化系统" class="headerlink" title="初始化系统"></a>初始化系统</h2><h3 id="修改-home-目录下的文件夹目录为英文"><a href="#修改-home-目录下的文件夹目录为英文" class="headerlink" title="修改 home 目录下的文件夹目录为英文"></a>修改 home 目录下的文件夹目录为英文</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LANG=en_US</span><br><span class="line">xdg-user-dirs-gtk-update</span><br><span class="line"></span><br><span class="line"><span class="comment"># 此时会弹出弹框，确认即可</span></span><br><span class="line"><span class="comment"># 再把语言设回来</span></span><br><span class="line"><span class="built_in">export</span> LANG=zh_CN</span><br></pre></td></tr></table></figure>
+<h3 id="安装必备的软件"><a href="#安装必备的软件" class="headerlink" title="安装必备的软件"></a>安装必备的软件</h3><p>以下软件手动寻找 deb 安装文件，使用 dpkg 安装即可：</p>
+<ul>
+<li>VS Code</li>
+<li>Chrome</li>
+<li>5hadow5ocks-QT5</li>
+<li>Nutcloud</li>
+<li>网易云音乐</li>
+</ul>
+<h3 id="解决输入法问题"><a href="#解决输入法问题" class="headerlink" title="解决输入法问题"></a>解决输入法问题</h3><p>官网下载 deb 格式的安装包<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg -i sogoupinyin_2.2.0.0108_amd64.deb</span><br><span class="line">sudo apt-get -f install <span class="comment"># 解决依赖冲突问题</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="删掉亚马逊"><a href="#删掉亚马逊" class="headerlink" title="删掉亚马逊"></a>删掉亚马逊</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get remove unity-webapps-common</span><br></pre></td></tr></table></figure>
+<h2 id="美化命令行"><a href="#美化命令行" class="headerlink" title="美化命令行"></a>美化命令行</h2><p>以下步骤按对应的说明安装即可<br>安装 oh-my-zsh<br>安装 ZSH 主题 <a href="https://github.com/bhilburn/powerlevel9k" target="_blank" rel="noopener">https://github.com/bhilburn/powerlevel9k</a><br>安装 Powerline 字体 <a href="https://github.com/powerline/fonts" target="_blank" rel="noopener">https://github.com/powerline/fonts</a> 直接 clone 代码库，install 完事儿</p>
+<h3 id="安装几个-ZSH-插件"><a href="#安装几个-ZSH-插件" class="headerlink" title="安装几个 ZSH 插件"></a>安装几个 ZSH 插件</h3><p>自行安装</p>
+<ul>
+<li>zsh-autosuggestions</li>
+<li>zsh-syntax-highlighting</li>
+<li><a href="https://github.com/romkatv/powerlevel10k" target="_blank" rel="noopener">https://github.com/romkatv/powerlevel10k</a></li>
+</ul>
+<h2 id="安装必备开发工具"><a href="#安装必备开发工具" class="headerlink" title="安装必备开发工具"></a>安装必备开发工具</h2><p>安装 <code>n</code> &amp;&amp; <code>node</code><br>k-vim <a href="https://github.com/wklken/k-vim" target="_blank" rel="noopener">https://github.com/wklken/k-vim</a></p>
+<p>安装 <code>golang</code><br><a href="https://xhinliang.win/2018/10/30/2018/nsq/nsq-part1-set-up-env/" target="_blank" rel="noopener">https://xhinliang.win/2018/10/30/2018/nsq/nsq-part1-set-up-env/</a></p>
+<p>安装 Oracle JDK 11<br><a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html" target="_blank" rel="noopener">https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html</a></p>
+<h3 id="设置-Golang-的安装目录"><a href="#设置-Golang-的安装目录" class="headerlink" title="设置 Golang 的安装目录"></a>设置 Golang 的安装目录</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GOROOT=<span class="string">"<span class="variable">$HOME</span>/cli-utils/golang/go"</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$GOROOT</span>/bin:<span class="variable">$PATH</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 设置 GOPATH</span></span><br><span class="line"><span class="built_in">export</span> GOPATH=<span class="string">"<span class="variable">$HOME</span>/go"</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$GOPATH</span>/bin:<span class="variable">$PATH</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### Java</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=<span class="string">"/usr/lib/jvm/jdk-11.0.1"</span></span><br><span class="line"><span class="built_in">export</span> JRE_HOME=<span class="string">"<span class="variable">$JAVA_HOME</span>/jre"</span></span><br><span class="line"><span class="built_in">export</span> CLASSPATH=<span class="string">".:<span class="variable">$JAVA_HOME</span>/lib:<span class="variable">$JRE_HOME</span>/lib:<span class="variable">$CLASSPATH</span>"</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$JRE_HOME</span>/bin:<span class="variable">$PATH</span>"</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置小飞机"><a href="#配置小飞机" class="headerlink" title="配置小飞机"></a>配置小飞机</h3><p>地址忽略</p>
+<p>小飞机的本地代理可以直接使用 HTTP 形式，所以可以直接用 HTTP 代理暴露出来，然后使用<br><code>google-chrome --proxy-server=&quot;http://localhost:1080&quot;</code><br>这个命令给 chrome 配置 proxy 并启动，然后登录原来的账号，就可以安装上各种插件，包括 SwitchyOmega</p>
+<p>安装 proxychains 并配置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install proxychains</span><br><span class="line">sudo vim /etc/proxychains.conf</span><br></pre></td></tr></table></figure></p>
+<h3 id="autojump"><a href="#autojump" class="headerlink" title="autojump"></a>autojump</h3><p><a href="https://github.com/wting/autojump" target="_blank" rel="noopener">https://github.com/wting/autojump</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git://github.com/wting/autojump.git</span><br><span class="line"><span class="built_in">cd</span> autojump</span><br><span class="line">./install.py</span><br></pre></td></tr></table></figure>
+<p>~/.zshrc 文件加上 plugin，并加上 autojump 提示的那两行<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">plugins=(</span><br><span class="line">  git</span><br><span class="line">  zsh-autosuggestions</span><br><span class="line">  zsh-syntax-highlighting</span><br><span class="line">  <span class="comment"># ...</span></span><br><span class="line">  autojump</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># autojump</span></span><br><span class="line">[[ -s /home/xhinliang/.autojump/etc/profile.d/autojump.sh ]] &amp;&amp; <span class="built_in">source</span> /home/xhinliang/.autojump/etc/profile.d/autojump.sh</span><br><span class="line"><span class="built_in">autoload</span> -U compinit &amp;&amp; compinit -u</span><br></pre></td></tr></table></figure></p>
+<h3 id="配置舒适的日志记录环境"><a href="#配置舒适的日志记录环境" class="headerlink" title="配置舒适的日志记录环境"></a>配置舒适的日志记录环境</h3><p>我习惯使用 VSCode + 坚果云 + Markdown 记日志。<br>但默认的 Markdown 不支持 PlantUML 的绘制，我们加上插件让他更完美些。</p>
+<ol>
+<li>在 VSCode 中安装 <code>markdown preview enhanced</code> 插件</li>
+<li><code>sudo apt-get install graphviz</code></li>
+<li><p>下载 plantuml.jar 放到 <code>$HOME/cli-utils/jars</code> 文件夹并把这个文件夹加到 PATH 环境变量中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PLANTUML_JAR=<span class="string">"<span class="variable">$HOME</span>/cli-utils/jars"</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">"<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PLANTUML_JAR</span>:<span class="variable">$PATH</span>"</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>安装图床上传工具 <a href="https://github.com/klesh/fu" target="_blank" rel="noopener">fu</a></p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">tar</span> 包编译失败了</span><br><span class="line">源代码编译成功，但是运行失败。。</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://xhinliang.github.io/2019/01/computer/code-tools/init-ubuntu/" data-id="cmm1p24l2003nud3zf742n3fp" class="article-share-link"><i class="fa fa-share"></i>Share</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+</article>
+
+<section id="comments">
+    
+    
+  <div class="giscus"></div>
+  <script
+    src="https://giscus.app/client.js"
+    data-repo="XhinLiang/xhinliang.github.io"
+    data-repo-id="MDEwOlJlcG9zaXRvcnk0NzMwMzM2Mg=="
+    data-category="General"
+    data-category-id="DIC_kwDOAtHKws4C2mbd"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="light"
+    data-lang="en"
+    crossorigin="anonymous"
+    async>
+  </script>
+
+
+    
+</section>
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>follow:</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://twitter.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="https://www.facebook.com/xhin.liang" target="_blank">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="google-plus" href="https://plus.google.com/105647538121556950461" target="_blank">
+                        <i class="icon fa fa-google-plus"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/XhinLiang" target="_blank">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="linkedin" href="https://www.linkedin.com/in/xxhinliang" target="_blank">
+                        <i class="icon fa fa-linkedin"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="http://weibo.com/xhinliang" target="_blank">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/02/computer/code-tools/open-vscode-via-terminal-in-macos/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">newer</strong>
+        <p class="article-nav-title">
+        
+            在 macOS 中使用命令行打开 VSCode
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2018/11/computer/frequent-series/frequent-conf-intro/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">older</strong>
+        <p class="article-nav-title">那些年，我们一起改过的配置文件 -- 常见配置文件类型简介</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">recents</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（下）：工程、框架与交付实践" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part2/" class="title">从 LLM 到 Agent（下）：工程、框架与交付实践</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2026/02/backend/from-llm-to-agent-part1/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://cdn.jsdmirror.com/gh/XhinLiang/picx-images-hosting@master/20260114/image_w1376_h768_image_1.mkdc68kf.webp)" alt="从 LLM 到 Agent（上）：原理、局限与演进脉络" class="thumbnail-image"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2026/02/backend/from-llm-to-agent-part1/" class="title">从 LLM 到 Agent（上）：原理、局限与演进脉络</a></p>
+                            <p class="item-date"><time datetime="2026-02-25T11:39:16.000Z" itemprop="datePublished">2026-02-25</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation-zh/" class="title">HTTP 请求的优雅取消（Graceful Cancellation）</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T01:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2024/04/backend/http-graceful-cancelation/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2024/04/backend/http-graceful-cancelation/" class="title">HTTP Graceful Cancellation</a></p>
+                            <p class="item-date"><time datetime="2024-04-24T00:00:00.000Z" itemprop="datePublished">2024-04-24</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2023/12/backend/rate-limiter-in-action-zh/" class="thumbnail">
+    
+    
+        <span class="thumbnail-image thumbnail-none"></span>
+    
+    
+</a>
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/Backend/">Backend</a></p>
+                            <p class="item-title"><a href="/2023/12/backend/rate-limiter-in-action-zh/" class="title">本地限流器实战：四种经典算法与实现思路</a></p>
+                            <p class="item-date"><time datetime="2023-12-29T01:00:00.000Z" itemprop="datePublished">2023-12-29</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">categories</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Algorithm/">Algorithm</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Backend/">Backend</a><span class="category-list-count">13</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Computer/">Computer</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Frontend/">Frontend</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Uncategorized/">Uncategorized</a><span class="category-list-count">3</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">archives</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/04/">April 2024</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">December 2023</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/03/">March 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/01/">January 2022</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/10/">October 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/09/">September 2021</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">April 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/03/">March 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/02/">February 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/01/">January 2019</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/11/">November 2018</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/10/">October 2018</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/03/">March 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/02/">February 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/01/">January 2018</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">tag cloud</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/AI/" style="font-size: 12px;">AI</a> <a href="/tags/Agent/" style="font-size: 12px;">Agent</a> <a href="/tags/Algorithm/" style="font-size: 16px;">Algorithm</a> <a href="/tags/Android/" style="font-size: 12px;">Android</a> <a href="/tags/Backend/" style="font-size: 20px;">Backend</a> <a href="/tags/Cache/" style="font-size: 10px;">Cache</a> <a href="/tags/Cancel/" style="font-size: 12px;">Cancel</a> <a href="/tags/Cancelation/" style="font-size: 10px;">Cancelation</a> <a href="/tags/Cancellation/" style="font-size: 10px;">Cancellation</a> <a href="/tags/Chinese/" style="font-size: 12px;">Chinese</a> <a href="/tags/ClaudeCode/" style="font-size: 10px;">ClaudeCode</a> <a href="/tags/Computer/" style="font-size: 12px;">Computer</a> <a href="/tags/Concurrent/" style="font-size: 14px;">Concurrent</a> <a href="/tags/Data-Structure/" style="font-size: 10px;">Data Structure</a> <a href="/tags/DeepResearch/" style="font-size: 10px;">DeepResearch</a> <a href="/tags/DevOps/" style="font-size: 10px;">DevOps</a> <a href="/tags/Distributed/" style="font-size: 10px;">Distributed</a> <a href="/tags/FileSystem/" style="font-size: 10px;">FileSystem</a> <a href="/tags/HTTP/" style="font-size: 12px;">HTTP</a> <a href="/tags/HTTP-2/" style="font-size: 12px;">HTTP/2</a> <a href="/tags/HttpClient/" style="font-size: 12px;">HttpClient</a> <a href="/tags/InnoDB/" style="font-size: 10px;">InnoDB</a> <a href="/tags/Java/" style="font-size: 18px;">Java</a> <a href="/tags/LLM/" style="font-size: 10px;">LLM</a> <a href="/tags/LangChain/" style="font-size: 10px;">LangChain</a> <a href="/tags/LangGraph/" style="font-size: 10px;">LangGraph</a> <a href="/tags/Linux/" style="font-size: 14px;">Linux</a> <a href="/tags/Live/" style="font-size: 12px;">Live</a> <a href="/tags/LiveStreaming/" style="font-size: 12px;">LiveStreaming</a> <a href="/tags/Lock/" style="font-size: 10px;">Lock</a> <a href="/tags/Lua/" style="font-size: 10px;">Lua</a> <a href="/tags/MCP/" style="font-size: 10px;">MCP</a> <a href="/tags/Manus/" style="font-size: 10px;">Manus</a> <a href="/tags/MySQL/" style="font-size: 10px;">MySQL</a> <a href="/tags/Nginx/" style="font-size: 12px;">Nginx</a> <a href="/tags/RateLimiter/" style="font-size: 10px;">RateLimiter</a> <a href="/tags/ReAct/" style="font-size: 10px;">ReAct</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/Ubuntu/" style="font-size: 10px;">Ubuntu</a> <a href="/tags/XHR/" style="font-size: 12px;">XHR</a> <a href="/tags/macOS/" style="font-size: 12px;">macOS</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">links</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://igaves.com">莫大艺术家</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://qiutc.me">阿城</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2026 XhinLiang</p>
+                <p>Powered by <a href="//hexo.io/" target="_blank">Hexo</a>. Theme by <a href="//github.com/ppoffice" target="_blank">PPOffice</a></p>
+            </div>
+        </div>
+    </div>
+</footer>
+        
+
+    
+        <script src="/vendor/fancybox/jquery.fancybox.pack.js"></script>
+    
+
+    
+        <script src="/vendor/scrollLoading/jquery.scrollLoading.js"></script>
+        <script src="/vendor/scrollLoading/main.js"></script>
+    
+
+
+<!-- Custom Scripts -->
+<script src="/js/main.js"></script>
+
+    </div>
+</body>
+</html>
