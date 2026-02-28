@@ -7,7 +7,7 @@ toc: true
 
 ## Background
 
-With faster networks and the push from COVID-era remote life, live streaming has become popular again.
+With faster networks and the push from COVID-era remote life, live streaming has seen a resurgence.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
 
@@ -23,7 +23,7 @@ First, let’s define what “Interactive Service” means. A useful mental mode
 
 ## Interactive Service
 
-I think of an “Interactive Service” as a full-featured ecosystem.
+I treat the “Interactive Service” as an event distribution layer plus a set of business workflows.
 
 Both hosts and viewers generate signals (events/messages) to it, and it delivers those signals to other participants in the room. For example, a viewer `foo` can send a comment like “You look good”, and the interactive service will broadcast that comment to everyone else shortly after.
 
