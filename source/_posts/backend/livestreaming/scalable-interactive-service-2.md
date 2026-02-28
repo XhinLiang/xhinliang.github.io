@@ -7,7 +7,7 @@ toc: true
 
 ## Background
 
-With faster networks and the push from COVID-era remote life, live streaming has become popular again.
+With faster networks and the push from COVID-era remote life, live streaming has seen a resurgence.
 
 ![](/uploads/persister-how-to-build-a-scalable-live-streaming-interactive-service--e6c9d24ely1h0obi03jucj20yv0u0dkg.jpg)
 
@@ -43,7 +43,7 @@ The scaling methods discussed below largely target these components.
 
 ## Scaling Methods
 
-Distributed systems are usually built from many small instances. To increase capacity and throughput, we scale out by adding instances—but that only works if each component is designed to scale.
+Most distributed systems scale by adding instances, but that only works when each component can actually scale out.
 
 ### Relational Databases
 
@@ -94,7 +94,7 @@ Hot keys usually come from reads. To mitigate hot keys, you can:
 
 On large social-style platforms, hotspot detection plus special-case policies (rate limits, circuit breakers, pre-warming) are also common tools.
 
-### K-V Caches
+### Key-Value Caches
 
 We use Memcached as our key-value cache. Most values cached in Memcached are derived from the relational databases.
 
@@ -145,7 +145,7 @@ When we deploy a sharded job (multiple worker processes), workers register thems
 
 With this partitioning abstraction, one logical job can be split across multiple processes and run concurrently.
 
-### Account Transporting
+### Gift Settlement
 
 Almost every live streaming platform will support gift features.
 
@@ -179,7 +179,7 @@ In this article, we discussed scaling strategies for the stateful parts of a liv
 
 The common theme is simple: split a big thing into smaller, independent pieces.
 
-In the next post, I’ll share my thoughts on building a multi-region (or cross-region) live streaming platform.
+If there is interest, I can write a follow-up on building a multi-region (or cross-region) live streaming platform.
 
 ## References
 
